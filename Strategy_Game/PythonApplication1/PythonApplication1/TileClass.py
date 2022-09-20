@@ -44,7 +44,7 @@ def resize_textures(size):
 
 images = len(textures)
 
-empty_image_name = "Basic1.jpg"
+empty_image_name = "Basic1.png"
 
 class Tile:
     def __init__(self, position, collidable, image_name, special, unit, structure):
