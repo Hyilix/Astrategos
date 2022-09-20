@@ -1,6 +1,7 @@
 import TileClass
 import Structures
 import Units
+import Connection_Screen
 
 import pygame
 
@@ -10,6 +11,9 @@ WIDTH = screen.current_w
 HEIGHT = screen.current_h
 
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
+FPS = 60
+
+Connection_Screen.connection_screen(WIN,WIDTH,HEIGHT,FPS)
 
 current_zoom = 1
 camera_movement = 15
@@ -61,7 +65,6 @@ for x in range(rows):
 tiles[2][2].structure = Structures.Core((2, 2), None)
 tiles[3][3].unit = Units.Marine((3, 3), None)
 
-FPS = 60
 
 clock = pygame.time.Clock()
 
