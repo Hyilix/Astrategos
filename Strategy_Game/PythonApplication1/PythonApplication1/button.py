@@ -3,8 +3,7 @@
 
 import pygame as pg
 
-def simple () :
-    return 1
+
 
 
 class Button(object):
@@ -13,10 +12,7 @@ class Button(object):
     def __init__(self, rect, color, function, **kwargs):
         self.rect = pg.Rect(rect)
         self.color = color
-        if function != None :
-            self.function = function
-        else :
-            self.function = simple
+        self.function = function
         self.clicked = False
         self.hovered = False
         self.hover_text = None
@@ -29,7 +25,7 @@ class Button(object):
         settings = {
             "text": None,
             "font": pg.font.Font(None, 16),
-            "call_on_release": True,
+            "call_on_release": False,
             "hover_color": None,
             "clicked_color": None,
             "font_color": pg.Color("black"),
@@ -66,8 +62,12 @@ class Button(object):
     def on_click(self, event):
         if self.rect.collidepoint(event.pos):
             self.clicked = True
-            if not self.call_on_release:
+            if not self.call_on_release and self.function != None:
                 self.function()
+            elif self.function == None :
+                return 1
+        elif self.function == None :
+            return 0
 
     def on_release(self, event):
         if self.clicked and self.call_on_release:
