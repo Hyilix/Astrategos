@@ -6,7 +6,7 @@ texture_names = []
 textures = []
 base_textures = []
 
-structure_prices_dict = {   #Prices for all structures: first -> mitrhil, second -> flerovium
+structure_prices_dict = {   #Prices for all structures: first and second ore
     "Mine_1" : (4,0),
     "Mine_2" : (10,0),
     "Mine_3" : (21,1),
@@ -17,7 +17,7 @@ structure_prices_dict = {   #Prices for all structures: first -> mitrhil, second
     "Pylon" : (15,0)
 }
 
-for img in os.listdir(default_path):
+for img in os.listdir(default_path):    #Load all images.
     texture_names.append(img)
     textures.append(pygame.image.load(default_path + img))
     base_textures.append(pygame.image.load(default_path + img))
@@ -31,15 +31,15 @@ def resize_textures(size):
 
 class Core():
     def __init__(self, position, owner):
-        self.position = position
-        self.owner = owner
+        self.position = position    #The position of the tile it's sitted.
+        self.owner = owner          #The owner of the unit.
 
         self.texture = "Core" + ".png"
         self.HP = 100
         self.attack = 2
         self.defence = 3
         self.canShareSpace = False
-        self.fog_range = (2,2)
+        self.fog_range = (2,2)      #How much can the structure see
 
     def DrawImage(self, screen, size, offset_x, offset_y, pos_x, pos_y):
         screen.blit(textures[texture_names.index(self.texture)], ((self.position[0] - pos_x) * size[0] - offset_x, (self.position[1] - pos_y) * size[1] - offset_y), (0, 0, size[0], size[1]))

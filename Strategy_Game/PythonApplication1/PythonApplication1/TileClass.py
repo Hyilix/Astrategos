@@ -50,7 +50,7 @@ class Tile:
     def __init__(self, position, collidable, image_name, special, unit, structure):
         self.position = position            #a tuple for the position
         self.collidable = collidable        #check if a unit can be placed there (ex. a wall or water)
-        self.image_name = image_name
+        self.image_name = image_name        #the name of the image. Used by texture_names.
         self.special = special              #if the tile has a special ability (ex. Mithril, Flerovium, Forest that hides your troops from enemy sight etc.)
         self.unit = unit                    #store what unit is occupying this tile
         self.structure = structure          #store what structure is placed on this tile
