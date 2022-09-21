@@ -13,7 +13,9 @@ HEIGHT = screen.current_h
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 FPS = 60
 
-Connection_Screen.connection_screen(WIN,WIDTH,HEIGHT,FPS,1)
+#PUT this here to test my shit
+#Mark as Comment if needed
+Connection_Screen.connection_screen(WIN,WIDTH,HEIGHT,FPS,0)
 
 current_zoom = 1
 camera_movement = 15
