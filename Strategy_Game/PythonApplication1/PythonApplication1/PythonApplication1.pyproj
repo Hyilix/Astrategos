@@ -21,6 +21,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Camera.py" />
     <Compile Include="Editor.py" />
     <Compile Include="Structures.py" />
     <Compile Include="TileClass.py" />

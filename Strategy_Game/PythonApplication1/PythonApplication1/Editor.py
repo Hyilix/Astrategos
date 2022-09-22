@@ -50,6 +50,7 @@ class Camera:
         self.y = int((self.y + HEIGHT // 2) / last_map_size_y * map_size_y) - HEIGHT // 2
 
     def render_tiles_in_camera(self, tiles):   #Render all the tiles that the camera can "see".
+        counter = 0
         i = self.x // current_tile_length
         first_i = i
         while i <= (self.x + WIDTH) // current_tile_length and i < tiles_per_row:
@@ -58,7 +59,10 @@ class Camera:
             while j <= (self.y + HEIGHT) // current_tile_length and j < rows:
                 tiles[i][j].DrawImage(WIN, (current_tile_length, current_tile_length), self.x % current_tile_length, self.y % current_tile_length, first_i, first_j)
                 j += 1
+                counter += 1
             i += 1
+
+        print(counter)
 
 CurrentCamera = Camera((0,0), 1, 1.3, 0.6)
 
@@ -94,7 +98,7 @@ WIN.fill((0,0,0))
 
 while Running:
     clock.tick(FPS)
-
+    #print(clock.get_fps())
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             Running = False
@@ -102,8 +106,9 @@ while Running:
             modifier = 0
             if event.button == 4:
                 modifier = 1
-            if event.button == 5:
+            elif event.button == 5:
                 modifier = -1
+            else: continue
                
             last_map_size_x = current_tile_length * tiles_per_row
             last_map_size_y = current_tile_length * rows

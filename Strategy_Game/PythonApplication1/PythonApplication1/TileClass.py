@@ -58,7 +58,7 @@ class Tile:
         self.structure = structure          #store what structure is placed on this tile
 
     def DrawImage(self, screen, size, offset_x, offset_y, pos_x, pos_y):
-        screen.blit(textures[texture_names.index(self.image_name)], ((self.position[0] - pos_x) * size[0] - offset_x, (self.position[1] - pos_y) * size[1] - offset_y), (0, 0, size[0], size[1]))
+        screen.blit(textures[texture_names.index(self.image_name)], ((self.position[0] - pos_x) * size[0] - offset_x, (self.position[1] - pos_y) * size[1] - offset_y))
         if self.structure != None:
             self.structure.DrawImage(screen, size, offset_x, offset_y, pos_x, pos_y)
         if self.unit != None:
