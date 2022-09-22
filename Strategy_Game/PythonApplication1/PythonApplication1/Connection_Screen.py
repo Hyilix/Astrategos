@@ -3,10 +3,11 @@ import os
 import socket
 
 from button import Button
+from Lobby_screen import lobby
 
 
 
-def connection_screen (WIN,WIDTH,HEIGHT,FPS,Client) :
+def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
     
     pygame.init()
     pygame.scrap.init()
@@ -17,7 +18,7 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Client) :
 
     selected = -1
     #SE creaza butoanele care vor aparea pe ecran in functie de rolul selectat (host/client)
-    if Client :
+    if Role == "client" :
         Rect_Draw.append(((WIDTH-510)/2,(HEIGHT - 85*3-50*2)/2,510,85))
         Namebutton = Button(((WIDTH-510)/2 + 5,(HEIGHT - 85*3-50*2)/2 + 5,500,75),(224,224,224),None,**{"text": "Enter your name","font": pygame.font.Font(None, 50)})
         Buttons.append(Namebutton)
@@ -82,7 +83,7 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Client) :
                 os._exit(0)
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1  :
                 selected = -1
-                if Client :
+                if Role == "client" :
                     for i in range(len(Buttons)) :
                         if Buttons[i].on_click(event) :
                             if i <= 2  :
@@ -90,14 +91,14 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Client) :
                             elif i == 4 :
                                 run = False
                                 break
-                            else :
+                            elif len(info[0]) > 0 and len(info[1]) > 0 and len(info[2]) == 5 :
                                 next_stage = True
                 else :
                     for i in range(len(Buttons)) :
                         if Buttons[i].on_click(event) :
                             if i <= 1 :
                                 selected = i
-                            elif i == 2 :
+                            elif i == 2 and len(info[0]) > 0 and len(info[1]) > 0 :
                                 next_stage = True
                             else :
                                 run = False 
@@ -120,20 +121,21 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Client) :
 
         #Initializeaza actiunile necesare inaintarii la urmatorul stagiu
         if next_stage == True :
-            if Client :
+            if Role == "client" :
 
                 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
                 try : 
                     client.connect((info[1],int(info[2])))
                     #se da enter la next stage
+                    lobby(WIN,WIDTH,HEIGHT,FPS,Role,client)
                     run= False
                 except :
                     print("nu a mers dipshit")
                     #ceva eroare pe pygame window vedem...
             else :
-                PORT = 654321
-                HOSTNAME = "localhost"
+                PORT = 65432
+                HOSTNAME = info[1]
 
                 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -144,6 +146,8 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Client) :
                         break
                     except :
                         PORT += 1 
+                        print(PORT)
                 #Aici se da enter la next stage
+                lobby(WIN,WIDTH,HEIGHT,FPS,Role,info[0],server)
                 run = False
 
