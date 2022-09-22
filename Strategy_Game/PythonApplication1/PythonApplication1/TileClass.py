@@ -12,6 +12,8 @@ texture_names = []
 textures = []
 base_textures = []
 
+base_texture_length = 64
+
 base_mitrhil_extraction = 4 #Amount of ore(base) per turn
 
 mitrhil_extraction_dict = {

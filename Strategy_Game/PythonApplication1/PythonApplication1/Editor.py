@@ -11,9 +11,6 @@ HEIGHT = screen.current_h
 
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 
-current_zoom = 1
-camera_movement = 15
-
 class Camera:
     def __init__(self, position, zoom, max_zoom, min_zoom):
         self.x = position[0]
@@ -21,9 +18,8 @@ class Camera:
         self.zoom = zoom
         self.max_zoom = max_zoom
         self.min_zoom = min_zoom
-
-        self.center_x = (self.x + WIDTH // 2) * current_tile_length
-        self.center_y = (self.y + HEIGHT // 2) * current_tile_length
+        
+        self.camera_movement = 15
 
         #make sure the zoom is insde [min_zoom, max_zoom]
         if min_zoom > zoom:
@@ -32,27 +28,42 @@ class Camera:
         if zoom > max_zoom:
             self.zoom = self.max_zoom
 
-    def Update_camera(self):
-        self.zoom = current_zoom
-
+    def Update_Camera_Zoom_Level(self):     #Make sure the camera zoom is within [min_zoom, max_zoom]
         if self.min_zoom > self.zoom:
             self.zoom = self.min_zoom
-            return True     #This indicates that something happened
 
         if self.zoom > self.max_zoom:
             self.zoom = self.max_zoom
-            return True
 
-        return False        #This indicates that nothing happened, just like in 1989....
+    def Check_Camera_Boundaries(self):     #Check if camera is within the boundaries of the map. If not, bring it there
+        if self.x - self.camera_movement < - WIDTH // 2:
+            self.x  = 0 - WIDTH // 2
+        if self.y - self.camera_movement < - HEIGHT // 2:
+            self.y = 0 - HEIGHT // 2
+        if self.x + self.camera_movement + WIDTH // 2 > tiles_per_row * current_tile_length:
+            self.x = tiles_per_row * current_tile_length - WIDTH // 2
+        if self.y + self.camera_movement + HEIGHT // 2 > rows * current_tile_length:
+            self.y = rows * current_tile_length - HEIGHT // 2
 
-    def Update_center(self):
-        self.center_x = (self.x + WIDTH // 2) * current_tile_length
-        self.center_y = (self.y + HEIGHT // 2) * current_tile_length
+    def Calculate_After_Zoom_Position(self, last_map_size_x, map_size_x, last_map_size_y, map_size_y):  #Make the camera stay in the middle when zooming in/out
+        self.x = int((self.x + WIDTH // 2) / last_map_size_x * map_size_x) - WIDTH // 2
+        self.y = int((self.y + HEIGHT // 2) / last_map_size_y * map_size_y) - HEIGHT // 2
 
-CurrentCamera = Camera((0,0), current_zoom, 1.3, 0.6)
+    def render_tiles_in_camera(self, tiles):   #Render all the tiles that the camera can "see".
+        i = self.x // current_tile_length
+        first_i = i
+        while i <= (self.x + WIDTH) // current_tile_length and i < tiles_per_row:
+            j = self.y // current_tile_length
+            first_j = j
+            while j <= (self.y + HEIGHT) // current_tile_length and j < rows:
+                tiles[i][j].DrawImage(WIN, (current_tile_length, current_tile_length), self.x % current_tile_length, self.y % current_tile_length, first_i, first_j)
+                j += 1
+            i += 1
 
-normal_tile_length = 68 * WIDTH // HEIGHT     #the length of a tile when the zoom is 1
-current_tile_length = normal_tile_length * current_zoom
+CurrentCamera = Camera((0,0), 1, 1.3, 0.6)
+
+normal_tile_length = TileClass.base_texture_length * WIDTH // HEIGHT     #the length of a tile when the zoom is 1
+current_tile_length = normal_tile_length * CurrentCamera.zoom
 
 TileClass.resize_textures(current_tile_length)
 Structures.resize_textures(current_tile_length)
@@ -81,27 +92,6 @@ Running = True
 
 WIN.fill((0,0,0))
 
-def Check_Camera():     #Check if camera is within the boundaries of the map. If not, bring it there
-    if CurrentCamera.x - camera_movement < - WIDTH // 2:
-        CurrentCamera.x  = 0 - WIDTH // 2
-    if CurrentCamera.y - camera_movement < - HEIGHT // 2:
-        CurrentCamera.y = 0 - HEIGHT // 2
-    if CurrentCamera.x + camera_movement + WIDTH // 2 > tiles_per_row * current_tile_length:
-        CurrentCamera.x = tiles_per_row * current_tile_length - WIDTH // 2
-    if CurrentCamera.y + camera_movement + HEIGHT // 2 > rows * current_tile_length:
-        CurrentCamera.y = rows * current_tile_length - HEIGHT // 2
-
-def render_tiles_in_camera():   #Render all the tiles that the camera can "see".
-    i = CurrentCamera.x // current_tile_length
-    first_i = i
-    while i <= (CurrentCamera.x + WIDTH) // current_tile_length and i < tiles_per_row:
-        j = CurrentCamera.y // current_tile_length
-        first_j = j
-        while j <= (CurrentCamera.y + HEIGHT) // current_tile_length and j < rows:
-            tiles[i][j].DrawImage(WIN, (current_tile_length, current_tile_length), CurrentCamera.x % current_tile_length, CurrentCamera.y % current_tile_length, first_i, first_j)
-            j += 1
-        i += 1
-
 while Running:
     clock.tick(FPS)
 
@@ -115,39 +105,42 @@ while Running:
             if event.button == 5:
                 modifier = -1
                
+            last_map_size_x = current_tile_length * tiles_per_row
+            last_map_size_y = current_tile_length * rows
+
             #Update the zoom and tile length
-            current_zoom += 0.1 * modifier
-            camera_moved = CurrentCamera.Update_camera()
-            current_zoom = CurrentCamera.zoom
+            CurrentCamera.zoom += 0.1 * modifier
+            CurrentCamera.Update_Camera_Zoom_Level()
             current_tile_length = int(normal_tile_length * CurrentCamera.zoom)
 
-            if camera_moved == False:   #If camera can be moved (Check Update_camera() function), update it's position to stay centered.
-                CurrentCamera.x = CurrentCamera.x + current_tile_length * modifier
-                CurrentCamera.y = CurrentCamera.y + current_tile_length * modifier
+            map_size_x = current_tile_length * tiles_per_row
+            map_size_y = current_tile_length * rows
 
             TileClass.resize_textures(current_tile_length)
             Structures.resize_textures(current_tile_length)
             Units.resize_textures(current_tile_length)
-            Check_Camera()
+
+            CurrentCamera.Check_Camera_Boundaries()
+            CurrentCamera.Calculate_After_Zoom_Position(last_map_size_x, map_size_x, last_map_size_y, map_size_y)
 
     #Check if user wants to change the camera's position
     x_pos = pygame.mouse.get_pos()[0]
     y_pos = pygame.mouse.get_pos()[1]
 
     if x_pos == 0:
-        CurrentCamera.x -= camera_movement
+        CurrentCamera.x -= CurrentCamera.camera_movement
     if y_pos == 0:
-        CurrentCamera.y -= camera_movement
+        CurrentCamera.y -= CurrentCamera.camera_movement
     if x_pos == WIDTH - 1:
-        CurrentCamera.x += camera_movement
+        CurrentCamera.x += CurrentCamera.camera_movement
     if y_pos == HEIGHT - 1:
-        CurrentCamera.y += camera_movement
+        CurrentCamera.y += CurrentCamera.camera_movement
 
-    Check_Camera()
+    CurrentCamera.Check_Camera_Boundaries()
 
     #Render everything
     WIN.fill((0,0,0))
-    render_tiles_in_camera()
+    CurrentCamera.render_tiles_in_camera(tiles)
       
     pygame.display.update()
 
