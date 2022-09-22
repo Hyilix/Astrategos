@@ -19,9 +19,9 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection) :
         Cerc_draw.append((x,y))
 
     def draw_window () :
-        WIN.fill((224,224,224))
+        WIN.fill((255,255,255))
         for cerc in Cerc_draw :
-            pygame.draw.circle(WIN,(0,0,0),cerc,diametru/2)
+            pygame.draw.circle(WIN,(225, 223, 240),cerc,diametru/2)
         pygame.display.update()
         
 

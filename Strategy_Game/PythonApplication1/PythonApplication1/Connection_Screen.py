@@ -5,7 +5,7 @@ import socket
 from button import Button
 from Lobby_screen import lobby
 
-
+White = (255,255,255)
 
 def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
     
@@ -20,44 +20,44 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
     #SE creaza butoanele care vor aparea pe ecran in functie de rolul selectat (host/client)
     if Role == "client" :
         Rect_Draw.append(((WIDTH-510)/2,(HEIGHT - 85*3-50*2)/2,510,85))
-        Namebutton = Button(((WIDTH-510)/2 + 5,(HEIGHT - 85*3-50*2)/2 + 5,500,75),(224,224,224),None,**{"text": "Enter your name","font": pygame.font.Font(None, 50)})
+        Namebutton = Button(((WIDTH-510)/2 + 5,(HEIGHT - 85*3-50*2)/2 + 5,500,75),White,None,**{"text": "Enter your name","font": pygame.font.Font(None, 50)})
         Buttons.append(Namebutton)
 
         Rect_Draw.append(((WIDTH-710)/2,(HEIGHT - 85*3-50*2)/2+85+50,710,85))
-        Hostnamebutton =Button(((WIDTH-710)/2+5,(HEIGHT - 85*3-50*2)/2+85+50+5,700,75),(224,224,224),None,**{"text": "Host name/IP adress","font": pygame.font.Font(None, 50)})
+        Hostnamebutton =Button(((WIDTH-710)/2+5,(HEIGHT - 85*3-50*2)/2+85+50+5,700,75),White,None,**{"text": "Host name/IP adress","font": pygame.font.Font(None, 50)})
         Buttons.append(Hostnamebutton)
 
         Rect_Draw.append(((WIDTH-410 - 160*2 - 50*2)/2 +160+50,(HEIGHT - 85*3-50*2)/2+85*2+50*2,410,85) )
-        Portbutton =Button(((WIDTH-410 - 160*2 - 50*2)/2 +160+50+5,(HEIGHT - 85*3-50*2)/2+85*2+50*2+5,400,75),(224,224,224),None,**{"text": "Server port","font": pygame.font.Font(None, 50)})
+        Portbutton =Button(((WIDTH-410 - 160*2 - 50*2)/2 +160+50+5,(HEIGHT - 85*3-50*2)/2+85*2+50*2+5,400,75),White,None,**{"text": "Server port","font": pygame.font.Font(None, 50)})
         Buttons.append(Portbutton)
 
         Rect_Draw.append(((WIDTH-410 - 160*2 - 50*2)/2,(HEIGHT - 85*3-50*2)/2+85*2+50*2,160,85) )
-        Connectbutton = Button(((WIDTH-410 - 160*2 - 50*2)/2 + 5,(HEIGHT - 85*3-50*2)/2+85*2+50*2 + 5,150,75),(224,224,224),None,**{"text": "Connect","font": pygame.font.Font(None, 50)})
+        Connectbutton = Button(((WIDTH-410 - 160*2 - 50*2)/2 + 5,(HEIGHT - 85*3-50*2)/2+85*2+50*2 + 5,150,75),White,None,**{"text": "Connect","font": pygame.font.Font(None, 50)})
         Buttons.append(Connectbutton)
 
         Rect_Draw.append(((WIDTH-410 - 160*2 - 50*2)/2 + 160 + 410 + 50*2,(HEIGHT - 85*3-50*2)/2+85*2+50*2,160,85) )
-        Backbutton = Button(((WIDTH-410 - 160*2 - 50*2)/2 + 160 + 410 + 50*2+5,(HEIGHT - 85*3-50*2)/2+85*2+50*2+5,150,75),(224,224,224),None,**{"text": "Back","font": pygame.font.Font(None, 50)})
+        Backbutton = Button(((WIDTH-410 - 160*2 - 50*2)/2 + 160 + 410 + 50*2+5,(HEIGHT - 85*3-50*2)/2+85*2+50*2+5,150,75),White,None,**{"text": "Back","font": pygame.font.Font(None, 50)})
         Buttons.append(Backbutton)
     else :
         Rect_Draw.append(((WIDTH-510)/2,(HEIGHT - 85*3-50*2)/2,510,85))
-        Namebutton = Button(((WIDTH-510)/2 + 5,(HEIGHT - 85*3-50*2)/2 + 5,500,75),(224,224,224),None,**{"text": "Enter your name","font": pygame.font.Font(None, 50)})
+        Namebutton = Button(((WIDTH-510)/2 + 5,(HEIGHT - 85*3-50*2)/2 + 5,500,75),White,None,**{"text": "Enter your name","font": pygame.font.Font(None, 50)})
         Buttons.append(Namebutton)
 
         Rect_Draw.append(((WIDTH-710)/2,(HEIGHT - 85*3-50*2)/2+85+50,710,85))
-        Hostnamebutton =Button(((WIDTH-710)/2+5,(HEIGHT - 85*3-50*2)/2+85+50+5,700,75),(224,224,224),None,**{"text": "Host name/IP adress","font": pygame.font.Font(None, 50)})
+        Hostnamebutton =Button(((WIDTH-710)/2+5,(HEIGHT - 85*3-50*2)/2+85+50+5,700,75),White,None,**{"text": "Host name/IP adress","font": pygame.font.Font(None, 50)})
         Buttons.append(Hostnamebutton)
 
         Rect_Draw.append(((WIDTH-260*2)/3,(HEIGHT - 85*3-50*2)/2+85*2+50*2,260,85))
-        Hostbutton = Button(((WIDTH-260*2)/3+5,(HEIGHT - 85*3-50*2)/2+85*2+50*2+5,250,75),(224,224,224),None,**{"text": "Host","font": pygame.font.Font(None, 50)})
+        Hostbutton = Button(((WIDTH-260*2)/3+5,(HEIGHT - 85*3-50*2)/2+85*2+50*2+5,250,75),White,None,**{"text": "Host","font": pygame.font.Font(None, 50)})
         Buttons.append(Hostbutton)
 
         Rect_Draw.append(((WIDTH-260*2)*2/3+260,(HEIGHT - 85*3-50*2)/2+85*2+50*2,260,85))
-        Backbutton = Button(((WIDTH-260*2)*2/3+260+5,(HEIGHT - 85*3-50*2)/2+85*2+50*2+5,250,75),(224,224,224),None,**{"text": "Back","font": pygame.font.Font(None, 50)})
+        Backbutton = Button(((WIDTH-260*2)*2/3+260+5,(HEIGHT - 85*3-50*2)/2+85*2+50*2+5,250,75),White,None,**{"text": "Back","font": pygame.font.Font(None, 50)})
         Buttons.append(Backbutton)
 
 
     def draw_window () :
-        WIN.fill((224,224,224))
+        WIN.fill(White)
         for i in Rect_Draw :
             pygame.draw.rect(WIN,(0,0,0),i)
         for button in Buttons :
