@@ -1,7 +1,6 @@
 import pygame
 import os 
 import socket
-import threading
 
 from button import Button
 
@@ -39,16 +38,20 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Client) :
         Backbutton = Button(((WIDTH-410 - 160*2 - 50*2)/2 + 160 + 410 + 50*2+5,(HEIGHT - 85*3-50*2)/2+85*2+50*2+5,150,75),(224,224,224),None,**{"text": "Back","font": pygame.font.Font(None, 50)})
         Buttons.append(Backbutton)
     else :
-        Rect_Draw.append(((WIDTH-510)/2,(HEIGHT - 85*2-100)/2,510,85))
-        Namebutton = Button(((WIDTH-510)/2 + 5,(HEIGHT - 85*2-100)/2 + 5,500,75),(224,224,224),None,**{"text": "Enter your name","font": pygame.font.Font(None, 50)})
+        Rect_Draw.append(((WIDTH-510)/2,(HEIGHT - 85*3-50*2)/2,510,85))
+        Namebutton = Button(((WIDTH-510)/2 + 5,(HEIGHT - 85*3-50*2)/2 + 5,500,75),(224,224,224),None,**{"text": "Enter your name","font": pygame.font.Font(None, 50)})
         Buttons.append(Namebutton)
 
-        Rect_Draw.append(((WIDTH-260*2)/3,(HEIGHT - 85*2-100)/2+85+100,260,85))
-        Hostbutton = Button(((WIDTH-260*2)/3+5,(HEIGHT - 85*2-100)/2+85+100+5,250,75),(224,224,224),None,**{"text": "Host","font": pygame.font.Font(None, 50)})
+        Rect_Draw.append(((WIDTH-710)/2,(HEIGHT - 85*3-50*2)/2+85+50,710,85))
+        Hostnamebutton =Button(((WIDTH-710)/2+5,(HEIGHT - 85*3-50*2)/2+85+50+5,700,75),(224,224,224),None,**{"text": "Host name/IP adress","font": pygame.font.Font(None, 50)})
+        Buttons.append(Hostnamebutton)
+
+        Rect_Draw.append(((WIDTH-260*2)/3,(HEIGHT - 85*3-50*2)/2+85*2+50*2,260,85))
+        Hostbutton = Button(((WIDTH-260*2)/3+5,(HEIGHT - 85*3-50*2)/2+85*2+50*2+5,250,75),(224,224,224),None,**{"text": "Host","font": pygame.font.Font(None, 50)})
         Buttons.append(Hostbutton)
 
-        Rect_Draw.append(((WIDTH-260*2)*2/3+260,(HEIGHT - 85*2-100)/2+85+100,260,85))
-        Backbutton = Button(((WIDTH-260*2)*2/3+260+5,(HEIGHT - 85*2-100)/2+85+100+5,250,75),(224,224,224),None,**{"text": "Back","font": pygame.font.Font(None, 50)})
+        Rect_Draw.append(((WIDTH-260*2)*2/3+260,(HEIGHT - 85*3-50*2)/2+85*2+50*2,260,85))
+        Backbutton = Button(((WIDTH-260*2)*2/3+260+5,(HEIGHT - 85*3-50*2)/2+85*2+50*2+5,250,75),(224,224,224),None,**{"text": "Back","font": pygame.font.Font(None, 50)})
         Buttons.append(Backbutton)
 
 
@@ -90,13 +93,15 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Client) :
                             else :
                                 next_stage = True
                 else :
-                    if Buttons[0].on_click(event) :
-                        selected = 0
-                    elif Buttons[2].on_click(event) :
-                        run = False
-                        break
-                    elif Buttons[1].on_click(event) :
-                        next_stage = True
+                    for i in range(len(Buttons)) :
+                        if Buttons[i].on_click(event) :
+                            if i <= 1 :
+                                selected = i
+                            elif i == 2 :
+                                next_stage = True
+                            else :
+                                run = False 
+                                break
             elif selected >= 0 and event.type == pygame.KEYDOWN and event.key != pygame.K_TAB :
                 if event.key == pygame.K_ESCAPE or event.key == pygame.K_RETURN :
                     selected = -1

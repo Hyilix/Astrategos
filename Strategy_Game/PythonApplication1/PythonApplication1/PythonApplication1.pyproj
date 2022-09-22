@@ -26,6 +26,9 @@
     <Compile Include="Connection_Screen.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Lobby_screen.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Structures.py" />
     <Compile Include="TileClass.py" />
     <Compile Include="Units.py" />
