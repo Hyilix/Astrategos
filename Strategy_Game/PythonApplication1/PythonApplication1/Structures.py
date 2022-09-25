@@ -41,5 +41,5 @@ class Core():
         self.canShareSpace = False
         self.fog_range = (2,2)      #How much can the structure see
 
-    def DrawImage(self, screen, size, offset_x, offset_y, pos_x, pos_y):
-        screen.blit(textures[texture_names.index(self.texture)], ((self.position[0] - pos_x) * size[0] - offset_x, (self.position[1] - pos_y) * size[1] - offset_y), (0, 0, size[0], size[1]))
+    def DrawImage(self, screen, size):
+        screen.blit(textures[texture_names.index(self.texture)], (self.position[0] * size[0], self.position[1]  * size[1]))

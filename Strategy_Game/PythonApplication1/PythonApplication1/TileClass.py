@@ -12,7 +12,7 @@ texture_names = []
 textures = []
 base_textures = []
 
-base_texture_length = 32
+base_texture_length = 16
 
 base_mitrhil_extraction = 4 #Amount of ore(base) per turn
 
@@ -46,7 +46,7 @@ def resize_textures(size):
 
 images = len(textures)
 
-empty_image_name = "test.png"
+empty_image_name = "Ground1.png"
 
 class Tile:
     def __init__(self, position, collidable, image_name, special, unit, structure):
@@ -57,9 +57,9 @@ class Tile:
         self.unit = unit                    #store what unit is occupying this tile
         self.structure = structure          #store what structure is placed on this tile
 
-    def DrawImage(self, screen, size, offset_x, offset_y, pos_x, pos_y):
-        screen.blit(textures[texture_names.index(self.image_name)], ((self.position[0] - pos_x) * size[0] - offset_x, (self.position[1] - pos_y) * size[1] - offset_y))
+    def DrawImage(self, screen, size):
+        screen.blit(textures[texture_names.index(self.image_name)], (self.position[0] * size[0], self.position[1]  * size[1]))
         if self.structure != None:
-            self.structure.DrawImage(screen, size, offset_x, offset_y, pos_x, pos_y)
+            self.structure.DrawImage(screen, size)
         if self.unit != None:
-            self.unit.DrawImage(screen, size, offset_x, offset_y, pos_x, pos_y)
+            self.unit.DrawImage(screen, size)

@@ -49,21 +49,6 @@ class Camera:
         self.x = int((self.x + WIDTH // 2) / last_map_size_x * map_size_x) - WIDTH // 2
         self.y = int((self.y + HEIGHT // 2) / last_map_size_y * map_size_y) - HEIGHT // 2
 
-    def render_tiles_in_camera(self):   #Render all the tiles that the camera can "see". UNUSED
-        counter = 0
-        i = self.x // current_tile_length
-        first_i = i
-        while i <= (self.x + WIDTH) // current_tile_length and i < tiles_per_row:
-            j = self.y // current_tile_length
-            first_j = j
-            while j <= (self.y + HEIGHT) // current_tile_length and j < rows:
-                #tiles[i][j].DrawImage(WIN, (current_tile_length, current_tile_length), self.x % current_tile_length, self.y % current_tile_length, first_i, first_j)
-                j += 1
-                counter += 1
-            i += 1
-        return (first_i, first_j, i, j)
-        print(counter) 
-
 CurrentCamera = Camera((0,0), 1, 2, 0.6)
 
 normal_tile_length = int(TileClass.base_texture_length * (WIDTH / HEIGHT))     #the length of a tile when the zoom is 1
@@ -78,21 +63,25 @@ tiles_per_row = 80
 
 tiles = []
 
+#The base surface of the map. Zooming in/out will use this surface.
 mapSurfaceNormal = pygame.Surface((int(tiles_per_row * normal_tile_length), int(rows * normal_tile_length)))
 
-for x in range(rows):       #Create the map with empty tiles
+for x in range(rows):  #Create the map with empty tiles
     newLine = []
     for y in range(tiles_per_row):
         newTile = TileClass.Tile((x, y), False, TileClass.empty_image_name, None, None, None)
         newLine.append(newTile)
-        newTile.DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), 1, 1, 0, 0)
+        newTile.DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
     tiles.append(newLine)
 
-mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
-
-#For testing purposes, 2 tiles have been modified.
+#For testing purposes, 2 tiles have been modified. Each modification has to be updated.
 tiles[2][2].structure = Structures.Core((2, 2), None)
+tiles[2][2].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+
 tiles[3][3].unit = Units.Marine((3, 3), None)
+tiles[3][3].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+
+mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
 
 FPS = 60
 
@@ -133,6 +122,8 @@ while Running:
 
             CurrentCamera.Check_Camera_Boundaries()
             CurrentCamera.Calculate_After_Zoom_Position(last_map_size_x, map_size_x, last_map_size_y, map_size_y)
+            #TODO: Make a way to zoom in/out with minimal lag. This method is very bad but for now it works... kinda.
+            #Apparently it works well with low texture sizes.
             try:
                 mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
             except:     #if that failed, the surface is too big.
@@ -154,18 +145,11 @@ while Running:
     CurrentCamera.Check_Camera_Boundaries()
 
     #Render everything
-    #tupleArgs = CurrentCamera.render_tiles_in_camera()
-
     tempSurface = pygame.Surface((WIDTH, HEIGHT))
     tempSurface.blit(mapSurface, (0, 0), (CurrentCamera.x, CurrentCamera.y, WIDTH, HEIGHT))
 
-    #tempSurface = pygame.transform.scale(tempSurface, (WIDTH, HEIGHT))
-
-    #print(tempSurface.get_size())
-
     WIN.blit(tempSurface, (0, 0))
-
     pygame.display.update()
 
 #END
-#pygame.quit()
+pygame.quit()
