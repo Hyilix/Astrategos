@@ -12,7 +12,7 @@ texture_names = []
 textures = []
 base_textures = []
 
-base_texture_length = 64
+base_texture_length = 32
 
 base_mitrhil_extraction = 4 #Amount of ore(base) per turn
 
@@ -46,7 +46,7 @@ def resize_textures(size):
 
 images = len(textures)
 
-empty_image_name = "Basic1.png"
+empty_image_name = "test.png"
 
 class Tile:
     def __init__(self, position, collidable, image_name, special, unit, structure):

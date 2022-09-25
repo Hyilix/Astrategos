@@ -66,9 +66,8 @@ class Camera:
 
 CurrentCamera = Camera((0,0), 1, 2, 0.6)
 
-normal_tile_length = TileClass.base_texture_length * (WIDTH / HEIGHT)     #the length of a tile when the zoom is 1
+normal_tile_length = int(TileClass.base_texture_length * (WIDTH / HEIGHT))     #the length of a tile when the zoom is 1
 current_tile_length = normal_tile_length * CurrentCamera.zoom
-
 
 TileClass.resize_textures(current_tile_length)
 Structures.resize_textures(current_tile_length)
@@ -78,16 +77,18 @@ rows = 80
 tiles_per_row = 80
 
 tiles = []
-print(int(normal_tile_length * tiles_per_row ))
-mapSurface = pygame.Surface((int(tiles_per_row * normal_tile_length), int(rows * normal_tile_length)))
+
+mapSurfaceNormal = pygame.Surface((int(tiles_per_row * normal_tile_length), int(rows * normal_tile_length)))
 
 for x in range(rows):       #Create the map with empty tiles
     newLine = []
     for y in range(tiles_per_row):
         newTile = TileClass.Tile((x, y), False, TileClass.empty_image_name, None, None, None)
         newLine.append(newTile)
-        newTile.DrawImage(mapSurface, (current_tile_length, current_tile_length), 0, 0, 0, 0)
+        newTile.DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), 1, 1, 0, 0)
     tiles.append(newLine)
+
+mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
 
 #For testing purposes, 2 tiles have been modified.
 tiles[2][2].structure = Structures.Core((2, 2), None)
@@ -131,7 +132,11 @@ while Running:
             Units.resize_textures(current_tile_length)
 
             CurrentCamera.Check_Camera_Boundaries()
-            #CurrentCamera.Calculate_After_Zoom_Position(last_map_size_x, map_size_x, last_map_size_y, map_size_y)
+            CurrentCamera.Calculate_After_Zoom_Position(last_map_size_x, map_size_x, last_map_size_y, map_size_y)
+            try:
+                mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
+            except:     #if that failed, the surface is too big.
+                print("hello")
 
     #Check if user wants to change the camera's position
     x_pos = pygame.mouse.get_pos()[0]
@@ -151,10 +156,10 @@ while Running:
     #Render everything
     #tupleArgs = CurrentCamera.render_tiles_in_camera()
 
-    tempSurface = pygame.Surface((WIDTH * CurrentCamera.zoom, HEIGHT * CurrentCamera.zoom))
-    tempSurface.blit(mapSurface, (0, 0), (CurrentCamera.x, CurrentCamera.y, WIDTH * CurrentCamera.zoom, HEIGHT * CurrentCamera.zoom))
+    tempSurface = pygame.Surface((WIDTH, HEIGHT))
+    tempSurface.blit(mapSurface, (0, 0), (CurrentCamera.x, CurrentCamera.y, WIDTH, HEIGHT))
 
-    tempSurface = pygame.transform.scale(tempSurface, (WIDTH, HEIGHT))
+    #tempSurface = pygame.transform.scale(tempSurface, (WIDTH, HEIGHT))
 
     #print(tempSurface.get_size())
 
