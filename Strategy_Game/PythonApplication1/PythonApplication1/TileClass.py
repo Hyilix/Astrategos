@@ -44,9 +44,19 @@ def resize_textures(size):
         newTexture = pygame.transform.scale(base_textures[i], (size, size))
         textures[i] = newTexture
 
-images = len(textures)
-
 empty_image_name = "Ground1.png"
+
+simple_textures_enabled = True
+
+simple_textures_dict = {
+    "Land" : "A-simple-land",
+    "Wall" : "A-simple-wall",
+    "Ore1" : "A-simple-ore1",
+    "Ore2" : "A-simple-ore2"
+    }
+
+first_index = len(simple_textures_dict)
+last_index = len(textures)
 
 class Tile:
     def __init__(self, position, collidable, image_name, special, unit, structure):
@@ -58,7 +68,16 @@ class Tile:
         self.structure = structure          #store what structure is placed on this tile
 
     def DrawImage(self, screen, size):
-        screen.blit(textures[texture_names.index(self.image_name)], (self.position[0] * size[0], self.position[1]  * size[1]))
+        if simple_textures_enabled == True:
+            screen.blit(textures[texture_names.index(self.image_name)], (self.position[0] * size[0], self.position[1]  * size[1]))
+        else:
+            key = ""
+            if self.collidable == True:
+                key = simple_textures_dict["Wall"]
+            elif self.collidable == False:
+                key = simple_textures_dict["Land"]
+            screen.blit(textures[texture_names.index(key + ".png")], (self.position[0] * size[0], self.position[1]  * size[1]))
+            
         if self.structure != None:
             self.structure.DrawImage(screen, size)
         if self.unit != None:

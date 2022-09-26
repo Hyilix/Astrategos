@@ -49,7 +49,7 @@ class Camera:
         self.x = int((self.x + WIDTH // 2) / last_map_size_x * map_size_x) - WIDTH // 2
         self.y = int((self.y + HEIGHT // 2) / last_map_size_y * map_size_y) - HEIGHT // 2
 
-CurrentCamera = Camera((0,0), 1, 2, 0.6)
+CurrentCamera = Camera((0,0), 1, 3, 0.6)
 
 normal_tile_length = int(TileClass.base_texture_length * (WIDTH / HEIGHT))     #the length of a tile when the zoom is 1
 current_tile_length = normal_tile_length * CurrentCamera.zoom
@@ -83,6 +83,8 @@ tiles[3][3].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length)
 
 mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
 
+image_current_name = "crater"
+
 FPS = 60
 
 clock = pygame.time.Clock()
@@ -93,11 +95,33 @@ WIN.fill((0,0,0))
 
 while Running:
     clock.tick(FPS)
-    print(clock.get_fps())
+    #print(clock.get_fps())
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             Running = False
-        if event.type == pygame.MOUSEBUTTONDOWN:    #Check if mouse was scrolled
+        elif event.type == pygame.KEYDOWN:
+            if event.unicode.lower() == 'a':
+                TileClass.simple_textures_enabled = not TileClass.simple_textures_enabled
+
+                for x in range(rows):  #Redraw the whole map
+                    for y in range(tiles_per_row):
+                        tiles[x][y].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+                    tiles.append(newLine)
+
+                mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
+
+        elif event.type == pygame.MOUSEBUTTONDOWN:    #Check if mouse was scrolled or pressed
+            if event.button == 1:
+                mouse_pos = pygame.mouse.get_pos()
+                x_layer = (mouse_pos[0] + CurrentCamera.x) // current_tile_length 
+                y_layer = (mouse_pos[1] + CurrentCamera.y) // current_tile_length
+
+                print(x_layer, y_layer)
+
+                tiles[x_layer][y_layer].image_name = image_current_name + ".png"
+                tiles[x_layer][y_layer].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+                mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
+
             modifier = 0
             if event.button == 4:
                 modifier = 1
@@ -115,10 +139,6 @@ while Running:
 
             map_size_x = current_tile_length * tiles_per_row
             map_size_y = current_tile_length * rows
-
-            TileClass.resize_textures(current_tile_length)
-            Structures.resize_textures(current_tile_length)
-            Units.resize_textures(current_tile_length)
 
             CurrentCamera.Check_Camera_Boundaries()
             CurrentCamera.Calculate_After_Zoom_Position(last_map_size_x, map_size_x, last_map_size_y, map_size_y)
