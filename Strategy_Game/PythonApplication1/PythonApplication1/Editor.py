@@ -83,7 +83,9 @@ tiles[3][3].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length)
 
 mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
 
-image_current_name = "crater"
+current_index = TileClass.first_index
+min_index = TileClass.first_index
+max_index = TileClass.last_index
 
 FPS = 60
 
@@ -100,7 +102,7 @@ while Running:
         if event.type == pygame.QUIT:
             Running = False
         elif event.type == pygame.KEYDOWN:
-            if event.unicode.lower() == 'a':
+            if event.unicode.lower() == 'p':    #Enable/Disable simple textures
                 TileClass.simple_textures_enabled = not TileClass.simple_textures_enabled
 
                 for x in range(rows):  #Redraw the whole map
@@ -110,8 +112,9 @@ while Running:
 
                 mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
 
+
         elif event.type == pygame.MOUSEBUTTONDOWN:    #Check if mouse was scrolled or pressed
-            if event.button == 1:
+            if event.button == 1:   #Left-click. Editor specific
                 mouse_pos = pygame.mouse.get_pos()
                 x_layer = (mouse_pos[0] + CurrentCamera.x) // current_tile_length 
                 y_layer = (mouse_pos[1] + CurrentCamera.y) // current_tile_length
