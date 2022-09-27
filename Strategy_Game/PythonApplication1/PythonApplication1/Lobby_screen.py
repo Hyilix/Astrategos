@@ -24,12 +24,37 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection) :
         x = diametru*i + diametru/2 + 50 *(i-1)
         Cerc_draw.append((x,y))
 
+    def remove_client(cod) :
+        CLIENTS.pop(Coduri_pozitie_client[cod])
+        Text_draw.pop(Coduri_pozitie_client[cod])
+        playeri.pop(Coduri_pozitie_client[cod])
+        Coduri_pozitie_client.pop(cod)
+        for i in Coduri_pozitie_client :
+            if i > cod :
+                i -= 1 
+                Text_draw[i][1].center = (diametru*(i+1) + 50*i + diametru/2,HEIGHT/2 - diametru/2-30)
+
     #Threadul care se ocupa cu primirea si trimiterea informatiilor spre un client
     def reciev_thread(client,cod) :
-        while True :
-             msg = client.recv(1024)
-             print(msg)
-             client.send(msg)
+        playeri.append(("NAME_COOL",0))
+        text = Font.render(playeri[len(playeri)-1][0], True, (0,0,0))
+        text_rect = text.get_rect()
+        text_rect.center = (diametru*(Coduri_pozitie_client[cod]+1) + 50*Coduri_pozitie_client[cod] + diametru/2,HEIGHT/2 - diametru/2-30)
+        Text_draw.append((text,text_rect))
+        try :
+            while True :
+                #if client!= None
+                msg = client.recv(1024)
+                if len(msg) != 0 :
+                    client.send(msg)
+                else :
+                    remove_client(cod)
+                    break
+        except :
+            remove_client(cod)
+        print(f"Sa oprit threadul clientului nr {cod}")
+
+
     #Threadul care va asculta pentru si va acepta clienti
     def host_listen_thread() :
         global nr_clients
@@ -38,10 +63,11 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection) :
         while True :
             while nr_clients < 3 :
                     client, address = Connection.accept()
+                    print("se intampla")
                     nr_clients += 1
                     CLIENTS.append((client))
                     newthread = threading.Thread(target = reciev_thread , args =(client,cod_client))
-                    Coduri_pozitie_client[cod_client] = nr_clients - 1
+                    Coduri_pozitie_client[cod_client] = nr_clients 
                     cod_client += 1 
                     Client_THREADS.append(newthread)
                     Client_THREADS[len(Client_THREADS)-1].start()
@@ -53,6 +79,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection) :
             pygame.draw.circle(WIN,(225, 223, 240),Cerc_draw[i],diametru/2)
             if len(playeri) > i :
                 pygame.draw.circle(WIN,White,Cerc_draw[i],diametru/2 - 10)
+                Text_draw[i][1].center = (diametru*(i+1) + 50*i + diametru/2,HEIGHT/2 - diametru/2-30)
                 WIN.blit(Text_draw[i][0],Text_draw[i][1])
 
         pygame.display.update()
