@@ -5,6 +5,7 @@ import pickle
 import threading
 
 White = (255,255,255)
+nr_clients = 0
 
 def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection) :
     pygame.init()
@@ -24,17 +25,23 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection) :
         Cerc_draw.append((x,y))
 
     #Threadul care se ocupa cu primirea si trimiterea informatiilor spre un client
-    def reciev_thread(client) :
+    def reciev_thread(client,address) :
         while True :
-            x= 10
-
+             msg = client.recv(1024)
+             client.send(msg)
     #Threadul care va asculta pentru si va acepta clienti
     def host_listen_thread() :
-        while nr_clients < 3 :
-                client, address = Connection.accept()
-                nr_clients += 1
-                print(address)
-                CLIENTS.append((client,address))
+        global nr_clients
+        while True :
+            while nr_clients < 3 :
+                    client, address = Connection.accept()
+                    nr_clients += 1
+                    print(address)
+                    CLIENTS.append((client,address))
+                    newthread = threading.Thread(target = reciev_thread , args =(client,address))
+                    Client_THREADS.append(newthread)
+                    Client_THREADS[len(Client_THREADS)-1].start()
+
 
     def draw_window () :
         WIN.fill((255,255,255))
@@ -49,14 +56,18 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection) :
 
 
     if Role == "host" :
+        global nr_clients
         playeri.append((name,0))
         text = Font.render(playeri[0][0], True, (0,0,0))
         text_rect = text.get_rect()
         text_rect.center = (diametru + diametru/2,HEIGHT/2 - diametru/2-30)
         Text_draw.append((text,text_rect))
-        nr_clients = 0
         CLIENTS = []
-        Connection.listen(3)
+        Client_THREADS = []
+        Connection.listen()
+        Listening_thread = threading.Thread(target = host_listen_thread)
+        Listening_thread.start()
+
 
 
     clock = pygame.time.Clock()
@@ -65,7 +76,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection) :
         clock.tick(FPS)
         
         draw_window()
-
+        print(len(Client_THREADS),nr_clients)
         for event in pygame.event.get():
             if event.type == pygame.QUIT :
                 pygame.quit()
