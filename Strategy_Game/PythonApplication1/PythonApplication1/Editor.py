@@ -1,6 +1,7 @@
 import TileClass
 import Structures
 import Units
+import GUI
 
 import pygame
 
@@ -10,6 +11,8 @@ WIDTH = screen.current_w
 HEIGHT = screen.current_h
 
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
+
+GUI.Initialize_GUIs()
 
 class Camera:
     def __init__(self, position, zoom, max_zoom, min_zoom):
@@ -83,8 +86,7 @@ tiles[3][3].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length)
 
 mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
 
-current_index = TileClass.first_index
-min_index = TileClass.first_index
+current_index = 0
 max_index = TileClass.last_index
 
 FPS = 60
@@ -92,6 +94,8 @@ FPS = 60
 clock = pygame.time.Clock()
 
 Running = True
+
+hasLeftClickPressed = False    #Determine if left mouse is pressed down.
 
 WIN.fill((0,0,0))
 
@@ -101,7 +105,7 @@ while Running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             Running = False
-        elif event.type == pygame.KEYDOWN:
+        if event.type == pygame.KEYDOWN:
             if event.unicode.lower() == 'p':    #Enable/Disable simple textures
                 TileClass.simple_textures_enabled = not TileClass.simple_textures_enabled
 
@@ -112,18 +116,40 @@ while Running:
 
                 mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
 
+            elif event.unicode.lower() == 'l':  #Enable/Disable GUIs
+                GUI.GUIs_enabled = not GUI.GUIs_enabled
 
-        elif event.type == pygame.MOUSEBUTTONDOWN:    #Check if mouse was scrolled or pressed
+        if event.type == pygame.MOUSEBUTTONDOWN:    #Check if mouse was scrolled or pressed
             if event.button == 1:   #Left-click. Editor specific
                 mouse_pos = pygame.mouse.get_pos()
-                x_layer = (mouse_pos[0] + CurrentCamera.x) // current_tile_length 
-                y_layer = (mouse_pos[1] + CurrentCamera.y) // current_tile_length
+                hasLeftClickPressed = True
+                if GUI.GUIs_enabled == True and mouse_pos[0] >= WIDTH - GUI.Texture_x_size:  
+                    #Check if the mouse is inside the TextureGUI
+                    #and check which texture is selected.
 
-                print(x_layer, y_layer)
+                    x_layer = (mouse_pos[0] - (WIDTH - GUI.Texture_x_size)) // (GUI.texture_size + GUI.texture_distance)
+                    y_layer = mouse_pos[1] // (GUI.texture_size + GUI.texture_distance)
+                    
+                    if (mouse_pos[0] - (WIDTH - GUI.Texture_x_size)) % (GUI.texture_size + GUI.texture_distance) < GUI.texture_distance:
+                        break
+                    elif mouse_pos[1] % (GUI.texture_size + GUI.texture_distance) < GUI.texture_distance:
+                        break
+                    else:
+                        index = GUI.max_x_pos * y_layer + x_layer
+                        if GUI.max_x_pos * y_layer > 0: index += 1
+                        print(index)
+                        if index < TileClass.last_index:
+                            current_index = index
 
-                tiles[x_layer][y_layer].image_name = image_current_name + ".png"
-                tiles[x_layer][y_layer].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
-                mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
+                else:  #Mouse is on the map, so check which tile is selected
+                    x_layer = (mouse_pos[0] + CurrentCamera.x) // current_tile_length 
+                    y_layer = (mouse_pos[1] + CurrentCamera.y) // current_tile_length
+
+                    print(x_layer, y_layer)
+
+                    tiles[x_layer][y_layer].image_name = TileClass.avalible_textures[current_index]
+                    tiles[x_layer][y_layer].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+                    mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
 
             modifier = 0
             if event.button == 4:
@@ -152,6 +178,25 @@ while Running:
             except:     #if that failed, the surface is too big.
                 print("hello")
 
+        if event.type == pygame.MOUSEBUTTONUP:
+            if event.button == 1:   #Left-click. Editor specific
+                hasLeftClickPressed = False
+                print("NO")
+
+        if event.type == pygame.MOUSEMOTION:
+            mouse_pos = pygame.mouse.get_pos()
+            if not (GUI.GUIs_enabled == True and mouse_pos[0] >= WIDTH - GUI.Texture_x_size): 
+                if hasLeftClickPressed == True:
+                    x_layer = (mouse_pos[0] + CurrentCamera.x) // current_tile_length 
+                    y_layer = (mouse_pos[1] + CurrentCamera.y) // current_tile_length
+
+                    print(x_layer, y_layer)
+
+                    tiles[x_layer][y_layer].image_name = TileClass.avalible_textures[current_index]
+                    tiles[x_layer][y_layer].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+                    mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
+
+
     #Check if user wants to change the camera's position
     x_pos = pygame.mouse.get_pos()[0]
     y_pos = pygame.mouse.get_pos()[1]
@@ -172,6 +217,7 @@ while Running:
     tempSurface.blit(mapSurface, (0, 0), (CurrentCamera.x, CurrentCamera.y, WIDTH, HEIGHT))
 
     WIN.blit(tempSurface, (0, 0))
+    if GUI.GUIs_enabled == True: WIN.blit(GUI.TextureSurface, (WIDTH - GUI.Texture_x_size, 0))
     pygame.display.update()
 
 #END

@@ -11,6 +11,7 @@ default_path = 'Assets/Tiles/'
 texture_names = []
 textures = []
 base_textures = []
+avalible_textures = []
 
 base_texture_length = 16
 
@@ -33,6 +34,8 @@ mitrhil_flerovium_dict = {
 }
 
 for img in os.listdir(default_path):
+    if img[0:8] != "A-simple":
+        avalible_textures.append(img)
     texture_names.append(img)
     textures.append(pygame.image.load(default_path + img))
     base_textures.append(pygame.image.load(default_path + img))
@@ -44,7 +47,7 @@ def resize_textures(size):
         newTexture = pygame.transform.scale(base_textures[i], (size, size))
         textures[i] = newTexture
 
-empty_image_name = "Ground1.png"
+empty_image_name = avalible_textures[0]
 
 simple_textures_enabled = True
 
@@ -55,8 +58,7 @@ simple_textures_dict = {
     "Ore2" : "A-simple-ore2"
     }
 
-first_index = len(simple_textures_dict)
-last_index = len(textures)
+last_index = len(avalible_textures)
 
 class Tile:
     def __init__(self, position, collidable, image_name, special, unit, structure):

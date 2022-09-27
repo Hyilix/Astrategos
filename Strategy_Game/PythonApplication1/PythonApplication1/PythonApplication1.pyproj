@@ -23,6 +23,7 @@
   <ItemGroup>
     <Compile Include="Camera.py" />
     <Compile Include="Editor.py" />
+    <Compile Include="GUI.py" />
     <Compile Include="Structures.py" />
     <Compile Include="TileClass.py" />
     <Compile Include="Units.py" />
