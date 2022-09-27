@@ -25,20 +25,24 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection) :
         Cerc_draw.append((x,y))
 
     #Threadul care se ocupa cu primirea si trimiterea informatiilor spre un client
-    def reciev_thread(client,address) :
+    def reciev_thread(client,cod) :
         while True :
              msg = client.recv(1024)
+             print(msg)
              client.send(msg)
     #Threadul care va asculta pentru si va acepta clienti
     def host_listen_thread() :
         global nr_clients
+        #al catelea client de la inceputul serverului
+        cod_client = 0
         while True :
             while nr_clients < 3 :
                     client, address = Connection.accept()
                     nr_clients += 1
-                    print(address)
-                    CLIENTS.append((client,address))
-                    newthread = threading.Thread(target = reciev_thread , args =(client,address))
+                    CLIENTS.append((client))
+                    newthread = threading.Thread(target = reciev_thread , args =(client,cod_client))
+                    Coduri_pozitie_client[cod_client] = nr_clients - 1
+                    cod_client += 1 
                     Client_THREADS.append(newthread)
                     Client_THREADS[len(Client_THREADS)-1].start()
 
@@ -64,6 +68,8 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection) :
         Text_draw.append((text,text_rect))
         CLIENTS = []
         Client_THREADS = []
+        Coduri_pozitie_client = {}
+
         Connection.listen()
         Listening_thread = threading.Thread(target = host_listen_thread)
         Listening_thread.start()
@@ -76,7 +82,8 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection) :
         clock.tick(FPS)
         
         draw_window()
-        print(len(Client_THREADS),nr_clients)
+
+        #print (Coduri_pozitie_client)
         for event in pygame.event.get():
             if event.type == pygame.QUIT :
                 pygame.quit()
