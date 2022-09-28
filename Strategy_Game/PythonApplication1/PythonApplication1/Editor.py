@@ -12,7 +12,9 @@ HEIGHT = screen.current_h
 
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 
-GUI.Initialize_GUIs()
+GUI.Initialize_Editor_GUIs()
+GUI.Draw_Textures_GUI((0,0))
+GUI.Draw_Tools_GUI()
 
 class Camera:
     def __init__(self, position, zoom, max_zoom, min_zoom):
@@ -61,8 +63,8 @@ TileClass.resize_textures(current_tile_length)
 Structures.resize_textures(current_tile_length)
 Units.resize_textures(current_tile_length)
 
-rows = 80
-tiles_per_row = 80
+rows = 100
+tiles_per_row = 100
 
 tiles = []
 
@@ -72,14 +74,14 @@ mapSurfaceNormal = pygame.Surface((int(tiles_per_row * normal_tile_length), int(
 for x in range(rows):  #Create the map with empty tiles
     newLine = []
     for y in range(tiles_per_row):
-        newTile = TileClass.Tile((x, y), False, TileClass.empty_image_name, None, None, None)
+        newTile = TileClass.Tile((y, x), False, TileClass.empty_image_name, None, None, None)
         newLine.append(newTile)
         newTile.DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
     tiles.append(newLine)
 
 #For testing purposes, 2 tiles have been modified. Each modification has to be updated.
-tiles[2][2].structure = Structures.Core((2, 2), None)
-tiles[2][2].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+tiles[1][2].structure = Structures.Core((2, 1), None)
+tiles[1][2].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
 
 tiles[3][3].unit = Units.Marine((3, 3), None)
 tiles[3][3].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
@@ -140,6 +142,7 @@ while Running:
                         print(index)
                         if index < TileClass.last_index:
                             current_index = index
+                            GUI.Draw_Textures_GUI((x_layer, y_layer))
 
                 else:  #Mouse is on the map, so check which tile is selected
                     x_layer = (mouse_pos[0] + CurrentCamera.x) // current_tile_length 
@@ -147,9 +150,11 @@ while Running:
 
                     print(x_layer, y_layer)
 
-                    tiles[x_layer][y_layer].image_name = TileClass.avalible_textures[current_index]
-                    tiles[x_layer][y_layer].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
-                    mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
+                    if x_layer >= 0 and x_layer < tiles_per_row:
+                        if y_layer >= 0 and y_layer < rows:
+                            tiles[y_layer][x_layer].image_name = TileClass.avalible_textures[current_index]
+                            tiles[y_layer][x_layer].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+                            mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
 
             modifier = 0
             if event.button == 4:
@@ -192,9 +197,11 @@ while Running:
 
                     print(x_layer, y_layer)
 
-                    tiles[x_layer][y_layer].image_name = TileClass.avalible_textures[current_index]
-                    tiles[x_layer][y_layer].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
-                    mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
+                    if x_layer >= 0 and x_layer < tiles_per_row:
+                        if y_layer >= 0 and y_layer < rows:
+                            tiles[y_layer][x_layer].image_name = TileClass.avalible_textures[current_index]
+                            tiles[y_layer][x_layer].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+                            mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
 
 
     #Check if user wants to change the camera's position
@@ -217,7 +224,9 @@ while Running:
     tempSurface.blit(mapSurface, (0, 0), (CurrentCamera.x, CurrentCamera.y, WIDTH, HEIGHT))
 
     WIN.blit(tempSurface, (0, 0))
-    if GUI.GUIs_enabled == True: WIN.blit(GUI.TextureSurface, (WIDTH - GUI.Texture_x_size, 0))
+    if GUI.GUIs_enabled == True: 
+        WIN.blit(GUI.TextureSurface, (WIDTH - GUI.Texture_x_size, 0))
+        WIN.blit(GUI.ToolsSurface, (0, 0))
     pygame.display.update()
 
 #END
