@@ -3,6 +3,7 @@ import os
 import socket
 import pickle
 import threading
+import math
 
 White = (255,255,255)
 Light_Green = (0, 255, 0)
@@ -25,21 +26,22 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         x = diametru*i + diametru/2 + 50 *(i-1)
         Cerc_draw.append((x,y))
 
-    #codul se executa cand iese un client 
-    def remove_client(cod) :
-        global nr_clients
-        nr_clients -= 1
-        CLIENTS.pop(Coduri_pozitie_client[cod])
-        Text_draw.pop(Coduri_pozitie_client[cod] + 1)
-        playeri.pop(Coduri_pozitie_client[cod] + 1)
-        Coduri_pozitie_client.pop(cod)
-        for i in Coduri_pozitie_client :
-            if Coduri_pozitie_client[i] > cod :
-                Coduri_pozitie_client[i] -= 1 
-                Text_draw[Coduri_pozitie_client[i]+1][1].center = (diametru*(Coduri_pozitie_client[i] + 2) + 50*(Coduri_pozitie_client[i] + 1) + diametru/2,HEIGHT/2 - diametru/2-30)
-
-    #Threadul care se ocupa cu primirea si trimiterea informatiilor spre un client
-    def reciev_thread(client,cod) :
+    #Threadul care se ocupa cu primirea informatiilor de la server
+    def reciev_thread_from_server(server) :
+        try :
+            while True :
+                msg = server.recv(1024)
+                if len(msg) != 0 :
+                    client.send(msg)
+                else :
+                    server.close()
+                    run = False
+                    break
+        except :
+            server.close()
+            run = False
+    #Threadul care se ocupa cu primirea informatiilor spre un client
+    def reciev_thread_from_client(client,cod) :
         playeri.append(("NAME_COOL",0))
         text = Font.render(playeri[len(playeri)-1][0], True, (0,0,0))
         text_rect = text.get_rect()
@@ -52,11 +54,11 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                     client.send(msg)
                 else :
                     client.close()
-                    remove_client(cod)
+                    Killed_Clients.append(cod)
                     break
         except :
             client.close()
-            remove_client(cod)
+            Killed_Clients.append(cod)
         print(f"Sa oprit threadul clientului nr {cod}")
 
 
@@ -72,7 +74,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                     Coduri_pozitie_client[cod_client] = nr_clients 
                     nr_clients += 1
                     CLIENTS.append((client))
-                    newthread = threading.Thread(target = reciev_thread , args =(client,cod_client))
+                    newthread = threading.Thread(target = reciev_thread_from_client , args =(client,cod_client))
                     cod_client += 1 
                     Client_THREADS.append(newthread)
                     Client_THREADS[len(Client_THREADS)-1].start()
@@ -106,20 +108,39 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         Text_draw.append((text,text_rect))
         CLIENTS = []
         Client_THREADS = []
+        #threaduri care trebe reunite cu mainul
+        Killed_Clients = []
         Coduri_pozitie_client = {}
 
         Connection.listen()
         Listening_thread = threading.Thread(target = host_listen_thread)
         Listening_thread.start()
-
+    else :
+        #Daca threadu care asculta serveru este mort
+        Thread_mort = False
 
 
     clock = pygame.time.Clock()
     run = True
     while run :
         clock.tick(FPS)
-        
-        FPS_text = Font.render(str(clock.get_fps()),True,Light_Green)
+        #Creaza textul pe care il afiseaza pentru FPS-uri
+        FPS_text = Font.render("FPS: " + str(math.ceil(clock.get_fps())),True,Light_Green)
+
+        #Verifica daca sunt clients care trebe purged
+        while len(Killed_Clients) > 0 :
+            nr_clients -= 1
+            CLIENTS.pop(Coduri_pozitie_client[Killed_Clients[0]])
+            Text_draw.pop(Coduri_pozitie_client[Killed_Clients[0]] + 1)
+            playeri.pop(Coduri_pozitie_client[Killed_Clients[0]] + 1)
+            Client_THREADS[Coduri_pozitie_client[Killed_Clients[0]]].join()
+            Client_THREADS.pop(Coduri_pozitie_client[Killed_Clients[0]])
+            Coduri_pozitie_client.pop(Killed_Clients[0])
+            for i in Coduri_pozitie_client :
+                if Coduri_pozitie_client[i] > Killed_Clients[0] :
+                    Coduri_pozitie_client[i] -= 1 
+                    Text_draw[Coduri_pozitie_client[i]+1][1].center = (diametru*(Coduri_pozitie_client[i] + 2) + 50*(Coduri_pozitie_client[i] + 1) + diametru/2,HEIGHT/2 - diametru/2-30)
+            Killed_Clients.pop(0)
 
         draw_window()
 
