@@ -25,14 +25,17 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection) :
         Cerc_draw.append((x,y))
 
     def remove_client(cod) :
-        CLIENTS.pop(Coduri_pozitie_client[cod])
+        CLIENTS.pop(Coduri_pozitie_client[cod]-1)
         Text_draw.pop(Coduri_pozitie_client[cod])
         playeri.pop(Coduri_pozitie_client[cod])
         Coduri_pozitie_client.pop(cod)
+        print(Coduri_pozitie_client)
         for i in Coduri_pozitie_client :
-            if i > cod :
-                i -= 1 
-                Text_draw[i][1].center = (diametru*(i+1) + 50*i + diametru/2,HEIGHT/2 - diametru/2-30)
+            print("aici")
+            print(i)
+            if Coduri_pozitie_client[i] > cod :
+                Coduri_pozitie_client[i] -= 1 
+                Text_draw[i][1].center = (diametru*(Coduri_pozitie_client[i]+1) + 50*Coduri_pozitie_client[i] + diametru/2,HEIGHT/2 - diametru/2-30)
 
     #Threadul care se ocupa cu primirea si trimiterea informatiilor spre un client
     def reciev_thread(client,cod) :
@@ -48,9 +51,11 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection) :
                 if len(msg) != 0 :
                     client.send(msg)
                 else :
+                    client.close()
                     remove_client(cod)
                     break
         except :
+            client.close()
             remove_client(cod)
         print(f"Sa oprit threadul clientului nr {cod}")
 
@@ -88,6 +93,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection) :
 
     if Role == "host" :
         global nr_clients
+        nr_clients = 0
         playeri.append((name,0))
         text = Font.render(playeri[0][0], True, (0,0,0))
         text_rect = text.get_rect()
