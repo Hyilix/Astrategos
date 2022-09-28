@@ -148,6 +148,6 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
                         PORT += 1 
                         print(PORT)
                 #Aici se da enter la next stage
-                lobby(WIN,WIDTH,HEIGHT,FPS,Role,info[0],server)
+                lobby(WIN,WIDTH,HEIGHT,FPS,Role,info[0],server,PORT)
                 run = False
 

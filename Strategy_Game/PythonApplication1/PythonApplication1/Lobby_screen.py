@@ -5,9 +5,10 @@ import pickle
 import threading
 
 White = (255,255,255)
+Light_Green = (0, 255, 0)
 nr_clients = 0
 
-def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection) :
+def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
     pygame.init()
 
 
@@ -24,18 +25,18 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection) :
         x = diametru*i + diametru/2 + 50 *(i-1)
         Cerc_draw.append((x,y))
 
+    #codul se executa cand iese un client 
     def remove_client(cod) :
-        CLIENTS.pop(Coduri_pozitie_client[cod]-1)
-        Text_draw.pop(Coduri_pozitie_client[cod])
-        playeri.pop(Coduri_pozitie_client[cod])
+        global nr_clients
+        nr_clients -= 1
+        CLIENTS.pop(Coduri_pozitie_client[cod])
+        Text_draw.pop(Coduri_pozitie_client[cod] + 1)
+        playeri.pop(Coduri_pozitie_client[cod] + 1)
         Coduri_pozitie_client.pop(cod)
-        print(Coduri_pozitie_client)
         for i in Coduri_pozitie_client :
-            print("aici")
-            print(i)
             if Coduri_pozitie_client[i] > cod :
                 Coduri_pozitie_client[i] -= 1 
-                Text_draw[i][1].center = (diametru*(Coduri_pozitie_client[i]+1) + 50*Coduri_pozitie_client[i] + diametru/2,HEIGHT/2 - diametru/2-30)
+                Text_draw[Coduri_pozitie_client[i]+1][1].center = (diametru*(Coduri_pozitie_client[i] + 2) + 50*(Coduri_pozitie_client[i] + 1) + diametru/2,HEIGHT/2 - diametru/2-30)
 
     #Threadul care se ocupa cu primirea si trimiterea informatiilor spre un client
     def reciev_thread(client,cod) :
@@ -46,7 +47,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection) :
         Text_draw.append((text,text_rect))
         try :
             while True :
-                #if client!= None
                 msg = client.recv(1024)
                 if len(msg) != 0 :
                     client.send(msg)
@@ -69,10 +69,10 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection) :
             while nr_clients < 3 :
                     client, address = Connection.accept()
                     print("se intampla")
+                    Coduri_pozitie_client[cod_client] = nr_clients 
                     nr_clients += 1
                     CLIENTS.append((client))
                     newthread = threading.Thread(target = reciev_thread , args =(client,cod_client))
-                    Coduri_pozitie_client[cod_client] = nr_clients 
                     cod_client += 1 
                     Client_THREADS.append(newthread)
                     Client_THREADS[len(Client_THREADS)-1].start()
@@ -80,6 +80,8 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection) :
 
     def draw_window () :
         WIN.fill((255,255,255))
+        WIN.blit(Port_text,(25,25))
+        WIN.blit(FPS_text,(25,25+40))
         for i in range( len(Cerc_draw)) :
             pygame.draw.circle(WIN,(225, 223, 240),Cerc_draw[i],diametru/2)
             if len(playeri) > i :
@@ -90,11 +92,14 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection) :
         pygame.display.update()
         
 
-
+    #Se creaza toate variabilele de care are nevoie Hostul
     if Role == "host" :
         global nr_clients
         nr_clients = 0
         playeri.append((name,0))
+        #crearea textului de afisat al Portului
+        Port_text = Font.render("Port: " + str(Port), True, Light_Green)
+        #crearea textului de afisat al numelui
         text = Font.render(playeri[0][0], True, (0,0,0))
         text_rect = text.get_rect()
         text_rect.center = (diametru + diametru/2,HEIGHT/2 - diametru/2-30)
@@ -114,6 +119,8 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection) :
     while run :
         clock.tick(FPS)
         
+        FPS_text = Font.render(str(clock.get_fps()),True,Light_Green)
+
         draw_window()
 
         #print (Coduri_pozitie_client)
