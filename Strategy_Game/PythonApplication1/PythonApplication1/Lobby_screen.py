@@ -84,6 +84,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         WIN.fill((255,255,255))
         WIN.blit(Port_text,(25,25))
         WIN.blit(FPS_text,(25,25+40))
+        #deseneaza cercurile si info-urile playerilor
         for i in range( len(Cerc_draw)) :
             pygame.draw.circle(WIN,(225, 223, 240),Cerc_draw[i],diametru/2)
             if len(playeri) > i :
@@ -136,6 +137,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
             Client_THREADS[Coduri_pozitie_client[Killed_Clients[0]]].join()
             Client_THREADS.pop(Coduri_pozitie_client[Killed_Clients[0]])
             Coduri_pozitie_client.pop(Killed_Clients[0])
+            #reactualizare in dictionarul clientilor si pozitiile lor
             for i in Coduri_pozitie_client :
                 if Coduri_pozitie_client[i] > Killed_Clients[0] :
                     Coduri_pozitie_client[i] -= 1 
