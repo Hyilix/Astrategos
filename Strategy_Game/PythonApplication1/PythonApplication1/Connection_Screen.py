@@ -6,6 +6,7 @@ from button import Button
 from Lobby_screen import lobby
 
 White = (255,255,255)
+Error_lifespan = 0
 
 def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
     
@@ -20,7 +21,7 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
     Error_text = Font.render("Ceva nu a mers bine",True,(0,0,0))
     text_rect = Error_text.get_rect()
     Error_text = (Error_text,text_rect)
-    Error_lifespan = 0
+    global Error_lifespan
     selected = -1
     #SE creaza butoanele care vor aparea pe ecran in functie de rolul selectat (host/client)
     if Role == "client" :
@@ -68,6 +69,7 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
         Error_text[1].center = (WIDTH/2,(HEIGHT - 85*3-50*2)/2+85*2+50*2+5 + 85 + 25)
 
     def draw_window () :
+        global Error_lifespan
         WIN.fill(White)
         for i in Rect_Draw :
             pygame.draw.rect(WIN,(0,0,0),i)
@@ -75,6 +77,7 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
             button.update(WIN)
         if Error_lifespan > 0 :
             Error_lifespan -= 1 
+            print(Error_lifespan)
             WIN.blit(Error_text[0],Error_text[1])
         pygame.display.update()
 
@@ -152,8 +155,8 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
                 HOSTNAME = info[1]
 
                 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-                while PORT < 100000 :
+                verified = 0
+                while True :
                     #aceasta conditie ar trebui sa de-a fail doar daca portul este folosit, daca este folosit va mari nr. portului cu 1
                     try :
                         server.bind((HOSTNAME,PORT))
@@ -162,8 +165,14 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
                         run = False
                         break
                     except :
-                        PORT += 1 
-                        print(PORT)
+                        if verified ==0 :
+                            try :
+                                socket.gethostbyname(HOSTNAME)
+                                verified = 1
+                            except :
+                                break
+                        if verified == 1 :
+                            PORT += 1 
                 #Daca a dat eroare
                 if run == True :
                     Error_lifespan = 240
