@@ -18,7 +18,7 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
 
     Font = pygame.font.Font(None, 40)
     Error_text = Font.render("Ceva nu a mers bine",True,(0,0,0))
-    text_rect = text.get_rect()
+    text_rect = Error_text.get_rect()
     Error_text = (Error_text,text_rect)
     Error_lifespan = 0
     selected = -1
@@ -73,6 +73,9 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
             pygame.draw.rect(WIN,(0,0,0),i)
         for button in Buttons :
             button.update(WIN)
+        if Error_lifespan > 0 :
+            Error_lifespan -= 1 
+            WIN.blit(Error_text[0],Error_text[1])
         pygame.display.update()
 
     #informatile care pot fi colectate de la player 1.nume si daca e client 2.hostname 3.port 
@@ -142,23 +145,27 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
                     lobby(WIN,WIDTH,HEIGHT,FPS,Role,client)
                     run= False
                 except :
-                    print("nu a mers dipshit")
-                    #ceva eroare pe pygame window vedem...
+                    #va afisa o eroare pentru 4 secunde
+                    Error_lifespan = 240
             else :
                 PORT = 65432
                 HOSTNAME = info[1]
 
                 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-                while True :
+                while PORT < 100000 :
                     #aceasta conditie ar trebui sa de-a fail doar daca portul este folosit, daca este folosit va mari nr. portului cu 1
                     try :
                         server.bind((HOSTNAME,PORT))
+                        #se da enter la next stage
+                        lobby(WIN,WIDTH,HEIGHT,FPS,Role,info[0],server,PORT)
+                        run = False
                         break
                     except :
                         PORT += 1 
                         print(PORT)
-                #Aici se da enter la next stage
-                lobby(WIN,WIDTH,HEIGHT,FPS,Role,info[0],server,PORT)
-                run = False
+                #Daca a dat eroare
+                if run == True :
+                    Error_lifespan = 240
+
 

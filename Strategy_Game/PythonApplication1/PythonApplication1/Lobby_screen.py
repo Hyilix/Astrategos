@@ -59,7 +59,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         except :
             client.close()
             Killed_Clients.append(cod)
-        print(f"Sa oprit threadul clientului nr {cod}")
+        print("Sa oprit threadul clientului nr {cod}")
 
 
     #Threadul care va asculta pentru si va acepta clienti
