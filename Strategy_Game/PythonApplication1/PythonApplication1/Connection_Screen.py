@@ -78,7 +78,6 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
             button.update(WIN)
         if Error_lifespan > 0 :
             Error_lifespan -= 1 
-            print(Error_lifespan)
             WIN.blit(Error_text[0],Error_text[1])
         pygame.display.update()
 
@@ -92,7 +91,6 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
     next_stage = False
     while run :
         clock.tick(FPS)
-        print("yeet")
         draw_window()
 
         for event in pygame.event.get():
@@ -175,11 +173,9 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
                                 break
                         if verified == 1 :
                             PORT = PORT + 1 
-                            print(PORT)
                 #Daca a dat eroare
                 if run == True :
                     Error_lifespan = 240
                     next_stage = False
-                print("it happened")
 
 

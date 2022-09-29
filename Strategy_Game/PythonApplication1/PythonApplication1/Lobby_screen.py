@@ -8,6 +8,7 @@ import math
 White = (255,255,255)
 Light_Green = (0, 255, 0)
 nr_clients = 0
+cod_client = 0
 
 def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
     pygame.init()
@@ -59,25 +60,22 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         except :
             client.close()
             Killed_Clients.append(cod)
-        print("Sa oprit threadul clientului nr {cod}")
 
 
     #Threadul care va asculta pentru si va acepta clienti
     def host_listen_thread() :
         global nr_clients
+        global cod_client
         #al catelea client de la inceputul serverului
-        cod_client = 0
-        while True :
-            while nr_clients < 3 :
-                    client, address = Connection.accept()
-                    print("se intampla")
-                    Coduri_pozitie_client[cod_client] = nr_clients 
-                    nr_clients += 1
-                    CLIENTS.append((client))
-                    newthread = threading.Thread(target = reciev_thread_from_client , args =(client,cod_client))
-                    cod_client += 1 
-                    Client_THREADS.append(newthread)
-                    Client_THREADS[len(Client_THREADS)-1].start()
+        while nr_clients < 3 :
+                client, address = Connection.accept()
+                Coduri_pozitie_client[cod_client] = nr_clients 
+                nr_clients += 1
+                CLIENTS.append((client))
+                newthread = threading.Thread(target = reciev_thread_from_client , args =(client,cod_client))
+                cod_client += 1 
+                Client_THREADS.append(newthread)
+                Client_THREADS[len(Client_THREADS)-1].start()
 
 
     def draw_window () :
@@ -98,7 +96,9 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
     #Se creaza toate variabilele de care are nevoie Hostul
     if Role == "host" :
         global nr_clients
+        global cod_client
         nr_clients = 0
+        cod_client = 0
         playeri.append((name,0))
         #crearea textului de afisat al Portului
         Port_text = Font.render("Port: " + str(Port), True, Light_Green)
@@ -116,6 +116,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         Connection.listen()
         Listening_thread = threading.Thread(target = host_listen_thread)
         Listening_thread.start()
+        Listening = True
     else :
         #Daca threadu care asculta serveru este mort
         Thread_mort = False
@@ -128,6 +129,12 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         #Creaza textul pe care il afiseaza pentru FPS-uri
         FPS_text = Font.render("FPS: " + str(math.ceil(clock.get_fps())),True,Light_Green)
 
+        #Daca lobiul este plin inchide threadul care asculta pentru noi clienti
+        if nr_clients == 3 and Listening == True :
+            Listening_thread.join()
+        #Daca lobiul nu mai asculta pentru clienti si are mai putini clienti decat incap incepe din nou sa asculte
+        elif nr_clients < 3 and Listening == False :
+            Listening_thread.start()
         #Verifica daca sunt clients care trebe purged
         while len(Killed_Clients) > 0 :
             nr_clients -= 1
