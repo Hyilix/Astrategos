@@ -132,9 +132,14 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         #Daca lobiul este plin inchide threadul care asculta pentru noi clienti
         if nr_clients == 3 and Listening == True :
             Listening_thread.join()
+            print("stoped")
+            Listening = False
         #Daca lobiul nu mai asculta pentru clienti si are mai putini clienti decat incap incepe din nou sa asculte
         elif nr_clients < 3 and Listening == False :
+            Listening_thread = threading.Thread(target = host_listen_thread)
             Listening_thread.start()
+            Listening = True
+            print("yes")
         #Verifica daca sunt clients care trebe purged
         while len(Killed_Clients) > 0 :
             nr_clients -= 1

@@ -144,12 +144,13 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
                 try : 
                     client.connect((info[1],int(info[2])))
                     #se da enter la next stage
-                    lobby(WIN,WIDTH,HEIGHT,FPS,Role,client)
                     run= False
                 except :
                     #va afisa o eroare pentru 4 secunde
                     Error_lifespan = 240
                     next_stage = False
+                if run == False :
+                    lobby(WIN,WIDTH,HEIGHT,FPS,Role,client)
             else :
                 PORT = 65432
                 HOSTNAME = info[1]
@@ -161,7 +162,7 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
                     try :
                         server.bind((HOSTNAME,PORT))
                         #se da enter la next stage
-                        lobby(WIN,WIDTH,HEIGHT,FPS,Role,info[0],server,PORT)
+                        Continue = True
                         run = False
                         break
                     except :
@@ -177,5 +178,8 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
                 if run == True :
                     Error_lifespan = 240
                     next_stage = False
+                else :
+                    lobby(WIN,WIDTH,HEIGHT,FPS,Role,info[0],server,PORT)
+
 
 
