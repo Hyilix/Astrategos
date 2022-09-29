@@ -14,7 +14,7 @@ WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 
 GUI.Initialize_Editor_GUIs()
 GUI.Draw_Textures_GUI((0,0))
-GUI.Draw_Tools_GUI()
+GUI.Draw_Tools_GUI([(0,0),(1,0)])
 
 class Camera:
     def __init__(self, position, zoom, max_zoom, min_zoom):
@@ -143,6 +143,17 @@ while Running:
                         if index < TileClass.last_index:
                             current_index = index
                             GUI.Draw_Textures_GUI((x_layer, y_layer))
+
+                elif GUI.GUIs_enabled == True and mouse_pos[0] <= WIDTH // 5:
+                    x_layer = mouse_pos[0] // (GUI.texture_size + GUI.texture_distance)
+                    y_layer = mouse_pos[1] // (GUI.texture_size + GUI.texture_distance)
+
+                    if mouse_pos[0] % (GUI.Tools_icon_size + GUI.Tools_icon_distance) < GUI.Tools_icon_distance:
+                        break
+                    elif mouse_pos[1] % (GUI.Tools_icon_size + GUI.Tools_icon_distance) < GUI.Tools_icon_distance:
+                        break
+                    else:
+                        print("x")
 
                 else:  #Mouse is on the map, so check which tile is selected
                     x_layer = (mouse_pos[0] + CurrentCamera.x) // current_tile_length 

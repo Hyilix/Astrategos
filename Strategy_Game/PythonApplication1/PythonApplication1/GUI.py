@@ -1,5 +1,6 @@
 import pygame
 import TileClass
+import os
 
 pygame.init()
 screen = pygame.display.Info()
@@ -13,8 +14,21 @@ texture_distance = 10
 max_x_pos = 4
 max_y_pos = TileClass.last_index // max_x_pos
 
+Tools_icon_size = 64
+Tools_icon_distance = 10
+
 Texture_x_size = (texture_size + texture_distance * 3) * max_x_pos
 print(Texture_x_size)
+
+default_path = 'Assets/EditorToolIcons/'
+icons = []
+
+for img in os.listdir(default_path):    #Load all icons
+    icons.append(pygame.image.load(default_path + img))
+
+for i in range(len(icons)):
+    newTexture = pygame.transform.scale(icons[i], (Tools_icon_size, Tools_icon_size))
+    icons[i] = newTexture
 
 #Surfaces for Editor GUI
 TextureSurface = pygame.Surface((Texture_x_size, texture_size * 2 * max_y_pos * texture_distance), pygame.SRCALPHA)
@@ -33,7 +47,7 @@ def Draw_Textures_GUI(position):
     for image_name in TileClass.avalible_textures:
         cloned_image = pygame.transform.scale(TileClass.base_textures[TileClass.texture_names.index(image_name)], (texture_size, texture_size))
         if position != None:
-            pygame.draw.rect(TextureSurface, (0, 255, 0), (position[0] * (texture_size + texture_distance) + texture_distance - 3, position[1] * (texture_size + texture_distance) + texture_distance - 3, texture_size + 6, texture_size + 6), 3)
+            pygame.draw.rect(TextureSurface, (255, 255, 0), (position[0] * (texture_size + texture_distance) + texture_distance - 5, position[1] * (texture_size + texture_distance) + texture_distance - 5, texture_size + 10, texture_size + 10), 5)
         TextureSurface.blit(cloned_image, (current_x * (texture_size + texture_distance) + texture_distance, current_y * (texture_size + texture_distance) + texture_distance))
         if current_x >= max_x_pos:
             current_x = 0
@@ -41,5 +55,20 @@ def Draw_Textures_GUI(position):
         else:
             current_x += 1
 
-def Draw_Tools_GUI():
+def Draw_Tools_GUI(positions):
     ToolsSurface.fill((0, 0, 0, 150))
+
+    current_x = 0
+    current_y = 0
+
+    for i in range(len(icons)):
+        if positions != None:
+            for position in positions:
+               pygame.draw.rect(ToolsSurface, (255, 255, 0), (position[0] * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance - 5, position[1] * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance - 5, texture_size + 10, texture_size + 10), 5)
+        
+        ToolsSurface.blit(icons[i], (current_x * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance, current_y * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance))
+        if current_x >= max_x_pos:
+            current_x = 0
+            current_y += 1
+        else:
+            current_x += 1
