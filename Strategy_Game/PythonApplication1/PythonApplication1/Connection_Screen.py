@@ -17,11 +17,12 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
     Rect_Draw = []
     Buttons = []
 
-    Font = pygame.font.Font(None, 40)
-    Error_text = Font.render("Ceva nu a mers bine",True,(0,0,0))
+    Font = pygame.font.Font(None, 100)
+    Error_text = Font.render("Ceva nu a mers bine",True,(255,0,0))
     text_rect = Error_text.get_rect()
     Error_text = (Error_text,text_rect)
     global Error_lifespan
+    Error_lifespan = 0
     selected = -1
     #SE creaza butoanele care vor aparea pe ecran in functie de rolul selectat (host/client)
     if Role == "client" :
@@ -46,7 +47,7 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
         Buttons.append(Backbutton)
 
         #seteaza unde va aparea eroarea cand nu se conecteaza
-        Error_text[1].center = (WIDTH/2,(HEIGHT - 85*3-50*2)/2+85*2+50*2 + 85 + 25)
+        Error_text[1].center = (WIDTH/2,(HEIGHT - 85*3-50*2)/2+85*3+50*2  + 150)
 
     else :
         Rect_Draw.append(((WIDTH-510)/2,(HEIGHT - 85*3-50*2)/2,510,85))
@@ -66,7 +67,7 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
         Buttons.append(Backbutton)
 
         #seteaza unde va aparea eroarea cand nu se conecteaza
-        Error_text[1].center = (WIDTH/2,(HEIGHT - 85*3-50*2)/2+85*2+50*2+5 + 85 + 25)
+        Error_text[1].center = (WIDTH/2,(HEIGHT - 85*3-50*2)/2+85*3+50*2+5 + 150)
 
     def draw_window () :
         global Error_lifespan
@@ -91,7 +92,7 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
     next_stage = False
     while run :
         clock.tick(FPS)
-
+        print("yeet")
         draw_window()
 
         for event in pygame.event.get():
@@ -150,13 +151,14 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
                 except :
                     #va afisa o eroare pentru 4 secunde
                     Error_lifespan = 240
+                    next_stage = False
             else :
                 PORT = 65432
                 HOSTNAME = info[1]
 
                 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 verified = 0
-                while True :
+                while PORT < 65434 :
                     #aceasta conditie ar trebui sa de-a fail doar daca portul este folosit, daca este folosit va mari nr. portului cu 1
                     try :
                         server.bind((HOSTNAME,PORT))
@@ -172,9 +174,12 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
                             except :
                                 break
                         if verified == 1 :
-                            PORT += 1 
+                            PORT = PORT + 1 
+                            print(PORT)
                 #Daca a dat eroare
                 if run == True :
                     Error_lifespan = 240
+                    next_stage = False
+                print("it happened")
 
 
