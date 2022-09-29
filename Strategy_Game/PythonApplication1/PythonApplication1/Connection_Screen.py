@@ -16,6 +16,11 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
     Rect_Draw = []
     Buttons = []
 
+    Font = pygame.font.Font(None, 40)
+    Error_text = Font.render("Ceva nu a mers bine",True,(0,0,0))
+    text_rect = text.get_rect()
+    Error_text = (Error_text,text_rect)
+    Error_lifespan = 0
     selected = -1
     #SE creaza butoanele care vor aparea pe ecran in functie de rolul selectat (host/client)
     if Role == "client" :
@@ -38,6 +43,10 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
         Rect_Draw.append(((WIDTH-410 - 160*2 - 50*2)/2 + 160 + 410 + 50*2,(HEIGHT - 85*3-50*2)/2+85*2+50*2,160,85) )
         Backbutton = Button(((WIDTH-410 - 160*2 - 50*2)/2 + 160 + 410 + 50*2+5,(HEIGHT - 85*3-50*2)/2+85*2+50*2+5,150,75),White,None,**{"text": "Back","font": pygame.font.Font(None, 50)})
         Buttons.append(Backbutton)
+
+        #seteaza unde va aparea eroarea cand nu se conecteaza
+        Error_text[1].center = (WIDTH/2,(HEIGHT - 85*3-50*2)/2+85*2+50*2 + 85 + 25)
+
     else :
         Rect_Draw.append(((WIDTH-510)/2,(HEIGHT - 85*3-50*2)/2,510,85))
         Namebutton = Button(((WIDTH-510)/2 + 5,(HEIGHT - 85*3-50*2)/2 + 5,500,75),White,None,**{"text": "Enter your name","font": pygame.font.Font(None, 50)})
@@ -55,6 +64,8 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
         Backbutton = Button(((WIDTH-260*2)*2/3+260+5,(HEIGHT - 85*3-50*2)/2+85*2+50*2+5,250,75),White,None,**{"text": "Back","font": pygame.font.Font(None, 50)})
         Buttons.append(Backbutton)
 
+        #seteaza unde va aparea eroarea cand nu se conecteaza
+        Error_text[1].center = (WIDTH/2,(HEIGHT - 85*3-50*2)/2+85*2+50*2+5 + 85 + 25)
 
     def draw_window () :
         WIN.fill(White)
