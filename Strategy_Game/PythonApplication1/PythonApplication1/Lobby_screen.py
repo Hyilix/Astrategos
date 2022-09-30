@@ -60,9 +60,18 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         except :
             server.close()
             run = False
+
     #Threadul care se ocupa cu primirea informatiilor spre un client
     def reciev_thread_from_client(client,cod) :
-        playeri.append(("NAME_COOL",0))
+        #Primeste numele clientului
+        header = server.recv(10)
+        data_recv = client.recv(int(header))
+        playeri.append((data_recv.decode("utf-8"),0))
+        #Trimite tot vectorul de playeri clientului
+        data_send = pickle.dumps(playeri)
+        data_send = (SPACE +str(len(data_send)))[-HEADERSIZE:] + data_send
+        client.send(data_send)
+        #Formateaza numele si il pregateste de afisare
         text = Font.render(playeri[len(playeri)-1][0], True, (0,0,0))
         text_rect = text.get_rect()
         text_rect.center = (diametru*(Coduri_pozitie_client[cod]+1) + 50*Coduri_pozitie_client[cod] + diametru/2,HEIGHT/2 - diametru/2-30)
