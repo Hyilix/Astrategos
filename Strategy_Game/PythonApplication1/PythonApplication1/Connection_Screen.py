@@ -150,7 +150,7 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
                     Error_lifespan = 240
                     next_stage = False
                 if run == False :
-                    lobby(WIN,WIDTH,HEIGHT,FPS,Role,client)
+                    lobby(WIN,WIDTH,HEIGHT,FPS,Role,client,int(info[2]))
             else :
                 PORT = 65432
                 HOSTNAME = info[1]

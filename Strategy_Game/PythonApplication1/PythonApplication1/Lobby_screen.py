@@ -5,10 +5,15 @@ import pickle
 import threading
 import math
 
+#Culori
 White = (255,255,255)
 Light_Green = (0, 255, 0)
+
 nr_clients = 0
 cod_client = 0
+
+HEADERSIZE = 10
+SPACE = "          "
 
 def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
     pygame.init()
@@ -18,7 +23,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
     Font = pygame.font.Font(None, 40)
     Cerc_draw = []
     Text_draw = []
-    Threads = []
 
     #coordonatele pentru cercuri
     y = HEIGHT/2
@@ -29,11 +33,26 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
 
     #Threadul care se ocupa cu primirea informatiilor de la server
     def reciev_thread_from_server(server) :
+        #Clientul isi trimite numele la server
+        data_send = ((SPACE + str(len(name)))[-HEADERSIZE:] + name)
+        server.send(bytes(data_send,"utf-8"))
+        #serveru va trimite la client toata lumea din vector
+        header = server.recv(10)
+        data_recv = server.recv(int(header))
+        playeri = pickle.loads(data_recv)
+        #Formateaza si pregateste pentru afisare toate numele playerilor
+        for i in range(len(playeri)) :
+            text = Font.render(playeri[i][0], True, (0,0,0))
+            text_rect = text.get_rect()
+            text_rect.center = (diametru*(i+1) + 50*i + diametru/2,HEIGHT/2 - diametru/2-30)
+            Text_draw.append((text,text_rect))
+
+        #The recieve loop
         try :
             while True :
-                msg = server.recv(1024)
-                if len(msg) != 0 :
-                    client.send(msg)
+                header = server.recv(10)
+                if len(header) != 0 :
+                    data_recv = server.recv(int(header))
                 else :
                     server.close()
                     run = False
@@ -48,6 +67,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         text_rect = text.get_rect()
         text_rect.center = (diametru*(Coduri_pozitie_client[cod]+1) + 50*Coduri_pozitie_client[cod] + diametru/2,HEIGHT/2 - diametru/2-30)
         Text_draw.append((text,text_rect))
+        #The recieve loop
         try :
             while True :
                 msg = client.recv(1024)
@@ -118,8 +138,11 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         Listening_thread.start()
         Listening = True
     else :
-        #Daca threadu care asculta serveru este mort
-        Thread_mort = False
+        #INCEPE Comunicarea intre client si server
+        recv_from_server = threading.Thread(target = reciev_thread_from_server, args =(Connection))
+        recv_from_server.start()
+
+        Port_text = Font.render("Port: " + str(Port), True, Light_Green)
 
 
     clock = pygame.time.Clock()
