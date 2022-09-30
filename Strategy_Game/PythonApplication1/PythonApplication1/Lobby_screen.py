@@ -65,12 +65,14 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
     def reciev_thread_from_client(client,cod) :
         print("client conected")
         #Primeste numele clientului
-        header = server.recv(10)
+        header = client.recv(10)
+        header = header.decode("utf-8")
+        print(header,type(header))
         data_recv = client.recv(int(header))
         playeri.append((data_recv.decode("utf-8"),0))
         #Trimite tot vectorul de playeri clientului
         data_send = pickle.dumps(playeri)
-        data_send = (SPACE +str(len(data_send)))[-HEADERSIZE:] + data_send
+        data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
         client.send(data_send)
         #Formateaza numele si il pregateste de afisare
         text = Font.render(playeri[len(playeri)-1][0], True, (0,0,0))
