@@ -150,7 +150,7 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
                     Error_lifespan = 240
                     next_stage = False
                 if run == False :
-                    lobby(WIN,WIDTH,HEIGHT,FPS,Role,client,int(info[2]))
+                    lobby(WIN,WIDTH,HEIGHT,FPS,Role,info[0], client,int(info[2]))
             else :
                 PORT = 65432
                 HOSTNAME = info[1]
@@ -166,7 +166,7 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
                         run = False
                         break
                     except :
-                        if verified ==0 :
+                        if verified == 0:
                             try :
                                 socket.gethostbyname(HOSTNAME)
                                 verified = 1
@@ -179,6 +179,7 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
                     Error_lifespan = 240
                     next_stage = False
                 else :
+
                     lobby(WIN,WIDTH,HEIGHT,FPS,Role,info[0],server,PORT)
 
 

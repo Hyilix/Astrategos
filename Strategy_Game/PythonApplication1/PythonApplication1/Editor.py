@@ -15,7 +15,7 @@ FPS = 60
 
 #PUT this here to test my shit
 #Mark as Comment if needed
-Connection_Screen.connection_screen(WIN,WIDTH,HEIGHT,FPS,"host")
+Connection_Screen.connection_screen(WIN,WIDTH,HEIGHT,FPS,"client")
 
 current_zoom = 1
 camera_movement = 15

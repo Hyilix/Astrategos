@@ -38,7 +38,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         server.send(bytes(data_send,"utf-8"))
         #serveru va trimite la client toata lumea din vector
         header = server.recv(10)
-        data_recv = server.recv(int(header))
+        data_recv = server.recv(int(header.decode("utf-8")))
         playeri = pickle.loads(data_recv)
         #Formateaza si pregateste pentru afisare toate numele playerilor
         for i in range(len(playeri)) :
@@ -150,7 +150,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         Listening = True
     else :
         #INCEPE Comunicarea intre client si server
-        recv_from_server = threading.Thread(target = reciev_thread_from_server, args =(Connection))
+        recv_from_server = threading.Thread(target = reciev_thread_from_server, args = (Connection,))
         recv_from_server.start()
 
         Port_text = Font.render("Port: " + str(Port), True, Light_Green)
@@ -164,31 +164,32 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         FPS_text = Font.render("FPS: " + str(math.ceil(clock.get_fps())),True,Light_Green)
 
         #Daca lobiul este plin inchide threadul care asculta pentru noi clienti
-        if nr_clients == 3 and Listening == True :
-            Listening_thread.join()
-            print("stoped")
-            Listening = False
-        #Daca lobiul nu mai asculta pentru clienti si are mai putini clienti decat incap incepe din nou sa asculte
-        elif nr_clients < 3 and Listening == False :
-            Listening_thread = threading.Thread(target = host_listen_thread)
-            Listening_thread.start()
-            Listening = True
-            print("yes")
-        #Verifica daca sunt clients care trebe purged
-        while len(Killed_Clients) > 0 :
-            nr_clients -= 1
-            CLIENTS.pop(Coduri_pozitie_client[Killed_Clients[0]])
-            Text_draw.pop(Coduri_pozitie_client[Killed_Clients[0]] + 1)
-            playeri.pop(Coduri_pozitie_client[Killed_Clients[0]] + 1)
-            Client_THREADS[Coduri_pozitie_client[Killed_Clients[0]]].join()
-            Client_THREADS.pop(Coduri_pozitie_client[Killed_Clients[0]])
-            Coduri_pozitie_client.pop(Killed_Clients[0])
-            #reactualizare in dictionarul clientilor si pozitiile lor
-            for i in Coduri_pozitie_client :
-                if Coduri_pozitie_client[i] > Killed_Clients[0] :
-                    Coduri_pozitie_client[i] -= 1 
-                    Text_draw[Coduri_pozitie_client[i]+1][1].center = (diametru*(Coduri_pozitie_client[i] + 2) + 50*(Coduri_pozitie_client[i] + 1) + diametru/2,HEIGHT/2 - diametru/2-30)
-            Killed_Clients.pop(0)
+        if Role == "host":
+            if nr_clients == 3 and Listening == True :
+                Listening_thread.join()
+                print("stoped")
+                Listening = False
+            #Daca lobiul nu mai asculta pentru clienti si are mai putini clienti decat incap incepe din nou sa asculte
+            elif nr_clients < 3 and Listening == False :
+                Listening_thread = threading.Thread(target = host_listen_thread)
+                Listening_thread.start()
+                Listening = True
+                print("yes")
+            #Verifica daca sunt clients care trebe purged
+            while len(Killed_Clients) > 0 :
+                nr_clients -= 1
+                CLIENTS.pop(Coduri_pozitie_client[Killed_Clients[0]])
+                Text_draw.pop(Coduri_pozitie_client[Killed_Clients[0]] + 1)
+                playeri.pop(Coduri_pozitie_client[Killed_Clients[0]] + 1)
+                Client_THREADS[Coduri_pozitie_client[Killed_Clients[0]]].join()
+                Client_THREADS.pop(Coduri_pozitie_client[Killed_Clients[0]])
+                Coduri_pozitie_client.pop(Killed_Clients[0])
+                #reactualizare in dictionarul clientilor si pozitiile lor
+                for i in Coduri_pozitie_client :
+                    if Coduri_pozitie_client[i] > Killed_Clients[0] :
+                        Coduri_pozitie_client[i] -= 1 
+                        Text_draw[Coduri_pozitie_client[i]+1][1].center = (diametru*(Coduri_pozitie_client[i] + 2) + 50*(Coduri_pozitie_client[i] + 1) + diametru/2,HEIGHT/2 - diametru/2-30)
+                Killed_Clients.pop(0)
 
         draw_window()
 
