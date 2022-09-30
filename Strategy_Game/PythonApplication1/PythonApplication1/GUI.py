@@ -11,24 +11,28 @@ GUIs_enabled = True
 
 texture_size = 64
 texture_distance = 10
-max_x_pos = 4
+max_x_pos = 2
 max_y_pos = TileClass.last_index // max_x_pos
 
 Tools_icon_size = 64
 Tools_icon_distance = 10
 
-Texture_x_size = (texture_size + texture_distance * 3) * max_x_pos
+Texture_x_size = (texture_size + texture_distance) * (max_x_pos + 1) + texture_distance
 print(Texture_x_size)
 
 default_path = 'Assets/EditorToolIcons/'
 icons = []
+icon_names = []
 
 for img in os.listdir(default_path):    #Load all icons
     icons.append(pygame.image.load(default_path + img))
+    icon_names.append(img)
 
 for i in range(len(icons)):
     newTexture = pygame.transform.scale(icons[i], (Tools_icon_size, Tools_icon_size))
     icons[i] = newTexture
+
+last_icons_index = len(icons)
 
 #Surfaces for Editor GUI
 TextureSurface = pygame.Surface((Texture_x_size, texture_size * 2 * max_y_pos * texture_distance), pygame.SRCALPHA)

@@ -14,7 +14,7 @@ WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 
 GUI.Initialize_Editor_GUIs()
 GUI.Draw_Textures_GUI((0,0))
-GUI.Draw_Tools_GUI([(0,0),(1,0)])
+GUI.Draw_Tools_GUI(None)
 
 class Camera:
     def __init__(self, position, zoom, max_zoom, min_zoom):
@@ -88,6 +88,16 @@ tiles[3][3].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length)
 
 mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
 
+ToolsSelectedPositions = []
+
+#Editor specific variables:
+Collision = False
+Eraser = False
+Editor_var_dict = {
+    "Collision" : Collision,
+    "Eraser" : Eraser
+}
+
 current_index = 0
 max_index = TileClass.last_index
 
@@ -138,13 +148,14 @@ while Running:
                         break
                     else:
                         index = GUI.max_x_pos * y_layer + x_layer
-                        if GUI.max_x_pos * y_layer > 0: index += 1
-                        print(index)
+                        if GUI.max_x_pos * y_layer > 0: index += y_layer
                         if index < TileClass.last_index:
                             current_index = index
                             GUI.Draw_Textures_GUI((x_layer, y_layer))
 
                 elif GUI.GUIs_enabled == True and mouse_pos[0] <= WIDTH // 5:
+                    #Check if the mouse is inside the ToolsGUI
+                    #and check which texture is selected.
                     x_layer = mouse_pos[0] // (GUI.texture_size + GUI.texture_distance)
                     y_layer = mouse_pos[1] // (GUI.texture_size + GUI.texture_distance)
 
@@ -153,7 +164,16 @@ while Running:
                     elif mouse_pos[1] % (GUI.Tools_icon_size + GUI.Tools_icon_distance) < GUI.Tools_icon_distance:
                         break
                     else:
-                        print("x")
+                        index = GUI.max_x_pos * y_layer + x_layer
+                        if GUI.max_x_pos * y_layer > 0: index += y_layer
+                        if index < GUI.last_icons_index:
+                            if ToolsSelectedPositions.count((x_layer, y_layer)) > 0:
+                                ToolsSelectedPositions.remove((x_layer, y_layer))
+                                Editor_var_dict[GUI.icon_names[index][:-4]] = False
+                            else:
+                                ToolsSelectedPositions.append((x_layer, y_layer))
+                                Editor_var_dict[GUI.icon_names[index][:-4]] = True
+                            GUI.Draw_Tools_GUI(ToolsSelectedPositions)
 
                 else:  #Mouse is on the map, so check which tile is selected
                     x_layer = (mouse_pos[0] + CurrentCamera.x) // current_tile_length 
@@ -163,10 +183,18 @@ while Running:
 
                     if x_layer >= 0 and x_layer < tiles_per_row:
                         if y_layer >= 0 and y_layer < rows:
-                            tiles[y_layer][x_layer].image_name = TileClass.avalible_textures[current_index]
-                            tiles[y_layer][x_layer].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
-                            mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
-
+                            if Editor_var_dict["Eraser"] == False:
+                                tiles[y_layer][x_layer].collidable = Editor_var_dict["Collision"]
+                                tiles[y_layer][x_layer].image_name = TileClass.avalible_textures[current_index]
+                                tiles[y_layer][x_layer].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+                                mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
+                            else:
+                                tiles[y_layer][x_layer].structure = None
+                                tiles[y_layer][x_layer].special = None
+                                tiles[y_layer][x_layer].unit = None
+                                tiles[y_layer][x_layer].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+                                mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
+                           
             modifier = 0
             if event.button == 4:
                 modifier = 1
@@ -192,16 +220,15 @@ while Running:
             try:
                 mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
             except:     #if that failed, the surface is too big.
-                print("hello")
+                print("Can't zoom in further")
 
         if event.type == pygame.MOUSEBUTTONUP:
             if event.button == 1:   #Left-click. Editor specific
                 hasLeftClickPressed = False
-                print("NO")
 
         if event.type == pygame.MOUSEMOTION:
             mouse_pos = pygame.mouse.get_pos()
-            if not (GUI.GUIs_enabled == True and mouse_pos[0] >= WIDTH - GUI.Texture_x_size): 
+            if not (GUI.GUIs_enabled == True and mouse_pos[0] >= WIDTH - GUI.Texture_x_size) and not (mouse_pos[0] <= WIDTH // 5): 
                 if hasLeftClickPressed == True:
                     x_layer = (mouse_pos[0] + CurrentCamera.x) // current_tile_length 
                     y_layer = (mouse_pos[1] + CurrentCamera.y) // current_tile_length
@@ -210,10 +237,18 @@ while Running:
 
                     if x_layer >= 0 and x_layer < tiles_per_row:
                         if y_layer >= 0 and y_layer < rows:
-                            tiles[y_layer][x_layer].image_name = TileClass.avalible_textures[current_index]
-                            tiles[y_layer][x_layer].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
-                            mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
-
+                            if Editor_var_dict["Eraser"] == False:
+                                tiles[y_layer][x_layer].collidable = Editor_var_dict["Collision"]
+                                tiles[y_layer][x_layer].image_name = TileClass.avalible_textures[current_index]
+                                tiles[y_layer][x_layer].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+                                mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
+                            else:
+                                tiles[y_layer][x_layer].structure = None
+                                tiles[y_layer][x_layer].special = None
+                                tiles[y_layer][x_layer].unit = None
+                                tiles[y_layer][x_layer].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+                                mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
+                           
 
     #Check if user wants to change the camera's position
     x_pos = pygame.mouse.get_pos()[0]
