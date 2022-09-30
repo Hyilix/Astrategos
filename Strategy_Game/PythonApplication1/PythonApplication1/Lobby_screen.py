@@ -63,6 +63,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
 
     #Threadul care se ocupa cu primirea informatiilor spre un client
     def reciev_thread_from_client(client,cod) :
+        print("client conected")
         #Primeste numele clientului
         header = server.recv(10)
         data_recv = client.recv(int(header))
@@ -124,6 +125,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
 
     #Se creaza toate variabilele de care are nevoie Hostul
     if Role == "host" :
+        print(socket.gethostname())
         global nr_clients
         global cod_client
         nr_clients = 0
@@ -142,7 +144,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         Killed_Clients = []
         Coduri_pozitie_client = {}
 
-        Connection.listen()
+        Connection.listen(3)
         Listening_thread = threading.Thread(target = host_listen_thread)
         Listening_thread.start()
         Listening = True
