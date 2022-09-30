@@ -38,7 +38,8 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         server.send(bytes(data_send,"utf-8"))
         #serveru va trimite la client toata lumea din vector
         header = server.recv(10)
-        data_recv = server.recv(int(header.decode("utf-8")))
+        header = header.decode("utf-8")
+        data_recv = server.recv(int(header))
         playeri = pickle.loads(data_recv)
         #Formateaza si pregateste pentru afisare toate numele playerilor
         for i in range(len(playeri)) :
@@ -51,6 +52,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         try :
             while True :
                 header = server.recv(10)
+                header = header.decode("utf-8")
                 if len(header) != 0 :
                     data_recv = server.recv(int(header))
                 else :
@@ -67,9 +69,9 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         #Primeste numele clientului
         header = client.recv(10)
         header = header.decode("utf-8")
-        print(header,type(header))
         data_recv = client.recv(int(header))
         playeri.append((data_recv.decode("utf-8"),0))
+        Transmit_to_all.append("newplayer",playeri[len(playeri)-1])
         #Trimite tot vectorul de playeri clientului
         data_send = pickle.dumps(playeri)
         data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
@@ -150,6 +152,9 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         Listening_thread = threading.Thread(target = host_listen_thread)
         Listening_thread.start()
         Listening = True
+
+        #Lucrurile pe care trebe sa le trimita tuturor
+        Transmit_to_all = []
     else :
         #INCEPE Comunicarea intre client si server
         recv_from_server = threading.Thread(target = reciev_thread_from_server, args = (Connection,))
