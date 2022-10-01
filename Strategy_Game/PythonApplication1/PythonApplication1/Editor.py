@@ -109,10 +109,20 @@ def place_tile():     #Function to determine what to place and how
         tiles[y_layer][x_layer].special = None
         tiles[y_layer][x_layer].unit = None
            
-    
-    tiles[y_layer][x_layer].collidable = Editor_var_dict["Collision"]
-    tiles[y_layer][x_layer].image_name = TileClass.avalible_textures[current_index]
-    tiles[y_layer][x_layer].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+    if Editor_var_dict["Fill"] == True:
+        print("NOT IMPLEMENTED. LEAVE ME ALONE")
+
+    elif Editor_var_dict["FillAll"] == True:
+        for x in range(rows):
+            for y in range(tiles_per_row):
+                tiles[y][x].collidable = Editor_var_dict["Collision"]
+                tiles[y][x].image_name = TileClass.avalible_textures[current_index]
+                tiles[y][x].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+
+    else:
+        tiles[y_layer][x_layer].collidable = Editor_var_dict["Collision"]
+        tiles[y_layer][x_layer].image_name = TileClass.avalible_textures[current_index]
+        tiles[y_layer][x_layer].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
                           
 current_index = 0
 max_index = TileClass.last_index
@@ -169,13 +179,13 @@ while Running:
                             current_index = index
                             GUI.Draw_Textures_GUI((x_layer, y_layer))
 
-                elif GUI.GUIs_enabled == True and mouse_pos[0] <= GUI.Tool_x_size:
+                elif GUI.GUIs_enabled == True and mouse_pos[0] >= WIDTH - GUI.Texture_x_size - GUI.Tool_x_size:
                     #Check if the mouse is inside the ToolsGUI
                     #and check which texture is selected.
-                    x_layer = mouse_pos[0] // (GUI.texture_size + GUI.texture_distance)
+                    x_layer = (mouse_pos[0] - (WIDTH - GUI.Texture_x_size - GUI.Tool_x_size)) // (GUI.texture_size + GUI.texture_distance)
                     y_layer = mouse_pos[1] // (GUI.texture_size + GUI.texture_distance)
 
-                    if mouse_pos[0] % (GUI.Tools_icon_size + GUI.Tools_icon_distance) < GUI.Tools_icon_distance:
+                    if (mouse_pos[0] - (WIDTH - GUI.Texture_x_size - GUI.Tool_x_size)) % (GUI.Tools_icon_size + GUI.Tools_icon_distance) < GUI.Tools_icon_distance:
                         break
                     elif mouse_pos[1] % (GUI.Tools_icon_size + GUI.Tools_icon_distance) < GUI.Tools_icon_distance:
                         break
@@ -209,7 +219,6 @@ while Running:
                                     if GUI.Tools_max_x_pos * new_y > 0: newIndex += new_y
 
                             if name == "Fill":
-                                print(index)
                                 Editor_var_dict["FillAll"] = False
                                 find_img("FillAll")
                             elif name == "FillAll":
@@ -260,7 +269,7 @@ while Running:
 
         if event.type == pygame.MOUSEMOTION:
             mouse_pos = pygame.mouse.get_pos()
-            if not (GUI.GUIs_enabled == True and mouse_pos[0] >= WIDTH - GUI.Texture_x_size) and not (mouse_pos[0] <= GUI.Tool_x_size): 
+            if not (GUI.GUIs_enabled == True and mouse_pos[0] >= WIDTH - GUI.Texture_x_size) and not (mouse_pos[0] >= WIDTH - GUI.Texture_x_size - GUI.Tool_x_size): 
                 if hasLeftClickPressed == True:
                     x_layer = (mouse_pos[0] + CurrentCamera.x) // current_tile_length 
                     y_layer = (mouse_pos[1] + CurrentCamera.y) // current_tile_length
@@ -292,7 +301,7 @@ while Running:
     WIN.blit(tempSurface, (0, 0))
     if GUI.GUIs_enabled == True: 
         WIN.blit(GUI.TextureSurface, (WIDTH - GUI.Texture_x_size, 0))
-        WIN.blit(GUI.ToolsSurface, (0, 0))
+        WIN.blit(GUI.ToolsSurface, (WIDTH - GUI.Texture_x_size - GUI.Tool_x_size, 0))
     pygame.display.update()
 
 #END
