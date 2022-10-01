@@ -11,6 +11,8 @@ Light_Green = (0, 255, 0)
 
 nr_clients = 0
 cod_client = 0
+playeri = []
+Text_draw = []
 
 HEADERSIZE = 10
 SPACE = "          "
@@ -18,7 +20,7 @@ SPACE = "          "
 def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
     pygame.init()
 
-
+    global playeri
     playeri = []
     Font = pygame.font.Font(None, 40)
     Cerc_draw = []
@@ -33,6 +35,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
 
     #Threadul care se ocupa cu primirea informatiilor de la server
     def reciev_thread_from_server(server) :
+        global playeri
         #Clientul isi trimite numele la server
         data_send = ((SPACE + str(len(name)))[-HEADERSIZE:] + name)
         server.send(bytes(data_send,"utf-8"))
@@ -67,7 +70,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
 
     #Threadul care se ocupa cu primirea informatiilor spre un client
     def reciev_thread_from_client(client,cod) :
-        print("client conected")
         #Primeste numele clientului
         header = client.recv(10)
         header = header.decode("utf-8")
@@ -131,7 +133,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
 
     #Se creaza toate variabilele de care are nevoie Hostul
     if Role == "host" :
-        print(socket.gethostname())
         global nr_clients
         global cod_client
         nr_clients = 0
@@ -211,7 +212,12 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         else :
             while len(Changes_for_server) > 0 :
                 if Changes_for_server[0][0] == "newplayer" :
-                    playeri.append(Changes_for_server[0][1])
+                    if name != Changes_for_server[0][1][0] :
+                        playeri.append(Changes_for_server[0][1])
+                        text = Font.render(Changes_for_server[0][1][0], True, (0,0,0))
+                        text_rect = text.get_rect()
+                        text_rect.center = (diametru*(i+1) + 50*i + diametru/2,HEIGHT/2 - diametru/2-30)
+                        Text_draw.append((text,text_rect))
                 elif Changes_for_server[0][0] == "leftplayer" :
                     playeri.pop(Changes_for_server[0][1])
                     Text_draw.pop(Changes_for_server[0][1])
