@@ -9,16 +9,7 @@ HEIGHT = screen.current_h
 
 GUIs_enabled = True
 
-texture_size = 64
-texture_distance = 10
-max_x_pos = 2
-max_y_pos = TileClass.last_index // max_x_pos
-
 Tools_icon_size = 64
-Tools_icon_distance = 10
-
-Texture_x_size = (texture_size + texture_distance) * (max_x_pos + 1) + texture_distance
-print(Texture_x_size)
 
 default_path = 'Assets/EditorToolIcons/'
 icons = []
@@ -34,9 +25,22 @@ for i in range(len(icons)):
 
 last_icons_index = len(icons)
 
+texture_size = 64
+texture_distance = 10
+max_x_pos = 2
+max_y_pos = TileClass.last_index // max_x_pos
+
+Tools_icon_distance = 10
+Tools_max_x_pos = 2
+Tools_max_y_pos = last_icons_index // Tools_max_x_pos
+
+Texture_x_size = (texture_size + texture_distance) * (max_x_pos + 1) + texture_distance
+Tool_x_size = (Tools_icon_size + Tools_icon_distance) * (Tools_max_x_pos + 1) + Tools_icon_distance
+print(Texture_x_size)
+
 #Surfaces for Editor GUI
 TextureSurface = pygame.Surface((Texture_x_size, texture_size * 2 * max_y_pos * texture_distance), pygame.SRCALPHA)
-ToolsSurface = pygame.Surface((WIDTH // 5, HEIGHT), pygame.SRCALPHA)
+ToolsSurface = pygame.Surface((Tool_x_size, HEIGHT), pygame.SRCALPHA)
 
 def Initialize_Editor_GUIs():
     TextureSurface.convert_alpha()
