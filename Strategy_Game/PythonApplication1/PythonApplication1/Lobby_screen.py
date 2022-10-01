@@ -73,7 +73,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         header = header.decode("utf-8")
         data_recv = client.recv(int(header))
         playeri.append((data_recv.decode("utf-8"),0))
-        Transmit_to_all.append("newplayer",playeri[len(playeri)-1])
+        Transmit_to_all.append(("newplayer",playeri[len(playeri)-1]))
         #Trimite tot vectorul de playeri clientului
         data_send = pickle.dumps(playeri)
         data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
@@ -188,7 +188,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
             #Verifica daca sunt clients care trebe purged
             while len(Killed_Clients) > 0 :
                 nr_clients -= 1
-                Transmit_to_all.append("leftplayer",Coduri_pozitie_client[Killed_Clients[0]] + 1)
+                Transmit_to_all.append(("leftplayer",Coduri_pozitie_client[Killed_Clients[0]] + 1))
                 CLIENTS.pop(Coduri_pozitie_client[Killed_Clients[0]])
                 Text_draw.pop(Coduri_pozitie_client[Killed_Clients[0]] + 1)
                 playeri.pop(Coduri_pozitie_client[Killed_Clients[0]] + 1)
@@ -206,7 +206,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                 data_send = pickle.dumps(Transmit_to_all[0])
                 data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                 for client in CLIENTS :
-                    client.send(Transmit_to_all[0])
+                    client.send(data_send)
                 Transmit_to_all.pop(0)
         else :
             while len(Changes_for_server) > 0 :
