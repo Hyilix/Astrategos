@@ -55,6 +55,8 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                 header = header.decode("utf-8")
                 if len(header) != 0 :
                     data_recv = server.recv(int(header))
+                    data_recv = pickle.loads(data_recv)
+                    Changes_for_server.append(data_recv)
                 else :
                     server.close()
                     run = False
@@ -105,7 +107,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                 client, address = Connection.accept()
                 Coduri_pozitie_client[cod_client] = nr_clients 
                 nr_clients += 1
-                CLIENTS.append((client))
+                CLIENTS.append(client)
                 newthread = threading.Thread(target = reciev_thread_from_client , args =(client,cod_client))
                 cod_client += 1 
                 Client_THREADS.append(newthread)
@@ -162,6 +164,9 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
 
         Port_text = Font.render("Port: " + str(Port), True, Light_Green)
 
+        Changes_for_server = []
+
+
 
     clock = pygame.time.Clock()
     run = True
@@ -174,17 +179,16 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         if Role == "host":
             if nr_clients == 3 and Listening == True :
                 Listening_thread.join()
-                print("stoped")
                 Listening = False
             #Daca lobiul nu mai asculta pentru clienti si are mai putini clienti decat incap incepe din nou sa asculte
             elif nr_clients < 3 and Listening == False :
                 Listening_thread = threading.Thread(target = host_listen_thread)
                 Listening_thread.start()
                 Listening = True
-                print("yes")
             #Verifica daca sunt clients care trebe purged
             while len(Killed_Clients) > 0 :
                 nr_clients -= 1
+                Transmit_to_all.append("leftplayer",Coduri_pozitie_client[Killed_Clients[0]] + 1)
                 CLIENTS.pop(Coduri_pozitie_client[Killed_Clients[0]])
                 Text_draw.pop(Coduri_pozitie_client[Killed_Clients[0]] + 1)
                 playeri.pop(Coduri_pozitie_client[Killed_Clients[0]] + 1)
@@ -197,6 +201,23 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                         Coduri_pozitie_client[i] -= 1 
                         Text_draw[Coduri_pozitie_client[i]+1][1].center = (diametru*(Coduri_pozitie_client[i] + 2) + 50*(Coduri_pozitie_client[i] + 1) + diametru/2,HEIGHT/2 - diametru/2-30)
                 Killed_Clients.pop(0)
+            #Transmiterea schimbarilor clientilor
+            while len(Transmit_to_all) > 0 :
+                data_send = pickle.dumps(Transmit_to_all[0])
+                data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
+                for client in CLIENTS :
+                    client.send(Transmit_to_all[0])
+                Transmit_to_all.pop(0)
+        else :
+            while len(Changes_for_server) > 0 :
+                if Changes_for_server[0][0] == "newplayer" :
+                    playeri.append(Changes_for_server[0][1])
+                elif Changes_for_server[0][0] == "leftplayer" :
+                    playeri.pop(Changes_for_server[0][1])
+                    Text_draw.pop(Changes_for_server[0][1])
+                Changes_for_server.pop(0)
+
+
 
         draw_window()
 
