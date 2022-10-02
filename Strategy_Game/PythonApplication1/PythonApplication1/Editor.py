@@ -91,38 +91,84 @@ mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * curre
 ToolsSelectedPositions = []
 
 #Editor specific variables:
+Brush_size = 7      #This is not very efficient. Use high values at your own risk (A lot of time required)!
+Brush_min = 1
+Brush_max = 8
+
 Collision = False
 Eraser = False
 Fill = False
 FillAll = False
+FillSame = False
 
 Editor_var_dict = {
     "Collision" : Collision,
     "Eraser" : Eraser,
     "Fill" : Fill,
-    "FillAll" : FillAll
+    "FillAll" : FillAll,
+    "FillSame" : FillSame
 }
 
-def place_tile():     #Function to determine what to place and how
-    if Editor_var_dict["Eraser"] == True:
-        tiles[y_layer][x_layer].structure = None
-        tiles[y_layer][x_layer].special = None
-        tiles[y_layer][x_layer].unit = None
-           
+def place_tile(target_img = None):     #Function to determine what to place and how
     if Editor_var_dict["Fill"] == True:
         print("NOT IMPLEMENTED. LEAVE ME ALONE")
 
     elif Editor_var_dict["FillAll"] == True:
         for x in range(rows):
             for y in range(tiles_per_row):
+                if Editor_var_dict["Eraser"] == True:
+                    tiles[y][x].structure = None
+                    tiles[y][x].special = None
+                    tiles[y][x].unit = None
                 tiles[y][x].collidable = Editor_var_dict["Collision"]
                 tiles[y][x].image_name = TileClass.avalible_textures[current_index]
                 tiles[y][x].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
 
+    elif Editor_var_dict["FillSame"] == True:
+        for x in range(rows):
+            for y in range(tiles_per_row):
+                if tiles[y][x].image_name[:-4] == target_img:
+                    if Editor_var_dict["Eraser"] == True:
+                        tiles[y][x].structure = None
+                        tiles[y][x].special = None
+                        tiles[y][x].unit = None
+                    tiles[y][x].collidable = Editor_var_dict["Collision"]
+                    tiles[y][x].image_name = TileClass.avalible_textures[current_index]
+                    tiles[y][x].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+
     else:
-        tiles[y_layer][x_layer].collidable = Editor_var_dict["Collision"]
-        tiles[y_layer][x_layer].image_name = TileClass.avalible_textures[current_index]
-        tiles[y_layer][x_layer].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+        direction_dict = {
+            "Left"  :   (0,-1),
+            "Right" :   (0,1),
+            "Up"    :   (1,0),
+            "Down"  :   (-1,0),
+            "None"  :   (0,0)
+            }
+
+        visited_tiles = []
+
+        def next_tile(range, direction, x, y):
+            y += direction_dict[direction][0]
+            x += direction_dict[direction][1]
+
+            if y >= 0 and x >= 0 and y < tiles_per_row and x < rows and range > 0 and visited_tiles.count((y,x)) == 0 :
+                if Editor_var_dict["Eraser"] == True:
+                    tiles[y][x].structure = None
+                    tiles[y][x].special = None
+                    tiles[y][x].unit = None
+                tiles[y][x].collidable = Editor_var_dict["Collision"]
+                tiles[y][x].image_name = TileClass.avalible_textures[current_index]
+                tiles[y][x].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+                visited_tiles.append((y,x))
+
+            if range > 0:
+                next_tile(range - 1, "Left", x, y)
+                next_tile(range - 1, "Right", x, y)
+                next_tile(range - 1, "Up", x, y)
+                next_tile(range - 1, "Down", x, y)
+
+        visited_tiles.clear()
+        next_tile(Brush_size, "None", x_layer, y_layer)
                           
 current_index = 0
 max_index = TileClass.last_index
@@ -220,10 +266,19 @@ while Running:
 
                             if name == "Fill":
                                 Editor_var_dict["FillAll"] = False
+                                Editor_var_dict["FillSame"] = False
                                 find_img("FillAll")
+                                find_img("FillSame")
                             elif name == "FillAll":
                                 Editor_var_dict["Fill"] = False
+                                Editor_var_dict["FillSame"] = False
                                 find_img("Fill")
+                                find_img("FillSame")
+                            elif name == "FillSame":
+                                Editor_var_dict["Fill"] = False
+                                Editor_var_dict["FillAll"] = False
+                                find_img("Fill")
+                                find_img("FillAll")
 
                             GUI.Draw_Tools_GUI(ToolsSelectedPositions)
 
@@ -233,7 +288,7 @@ while Running:
 
                     if x_layer >= 0 and x_layer < tiles_per_row:
                         if y_layer >= 0 and y_layer < rows:
-                            place_tile()
+                            place_tile(tiles[y_layer][x_layer].image_name[:-4])
                             mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
 
             modifier = 0
@@ -276,7 +331,7 @@ while Running:
 
                     if x_layer >= 0 and x_layer < tiles_per_row:
                         if y_layer >= 0 and y_layer < rows:
-                            place_tile()
+                            place_tile(tiles[y_layer][x_layer].image_name[:-4])
                             mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
 
     #Check if user wants to change the camera's position
