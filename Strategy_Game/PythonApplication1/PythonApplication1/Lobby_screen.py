@@ -7,10 +7,25 @@ import math
 
 #Culori
 White = (255,255,255)
+Gri = (225, 223, 240)
+Red = (255, 0, 0)
+Blue =(0, 0, 255)
+Green =(0, 150, 0)
+Yellow = (255,255,0)
+Orange = (255, 150, 0)
+Purple = (150, 0, 255)
+Pink = (255, 0, 255)
+Cyan = (60, 160, 255)
 Light_Green = (0, 255, 0)
+Player_Colors = [White,Blue,Red,Green,Yellow,Orange,Purple,Pink,Cyan]
+Selected_Colors = [0,0,0,0,0,0,0,0]
 
+#variabile globale
 nr_clients = 0
 cod_client = 0
+
+Pozitie = None
+
 playeri = []
 Text_draw = []
 
@@ -32,10 +47,13 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
     for i in range(1,5) :
         x = diametru*i + diametru/2 + 50 *(i-1)
         Cerc_draw.append((x,y))
+    #dreptunchiul de costumizare 
+    Costumization_rect = ((WIDTH-101*8-25*9)/2,HEIGHT/2 - diametru/2 - 75 - 151,101*8+25*9,151)
 
     #Threadul care se ocupa cu primirea informatiilor de la server
     def reciev_thread_from_server(server) :
         global playeri
+        global Pozitie
         #Clientul isi trimite numele la server
         data_send = ((SPACE + str(len(name)))[-HEADERSIZE:] + name)
         server.send(bytes(data_send,"utf-8"))
@@ -44,6 +62,11 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         header = header.decode("utf-8")
         data_recv = server.recv(int(header))
         playeri = pickle.loads(data_recv)
+        #serveru va trimite pozitia clientului printre playeri
+        header = server.recv(10)
+        header = header.decode("utf-8")
+        data_recv = server.recv(int(header))
+        Pozitie = pickle.loads(data_recv)
         #Formateaza si pregateste pentru afisare toate numele playerilor
         for i in range(len(playeri)) :
             text = Font.render(playeri[i][0], True, (0,0,0))
@@ -75,9 +98,13 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         header = header.decode("utf-8")
         data_recv = client.recv(int(header))
         playeri.append((data_recv.decode("utf-8"),0))
-        Transmit_to_all.append(("newplayer",playeri[len(playeri)-1]))
+        Pozitie = len(playeri)-1
+        Transmit_to_all.append((("newplayer",playeri[len(playeri)-1]),cod))
         #Trimite tot vectorul de playeri clientului
         data_send = pickle.dumps(playeri)
+        data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
+        client.send(data_send)
+        data_send = pickle.dumps(Pozitie)
         data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
         client.send(data_send)
         #Formateaza numele si il pregateste de afisare
@@ -122,17 +149,31 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         WIN.blit(FPS_text,(25,25+40))
         #deseneaza cercurile si info-urile playerilor
         for i in range( len(Cerc_draw)) :
-            pygame.draw.circle(WIN,(225, 223, 240),Cerc_draw[i],diametru/2)
+            pygame.draw.circle(WIN,Gri,Cerc_draw[i],diametru/2)
             if len(playeri) > i :
-                pygame.draw.circle(WIN,White,Cerc_draw[i],diametru/2 - 10)
+                pygame.draw.circle(WIN,Player_Colors[playeri[i][1]],Cerc_draw[i],diametru/2 - 10)
                 Text_draw[i][1].center = (diametru*(i+1) + 50*i + diametru/2,HEIGHT/2 - diametru/2-30)
                 WIN.blit(Text_draw[i][0],Text_draw[i][1])
+        #deseneaza costumization rectul si tot ce e pe el
+        if Costumization_Tab == True :
+            pygame.draw.rect(WIN,Gri,Costumization_rect)
+            for i in range(1,9) :
+                x_cerc = Costumization_rect[0] + 25 * i + 101 *(i-1) + 40
+                y_cerc = Costumization_rect[1] + Costumization_rect[3]/2
+                if Selected_Colors[i-1] == 1 :
+                    pygame.draw.circle(WIN,Light_Green,(x_cerc,y_cerc),50)
+                pygame.draw.circle(WIN,(0,0,0),(x_cerc,y_cerc),42)
+                pygame.draw.circle(WIN,Player_Colors[i],(x_cerc,y_cerc),40)
+
 
         pygame.display.update()
-        
-
+    
+    #variabilele necesare chiar pentru ambele roluri
+    global Pozitie
+    Costumization_Tab = False
     #Se creaza toate variabilele de care are nevoie Hostul
     if Role == "host" :
+        Pozitie = 0
         global nr_clients
         global cod_client
         nr_clients = 0
@@ -150,7 +191,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         #threaduri care trebe reunite cu mainul
         Killed_Clients = []
         Coduri_pozitie_client = {}
-
+        #inceperea ascultari pentru clienti`
         Connection.listen(3)
         Listening_thread = threading.Thread(target = host_listen_thread)
         Listening_thread.start()
@@ -189,7 +230,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
             #Verifica daca sunt clients care trebe purged
             while len(Killed_Clients) > 0 :
                 nr_clients -= 1
-                Transmit_to_all.append(("leftplayer",Coduri_pozitie_client[Killed_Clients[0]] + 1))
+                Transmit_to_all.append((("leftplayer",Coduri_pozitie_client[Killed_Clients[0]] + 1),None))
                 CLIENTS.pop(Coduri_pozitie_client[Killed_Clients[0]])
                 Text_draw.pop(Coduri_pozitie_client[Killed_Clients[0]] + 1)
                 playeri.pop(Coduri_pozitie_client[Killed_Clients[0]] + 1)
@@ -204,10 +245,11 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                 Killed_Clients.pop(0)
             #Transmiterea schimbarilor clientilor
             while len(Transmit_to_all) > 0 :
-                data_send = pickle.dumps(Transmit_to_all[0])
+                data_send = pickle.dumps(Transmit_to_all[0][0])
                 data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
-                for client in CLIENTS :
-                    client.send(data_send)
+                for i in range(len(CLIENTS)) :
+                    if Transmit_to_all[0][1] == None or Coduri_pozitie_client[Transmit_to_all[0][1]] != i  :
+                        client.send(data_send)
                 Transmit_to_all.pop(0)
         else :
             while len(Changes_for_server) > 0 :
@@ -221,6 +263,8 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                 elif Changes_for_server[0][0] == "leftplayer" :
                     playeri.pop(Changes_for_server[0][1])
                     Text_draw.pop(Changes_for_server[0][1])
+                    if Changes_for_server[0][1] < Pozitie :
+                        Pozitie -= 1 
                 Changes_for_server.pop(0)
 
 
@@ -232,3 +276,26 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
             if event.type == pygame.QUIT :
                 pygame.quit()
                 os._exit(0)
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 :
+                press_coordonaits = event.pos
+                #se verifica daca playeru isi apasa imaginea sa
+                distanta = math.sqrt(abs(Cerc_draw[Pozitie][0] - press_coordonaits[0])**2 + abs(Cerc_draw[Pozitie][1] - press_coordonaits[1])**2)
+                if distanta <= diametru/2 :
+                    if Costumization_Tab == True :
+                        Costumization_Tab = False
+                    else :
+                        Costumization_Tab = True
+                elif Costumization_Tab == True and press_coordonaits[1] > Costumization_rect[1] and press_coordonaits[1] < Costumization_rect[1] + Costumization_rect[3] :
+                    for i in range(8) :
+                        y_cerc = Costumization_rect[1] + Costumization_rect[3]/2
+                        if Selected_Colors[i] == 0 :
+                            x_cerc = Costumization_rect[0] + 25 * (i+1) + 101 *i + 40
+                            distanta = math.sqrt(abs(x_cerc - press_coordonaits[0])**2 + abs(y_cerc - press_coordonaits[1])**2)
+                            if distanta <= 40 :
+                                if playeri[Pozitie][1] != 0 :
+                                    Selected_Colors[playeri[Pozitie][1]-1] = 0
+                                playeri[Pozitie] = (name,i+1)
+                                Selected_Colors[i] = 1
+
+
+
