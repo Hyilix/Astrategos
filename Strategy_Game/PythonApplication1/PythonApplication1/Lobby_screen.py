@@ -82,7 +82,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                 if len(header) != 0 :
                     data_recv = server.recv(int(header))
                     data_recv = pickle.loads(data_recv)
-                    Changes_for_server.append(data_recv)
+                    Changes_from_server.append(data_recv)
                 else :
                     server.close()
                     run = False
@@ -206,7 +206,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
 
         Port_text = Font.render("Port: " + str(Port), True, Light_Green)
 
-        Changes_for_server = []
+        Changes_from_server = []
 
 
 
@@ -252,20 +252,25 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                         client.send(data_send)
                 Transmit_to_all.pop(0)
         else :
-            while len(Changes_for_server) > 0 :
-                if Changes_for_server[0][0] == "newplayer" :
-                    if name != Changes_for_server[0][1][0] :
-                        playeri.append(Changes_for_server[0][1])
-                        text = Font.render(Changes_for_server[0][1][0], True, (0,0,0))
+            while len(Changes_from_server) > 0 :
+                if Changes_from_server[0][0] == "newplayer" :
+                    if name != Changes_from_server[0][1][0] :
+                        playeri.append(Changes_from_server[0][1])
+                        text = Font.render(Changes_from_server[0][1][0], True, (0,0,0))
                         text_rect = text.get_rect()
                         text_rect.center = (diametru*(i+1) + 50*i + diametru/2,HEIGHT/2 - diametru/2-30)
                         Text_draw.append((text,text_rect))
-                elif Changes_for_server[0][0] == "leftplayer" :
-                    playeri.pop(Changes_for_server[0][1])
-                    Text_draw.pop(Changes_for_server[0][1])
-                    if Changes_for_server[0][1] < Pozitie :
+                elif Changes_from_server[0][0] == "leftplayer" :
+                    playeri.pop(Changes_from_server[0][1])
+                    Text_draw.pop(Changes_from_server[0][1])
+                    if Changes_from_server[0][1] < Pozitie :
                         Pozitie -= 1 
-                Changes_for_server.pop(0)
+                elif Changes_from_server[0][0] == "player_changed_color" :
+                    if playeri[Changes_from_server[0][1]][1] != 0 :
+                          Selected_Colors[playeri[Changes_from_server[0][1]][1]-1] = 0
+                    playeri[Changes_from_server[0][1]] = (playeri[Changes_from_server[0][1]][0],Changes_from_server[0][2]+1)
+                    Selected_Colors[Changes_from_server[0][2]] = 1
+                Changes_from_server.pop(0)
 
 
 
@@ -292,10 +297,13 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                             x_cerc = Costumization_rect[0] + 25 * (i+1) + 101 *i + 40
                             distanta = math.sqrt(abs(x_cerc - press_coordonaits[0])**2 + abs(y_cerc - press_coordonaits[1])**2)
                             if distanta <= 40 :
-                                if playeri[Pozitie][1] != 0 :
-                                    Selected_Colors[playeri[Pozitie][1]-1] = 0
-                                playeri[Pozitie] = (name,i+1)
-                                Selected_Colors[i] = 1
-
+                                break
+                                if Role == "host" :
+                                    if playeri[Pozitie][1] != 0 :
+                                        Selected_Colors[playeri[Pozitie][1]-1] = 0
+                                    playeri[Pozitie] = (name,i+1)
+                                    Selected_Colors[i] = 1
+                                    #transmite clientilor faptu ca s-a schimbat culoarea unui player
+                                    Transmit_to_all.append((("player_changed_color",Pozitie,i),None))
 
 
