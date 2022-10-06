@@ -40,6 +40,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
     Font = pygame.font.Font(None, 40)
     Cerc_draw = []
     Text_draw = []
+    Rect_draw = []
 
     #coordonatele pentru cercuri
     y = HEIGHT/2
