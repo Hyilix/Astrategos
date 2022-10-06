@@ -25,7 +25,7 @@ nr_clients = 0
 cod_client = 0
 
 Pozitie = None
-
+#Structura unui player 0 = numele , 1 = nr_culorii, 2 = Daca e ready sau nu
 playeri = []
 Text_draw = []
 
@@ -40,7 +40,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
     Font = pygame.font.Font(None, 40)
     Cerc_draw = []
     Text_draw = []
-    Rect_draw = []
 
     #coordonatele pentru cercuri
     y = HEIGHT/2
@@ -98,7 +97,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         header = client.recv(10)
         header = header.decode("utf-8")
         data_recv = client.recv(int(header))
-        playeri.append((data_recv.decode("utf-8"),0))
+        playeri.append((data_recv.decode("utf-8"),0,0))
         Pozitie = len(playeri)-1
         Transmit_to_all.append((("newplayer",playeri[len(playeri)-1]),cod))
         #Trimite tot vectorul de playeri clientului
@@ -123,10 +122,10 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                     data_recv = pickle.loads(data_recv)
                     if data_recv[0] == "want_change_colorr" :
                         if Selected_Colors[data_recv[1]] == 0 :
+                            Selected_Colors[data_recv[1]] = 1
                             if playeri[Coduri_pozitie_client[cod]+1][1] != 0 :
                                     Selected_Colors[playeri[Coduri_pozitie_client[cod]+1][1]-1] = 0
-                            playeri[Coduri_pozitie_client[cod]+1] = (playeri[Coduri_pozitie_client[cod]+1][0],data_recv[1]+1)
-                            Selected_Colors[data_recv[1]] = 1
+                            playeri[Coduri_pozitie_client[cod]+1] = (playeri[Coduri_pozitie_client[cod]+1][0],data_recv[1]+1,playeri[Coduri_pozitie_client[cod]+1][2])
                             Transmit_to_all.append((("player_changed_color",Coduri_pozitie_client[cod]+1,data_recv[1]),None))
 
                 else :
@@ -165,6 +164,8 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                 pygame.draw.circle(WIN,Player_Colors[playeri[i][1]],Cerc_draw[i],diametru/2 - 10)
                 Text_draw[i][1].center = (diametru*(i+1) + 50*i + diametru/2,HEIGHT/2 - diametru/2-30)
                 WIN.blit(Text_draw[i][0],Text_draw[i][1])
+                pygame.draw.rect(WIN,(0,0,0),(Cerc_draw[i][0]-diametru/2,Cerc_draw[i][0]+diametru/2 + 25,diametru,100))
+                pygame.draw.rect(WIN,(0,0,0),(Cerc_draw[i][0]-diametru/2,Cerc_draw[i][0]+diametru/2 + 25,diametru,100))
         #deseneaza costumization rectul si tot ce e pe el
         if Costumization_Tab == True :
             pygame.draw.rect(WIN,Gri,Costumization_rect)
@@ -175,6 +176,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                     pygame.draw.circle(WIN,Light_Green,(x_cerc,y_cerc),50)
                 pygame.draw.circle(WIN,(0,0,0),(x_cerc,y_cerc),42)
                 pygame.draw.circle(WIN,Player_Colors[i],(x_cerc,y_cerc),40)
+
 
 
         pygame.display.update()
@@ -189,7 +191,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         global cod_client
         nr_clients = 0
         cod_client = 0
-        playeri.append((name,0))
+        playeri.append((name,0,0))
         #crearea textului de afisat al Portului
         Port_text = Font.render("Port: " + str(Port), True, Light_Green)
         #crearea textului de afisat al numelui
@@ -279,7 +281,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                 elif Changes_from_server[0][0] == "player_changed_color" :
                     if playeri[Changes_from_server[0][1]][1] != 0 :
                           Selected_Colors[playeri[Changes_from_server[0][1]][1]-1] = 0
-                    playeri[Changes_from_server[0][1]] = (playeri[Changes_from_server[0][1]][0],Changes_from_server[0][2]+1)
+                    playeri[Changes_from_server[0][1]] = (playeri[Changes_from_server[0][1]][0],Changes_from_server[0][2]+1,playeri[Changes_from_server[0][1]][2])
                     Selected_Colors[Changes_from_server[0][2]] = 1
                 Changes_from_server.pop(0)
 
@@ -308,11 +310,10 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                             x_cerc = Costumization_rect[0] + 25 * (i+1) + 101 *i + 40
                             distanta = math.sqrt(abs(x_cerc - press_coordonaits[0])**2 + abs(y_cerc - press_coordonaits[1])**2)
                             if distanta <= 40 :
-                                print("yeeeeeeeeeeeeet")
                                 if Role == "host" :
                                     if playeri[Pozitie][1] != 0 :
                                         Selected_Colors[playeri[Pozitie][1]-1] = 0
-                                    playeri[Pozitie] = (name,i+1)
+                                    playeri[Pozitie] = (playeri[Pozitie][0],i+1,playeri[Pozitie][2])
                                     Selected_Colors[i] = 1
                                     #transmite clientilor faptu ca s-a schimbat culoarea unui player
                                     Transmit_to_all.append((("player_changed_color",Pozitie,i),None))
