@@ -307,7 +307,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                             x_cerc = Costumization_rect[0] + 25 * (i+1) + 101 *i + 40
                             distanta = math.sqrt(abs(x_cerc - press_coordonaits[0])**2 + abs(y_cerc - press_coordonaits[1])**2)
                             if distanta <= 40 :
-                                break
+                                print("yeeeeeeeeeeeeet")
                                 if Role == "host" :
                                     if playeri[Pozitie][1] != 0 :
                                         Selected_Colors[playeri[Pozitie][1]-1] = 0
@@ -319,5 +319,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                                     data_send = pickle.dumps(("want_change_colorr",i))
                                     data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                                     Connection.send(data_send)
+                                break
 
 
