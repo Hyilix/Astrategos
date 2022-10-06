@@ -115,9 +115,19 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         #The recieve loop
         try :
             while True :
-                msg = client.recv(1024)
-                if len(msg) != 0 :
-                    client.send(msg)
+                header = server.recv(10)
+                header = header.decode("utf-8")
+                if len(header) != 0 :
+                    data_recv = server.recv(int(header))
+                    data_recv = pickle.loads(data_recv)
+                    if data_recv[0] == "want_change_colorr" :
+                        if Selected_Colors[data_recv[1]] == 0 :
+                            if playeri[Coduri_pozitie_client[cod]+1][1] != 0 :
+                                    Selected_Colors[playeri[Coduri_pozitie_client[cod]+1][1]-1] = 0
+                            playeri[Coduri_pozitie_client[cod]+1] = (playeri[Coduri_pozitie_client[cod]+1][0],data_recv[1]+1)
+                            Selected_Colors[data_recv[1]] = 1
+                            Transmit_to_all.append((("player_changed_color",Coduri_pozitie_client[cod]+1,data_recv[1]),None))
+
                 else :
                     client.close()
                     Killed_Clients.append(cod)
@@ -305,5 +315,9 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                                     Selected_Colors[i] = 1
                                     #transmite clientilor faptu ca s-a schimbat culoarea unui player
                                     Transmit_to_all.append((("player_changed_color",Pozitie,i),None))
+                                else :
+                                    data_send = pickle.dumps(("want_change_colorr",i))
+                                    data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
+                                    Connection.send(data_send)
 
 
