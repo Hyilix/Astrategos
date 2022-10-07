@@ -2,6 +2,8 @@ import pygame
 import TileClass
 import os
 
+font = pygame.font.Font('freesansbold.ttf', 1024)
+
 pygame.init()
 screen = pygame.display.Info()
 WIDTH = screen.current_w
@@ -14,6 +16,14 @@ Tools_icon_size = 64
 default_path = 'Assets/EditorToolIcons/'
 icons = []
 icon_names = []
+brush_icons = []
+brush_names = []
+
+for img in os.listdir('Assets/EditorToolBrushIcons/'):
+    image = pygame.image.load('Assets/EditorToolBrushIcons/' + img)
+    image = pygame.transform.scale(image, (Tools_icon_size, Tools_icon_size))
+    brush_icons.append(image)
+    brush_names.append(img)
 
 for img in os.listdir(default_path):    #Load all icons
     icons.append(pygame.image.load(default_path + img))
@@ -63,7 +73,8 @@ def Draw_Textures_GUI(position):
         else:
             current_x += 1
 
-def Draw_Tools_GUI(positions):
+def Draw_Tools_GUI(positions, brush_size):
+    #Draw Tools
     ToolsSurface.fill((0, 0, 0, 150))
 
     current_x = 0
@@ -80,3 +91,22 @@ def Draw_Tools_GUI(positions):
             current_y += 1
         else:
             current_x += 1
+
+    #Draw Brush Tools
+    current_y += 2
+    current_x = 0
+
+    ToolsSurface.blit(brush_icons[0], (current_x * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance, current_y * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance))
+    
+    current_x += 1 
+    if brush_size != None:
+        text = font.render(str(brush_size), True, (188,188,188))
+        text = pygame.transform.smoothscale(text, (Tools_icon_size, Tools_icon_size))
+        print(brush_size)
+        textRect = text.get_rect()
+        textRect.x = current_x * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance
+        textRect.y = current_y * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance
+        ToolsSurface.blit(text, textRect)
+
+    current_x += 1
+    ToolsSurface.blit(brush_icons[1], (current_x * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance, current_y * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance))

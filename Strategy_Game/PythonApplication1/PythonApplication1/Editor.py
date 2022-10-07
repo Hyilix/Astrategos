@@ -14,7 +14,6 @@ WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 
 GUI.Initialize_Editor_GUIs()
 GUI.Draw_Textures_GUI((0,0))
-GUI.Draw_Tools_GUI(None)
 
 class Camera:
     def __init__(self, position, zoom, max_zoom, min_zoom):
@@ -94,6 +93,8 @@ ToolsSelectedPositions = []
 Brush_size = 7      #This is not very efficient. Use high values at your own risk (A lot of time required)!
 Brush_min = 1
 Brush_max = 8
+
+GUI.Draw_Tools_GUI(None, Brush_size)
 
 Collision = False
 Eraser = False
@@ -223,7 +224,7 @@ while Running:
                         if GUI.max_x_pos * y_layer > 0: index += y_layer
                         if index < TileClass.last_index:
                             current_index = index
-                            GUI.Draw_Textures_GUI((x_layer, y_layer))
+                            GUI.Draw_Textures_GUI((x_layer, y_layer), Brush_size)
 
                 elif GUI.GUIs_enabled == True and mouse_pos[0] >= WIDTH - GUI.Texture_x_size - GUI.Tool_x_size:
                     #Check if the mouse is inside the ToolsGUI
@@ -280,7 +281,7 @@ while Running:
                                 find_img("Fill")
                                 find_img("FillAll")
 
-                            GUI.Draw_Tools_GUI(ToolsSelectedPositions)
+                            GUI.Draw_Tools_GUI(ToolsSelectedPositions, Brush_size)
 
                 else:  #Mouse is on the map, so check which tile is selected
                     x_layer = (mouse_pos[0] + CurrentCamera.x) // current_tile_length 
