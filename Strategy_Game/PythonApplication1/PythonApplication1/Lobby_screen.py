@@ -164,8 +164,17 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                 pygame.draw.circle(WIN,Player_Colors[playeri[i][1]],Cerc_draw[i],diametru/2 - 10)
                 Text_draw[i][1].center = (diametru*(i+1) + 50*i + diametru/2,HEIGHT/2 - diametru/2-30)
                 WIN.blit(Text_draw[i][0],Text_draw[i][1])
-                pygame.draw.rect(WIN,(0,0,0),(Cerc_draw[i][0]-diametru/2,Cerc_draw[i][0]+diametru/2 + 25,diametru,100))
-                pygame.draw.rect(WIN,(0,0,0),(Cerc_draw[i][0]-diametru/2,Cerc_draw[i][0]+diametru/2 + 25,diametru,100))
+                #Desenarea butoanelor de ready
+                pygame.draw.rect(WIN,(0,0,0),(Cerc_draw[i][0]-diametru/2,Cerc_draw[i][1]+diametru/2 + 25,diametru,100))
+                pygame.draw.rect(WIN,(255,255,255),(Cerc_draw[i][0]-diametru/2 + 5,Cerc_draw[i][1]+diametru/2 + 25 + 5,diametru -10,90))
+                if playeri[i][2] == 1 :
+                    text = Font.render("Ready", True, Light_Green)
+                else :
+                    text = Font.render("Ready", True, (0,0,0))
+                text_rect = text.get_rect()
+                text_rect.center = (Cerc_draw[i][0]-diametru/2 + 5 +(diametru-10)/2 , Cerc_draw[i][1]+diametru/2 + 25 + 5 + 45)
+                WIN.blit(text,text_rect)
+
         #deseneaza costumization rectul si tot ce e pe el
         if Costumization_Tab == True :
             pygame.draw.rect(WIN,Gri,Costumization_rect)
