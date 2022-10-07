@@ -32,6 +32,9 @@ Text_draw = []
 HEADERSIZE = 10
 SPACE = "          "
 
+Next_stage_cooldown = 15*60
+
+
 def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
     pygame.init()
 
@@ -200,6 +203,10 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
     #variabilele necesare chiar pentru ambele roluri
     global Pozitie
     Costumization_Tab = False
+    All_Readied = False
+    started_cooldown = False
+    cooldown = -1
+
     #Se creaza toate variabilele de care are nevoie Hostul
     if Role == "host" :
         Pozitie = 0
@@ -280,6 +287,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                     if Transmit_to_all[0][1] == None or Coduri_pozitie_client[Transmit_to_all[0][1]] != i  :
                         client.send(data_send)
                 Transmit_to_all.pop(0)
+        #Daca este client executa ce schimbari a facut serveru
         else :
             while len(Changes_from_server) > 0 :
                 if Changes_from_server[0][0] == "newplayer" :
@@ -305,6 +313,24 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                     else :
                         playeri[Changes_from_server[0][1]] = (playeri[Changes_from_server[0][1]][0],playeri[Changes_from_server[0][1]][1],0)
                 Changes_from_server.pop(0)
+        #Si clientul si serverul verifica daca toata lumea din Lobby este ready ca sa porneasca la urmatorul stage
+        #verificarea Ready stateurilor tuturor ca sa treaca la urmatoru stage
+        if len(playeri) >= 2 :
+            All_Readied = True
+            for i in range(len(playeri)) :
+                if playeri[i][2] == 0 :
+                    All_Readied = False
+                    break
+            if All_Readied == True and started_cooldown == False :
+                #Incepe timerul pentru intrarea in urmatorul stage
+                started_cooldown = True
+                cooldown = Next_stage_cooldown
+            elif All_Readied == True and started_cooldown == True :
+                cooldown -= 1
+            elif All_Readied == False and started_cooldown == True :
+                started_cooldown = False
+
+                 
 
 
 
