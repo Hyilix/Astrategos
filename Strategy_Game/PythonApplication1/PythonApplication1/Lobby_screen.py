@@ -38,6 +38,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
     global playeri
     playeri = []
     Font = pygame.font.Font(None, 40)
+    FontR = pygame.font.Font(None, 80)
     Cerc_draw = []
     Text_draw = []
 
@@ -120,13 +121,16 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                 if len(header) != 0 :
                     data_recv = server.recv(int(header))
                     data_recv = pickle.loads(data_recv)
-                    if data_recv[0] == "want_change_colorr" :
+                    if data_recv[0] == "want_change_color" :
                         if Selected_Colors[data_recv[1]] == 0 :
                             Selected_Colors[data_recv[1]] = 1
                             if playeri[Coduri_pozitie_client[cod]+1][1] != 0 :
                                     Selected_Colors[playeri[Coduri_pozitie_client[cod]+1][1]-1] = 0
                             playeri[Coduri_pozitie_client[cod]+1] = (playeri[Coduri_pozitie_client[cod]+1][0],data_recv[1]+1,playeri[Coduri_pozitie_client[cod]+1][2])
                             Transmit_to_all.append((("player_changed_color",Coduri_pozitie_client[cod]+1,data_recv[1]),None))
+                    
+                    elif data_recv[0] == "ready_state_change" :
+                        Transmit_to_all.append((data_recv,cod))
 
                 else :
                     client.close()
@@ -168,11 +172,14 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                 pygame.draw.rect(WIN,(0,0,0),(Cerc_draw[i][0]-diametru/2,Cerc_draw[i][1]+diametru/2 + 25,diametru,100))
                 pygame.draw.rect(WIN,(255,255,255),(Cerc_draw[i][0]-diametru/2 + 5,Cerc_draw[i][1]+diametru/2 + 25 + 5,diametru -10,90))
                 if playeri[i][2] == 1 :
-                    text = Font.render("Ready", True, Light_Green)
+                    pygame.draw.rect(WIN,Light_Green,(Cerc_draw[i][0]-diametru/2,Cerc_draw[i][1]+diametru/2 + 25,diametru,100))
+                    text = FontR.render("Ready", True, Light_Green)
                 else :
-                    text = Font.render("Ready", True, (0,0,0))
+                    pygame.draw.rect(WIN,(0,0,0),(Cerc_draw[i][0]-diametru/2,Cerc_draw[i][1]+diametru/2 + 25,diametru,100))
+                    text = FontR.render("Ready", True, (0,0,0))
                 text_rect = text.get_rect()
                 text_rect.center = (Cerc_draw[i][0]-diametru/2 + 5 +(diametru-10)/2 , Cerc_draw[i][1]+diametru/2 + 25 + 5 + 45)
+                pygame.draw.rect(WIN,(255,255,255),(Cerc_draw[i][0]-diametru/2 + 5,Cerc_draw[i][1]+diametru/2 + 25 + 5,diametru -10,90))
                 WIN.blit(text,text_rect)
 
         #deseneaza costumization rectul si tot ce e pe el
@@ -292,12 +299,18 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                           Selected_Colors[playeri[Changes_from_server[0][1]][1]-1] = 0
                     playeri[Changes_from_server[0][1]] = (playeri[Changes_from_server[0][1]][0],Changes_from_server[0][2]+1,playeri[Changes_from_server[0][1]][2])
                     Selected_Colors[Changes_from_server[0][2]] = 1
+                elif Changes_from_server[0][0] == "ready_state_change" :
+                    if playeri[Changes_from_server[0][1]][2] == 0 :
+                        playeri[Changes_from_server[0][1]] = (playeri[Changes_from_server[0][1]][0],playeri[Changes_from_server[0][1]][1],1)
+                    else :
+                        playeri[Changes_from_server[0][1]] = (playeri[Changes_from_server[0][1]][0],playeri[Changes_from_server[0][1]][1],0)
                 Changes_from_server.pop(0)
 
 
 
         draw_window()
 
+        Button_rect = pygame.Rect((Cerc_draw[Pozitie][0]-diametru/2 + 5,Cerc_draw[Pozitie][1]+diametru/2 + 25 + 5,diametru -10,90))
         #print (Coduri_pozitie_client)
         for event in pygame.event.get():
             if event.type == pygame.QUIT :
@@ -312,6 +325,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                         Costumization_Tab = False
                     else :
                         Costumization_Tab = True
+                #verifica daca a apasat ceva in costumization tab
                 elif Costumization_Tab == True and press_coordonaits[1] > Costumization_rect[1] and press_coordonaits[1] < Costumization_rect[1] + Costumization_rect[3] :
                     for i in range(8) :
                         y_cerc = Costumization_rect[1] + Costumization_rect[3]/2
@@ -327,9 +341,24 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                                     #transmite clientilor faptu ca s-a schimbat culoarea unui player
                                     Transmit_to_all.append((("player_changed_color",Pozitie,i),None))
                                 else :
-                                    data_send = pickle.dumps(("want_change_colorr",i))
+                                    data_send = pickle.dumps(("want_change_color",i))
                                     data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                                     Connection.send(data_send)
                                 break
+                #verifica daca apasa ready buttonul sau
+                elif Button_rect.collidepoint(press_coordonaits) :
+                    if playeri[Pozitie][2] == 0 :
+                        playeri[Pozitie] = (playeri[Pozitie][0],playeri[Pozitie][1],1)  
+                    else :
+                        playeri[Pozitie] = (playeri[Pozitie][0],playeri[Pozitie][1],0)
+                    #Transimiterea schimbari de stare la toti 
+                    if Role == "host" :
+                        Transmit_to_all.append((("ready_state_change",Pozitie),None)) 
+                    else :
+                        data_send = pickle.dumps(("ready_state_change",Pozitie))
+                        data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
+                        Connection.send(data_send)
+
+                    
 
 
