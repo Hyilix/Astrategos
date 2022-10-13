@@ -224,7 +224,7 @@ while Running:
                         if GUI.max_x_pos * y_layer > 0: index += y_layer
                         if index < TileClass.last_index:
                             current_index = index
-                            GUI.Draw_Textures_GUI((x_layer, y_layer), Brush_size)
+                            GUI.Draw_Textures_GUI((x_layer, y_layer))
 
                 elif GUI.GUIs_enabled == True and mouse_pos[0] >= WIDTH - GUI.Texture_x_size - GUI.Tool_x_size:
                     #Check if the mouse is inside the ToolsGUI
