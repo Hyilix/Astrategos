@@ -10,12 +10,18 @@ screen = pygame.display.Info()
 WIDTH = screen.current_w
 HEIGHT = screen.current_h
 
-WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-FPS = 60
 
+i = input()
 #PUT this here to test my shit
 #Mark as Comment if needed
-Connection_Screen.connection_screen(WIN,WIDTH,HEIGHT,FPS,"host")
+WIN = pygame.display.set_mode((WIDTH, HEIGHT))
+FPS = 60
+if int(i) == 1 :
+    Connection_Screen.connection_screen(WIN,WIDTH,HEIGHT,FPS,"client")
+else :
+    Connection_Screen.connection_screen(WIN,WIDTH,HEIGHT,FPS,"host")
+
+
 
 current_zoom = 1
 camera_movement = 15

@@ -72,8 +72,11 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
     def draw_window () :
         global Error_lifespan
         WIN.fill(White)
-        for i in Rect_Draw :
-            pygame.draw.rect(WIN,(0,0,0),i)
+        for i in range(len(Rect_Draw)) :
+            if selected == i :
+                pygame.draw.rect(WIN,(0, 255, 0),Rect_Draw[i])
+            else :
+                pygame.draw.rect(WIN,(0,0,0),Rect_Draw[i])
         for button in Buttons :
             button.update(WIN)
         if Error_lifespan > 0 :
