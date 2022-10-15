@@ -32,7 +32,7 @@ Text_draw = []
 HEADERSIZE = 10
 SPACE = "          "
 
-Next_stage_cooldown = 15*60
+Next_stage_cooldown = 5*60
 
 
 def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
@@ -221,8 +221,9 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                     pygame.draw.circle(WIN,Light_Green,(x_cerc,y_cerc),50)
                 pygame.draw.circle(WIN,(0,0,0),(x_cerc,y_cerc),42)
                 pygame.draw.circle(WIN,Player_Colors[i],(x_cerc,y_cerc),40)
-
-
+        #next_stage bar
+        if started_cooldown == True :
+            pygame.draw.rect(WIN, (230, 0, 0), pygame.Rect(0, HEIGHT - HEIGHT/25 , cooldown*WIDTH/Next_stage_cooldown,HEIGHT/25 ))
 
         pygame.display.update()
     
