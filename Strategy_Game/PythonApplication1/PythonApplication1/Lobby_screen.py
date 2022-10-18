@@ -4,6 +4,7 @@ import socket
 import pickle
 import threading
 import math
+import time
 
 #Culori
 White = (255,255,255)
@@ -34,6 +35,9 @@ SPACE = "          "
 
 Next_stage_cooldown = 5*60
 
+Confirmation = False
+Confirmatii = 0
+
 
 def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
     pygame.init()
@@ -57,23 +61,25 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
     Costumization_rect = ((WIDTH-101*8-25*9)/2,HEIGHT/2 - diametru/2 - 75 - 151,101*8+25*9,151)
 
     #Threadul care se ocupa cu primirea informatiilor de la server
-    def reciev_thread_from_server(server) :
+    def reciev_thread_from_server(server,new) :
         global playeri
         global Pozitie
         global Selected_Colors
-        #Clientul isi trimite numele la server
-        data_send = ((SPACE + str(len(name)))[-HEADERSIZE:] + name)
-        server.send(bytes(data_send,"utf-8"))
-        #serveru va trimite la client toata lumea din vector
-        header = server.recv(10)
-        header = header.decode("utf-8")
-        data_recv = server.recv(int(header))
-        playeri = pickle.loads(data_recv)
-        #serveru va trimite pozitia clientului printre playeri
-        header = server.recv(10)
-        header = header.decode("utf-8")
-        data_recv = server.recv(int(header))
-        Pozitie = pickle.loads(data_recv)
+        global Confirmation
+        if new :
+            #Clientul isi trimite numele la server
+            data_send = ((SPACE + str(len(name)))[-HEADERSIZE:] + name)
+            server.send(bytes(data_send,"utf-8"))
+            #serveru va trimite la client toata lumea din vector
+            header = server.recv(10)
+            header = header.decode("utf-8")
+            data_recv = server.recv(int(header))
+            playeri = pickle.loads(data_recv)
+            #serveru va trimite pozitia clientului printre playeri
+            header = server.recv(10)
+            header = header.decode("utf-8")
+            data_recv = server.recv(int(header))
+            Pozitie = pickle.loads(data_recv)
 
         for i in range(len(playeri)) :
             #Formateaza si pregateste pentru afisare toate numele playerilor
@@ -94,10 +100,11 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                     data_recv = server.recv(int(header))
                     data_recv = pickle.loads(data_recv)
                     if data_recv[0] == "enter_next_stage" :
-                        data_send = ("enter_next_stage",None)
+                        data_send = pickle.dumps(("enter_next_stage",None))
                         data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                         server.send(data_send)
                         Confirmation = True
+                        print("got out")
                         break
                     else :
                         Changes_from_server.append(data_recv)
@@ -110,28 +117,30 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
             run = False
 
     #Threadul care se ocupa cu primirea informatiilor spre un client
-    def reciev_thread_from_client(client,cod) :
+    def reciev_thread_from_client(client,cod,new) :
         global playeri
         global Selected_Colors 
-        #Primeste numele clientului
-        header = client.recv(10)
-        header = header.decode("utf-8")
-        data_recv = client.recv(int(header))
-        playeri.append((data_recv.decode("utf-8"),0,0))
-        Pozitie = len(playeri)-1
-        Transmit_to_all.append((("newplayer",playeri[len(playeri)-1]),cod))
-        #Trimite tot vectorul de playeri clientului
-        data_send = pickle.dumps(playeri)
-        data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
-        client.send(data_send)
-        data_send = pickle.dumps(Pozitie)
-        data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
-        client.send(data_send)
-        #Formateaza numele si il pregateste de afisare
-        text = Font.render(playeri[len(playeri)-1][0], True, (0,0,0))
-        text_rect = text.get_rect()
-        text_rect.center = (diametru*(Coduri_pozitie_client[cod]+1) + 50*Coduri_pozitie_client[cod] + diametru/2,HEIGHT/2 - diametru/2-30)
-        Text_draw.append((text,text_rect))
+        global Confirmatii
+        if new :
+            #Primeste numele clientului
+            header = client.recv(10)
+            header = header.decode("utf-8")
+            data_recv = client.recv(int(header))
+            playeri.append((data_recv.decode("utf-8"),0,0))
+            Pozitie = len(playeri)-1
+            Transmit_to_all.append((("newplayer",playeri[len(playeri)-1]),cod))
+            #Trimite tot vectorul de playeri clientului
+            data_send = pickle.dumps(playeri)
+            data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
+            client.send(data_send)
+            data_send = pickle.dumps(Pozitie)
+            data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
+            client.send(data_send)
+            #Formateaza numele si il pregateste de afisare
+            text = Font.render(playeri[len(playeri)-1][0], True, (0,0,0))
+            text_rect = text.get_rect()
+            text_rect.center = (diametru*(Coduri_pozitie_client[cod]+1) + 50*Coduri_pozitie_client[cod] + diametru/2,HEIGHT/2 - diametru/2-30)
+            Text_draw.append((text,text_rect))
         #The recieve loop
         try :
             while True :
@@ -155,6 +164,8 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                             playeri[data_recv[1]] = (playeri[data_recv[1]][0],playeri[data_recv[1]][1],0)
                         Transmit_to_all.append((data_recv,cod))
                     elif data_recv[0] == "enter_next_stage" :
+                        print("yeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeet")
+                        Confirmatii += 1 
                         break
                 else :
                     client.close()
@@ -176,8 +187,8 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                 if In_next_stage == False :
                     Coduri_pozitie_client[cod_client] = nr_clients 
                     nr_clients += 1
-                    CLIENTS.append(client)
-                    newthread = threading.Thread(target = reciev_thread_from_client , args =(client,cod_client))
+                    CLIENTS.append((client,cod_client))
+                    newthread = threading.Thread(target = reciev_thread_from_client , args =(client,cod_client,1))
                     cod_client += 1 
                     Client_THREADS.append(newthread)
                     Client_THREADS[len(Client_THREADS)-1].start()
@@ -239,6 +250,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         Pozitie = 0
         global nr_clients
         global cod_client
+        global Confirmatii
         nr_clients = 0
         cod_client = 0
         playeri.append((name,0,0))
@@ -264,10 +276,14 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         Transmit_to_all = []
         #daca a intrat in urmatoru stage
         In_next_stage = False
+        #numarul de confirmari de la ceilalti plaieri (reprezinta daca clienti au terminat loading baru si au trecut mai departe)
+        Confirmatii = 0
+        sent_reaquest =False
     else :
+        global Confirmation
         Confirmation = False
         #INCEPE Comunicarea intre client si server
-        recv_from_server = threading.Thread(target = reciev_thread_from_server, args = (Connection,))
+        recv_from_server = threading.Thread(target = reciev_thread_from_server, args = (Connection,1))
         recv_from_server.start()
 
         Port_text = Font.render("Port: " + str(Port), True, Light_Green)
@@ -285,6 +301,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
 
         #Daca lobiul este plin inchide threadul care asculta pentru noi clienti
         if Role == "host":
+            print(Confirmatii)
             if Listening == False and alive_thread == True:
                 Listening_thread.join()
                 alive_thread = False
@@ -316,7 +333,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                 data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                 for i in range(len(CLIENTS)) :
                     if Transmit_to_all[0][1] == None or Coduri_pozitie_client[Transmit_to_all[0][1]] != i  :
-                        CLIENTS[i].send(data_send)
+                        CLIENTS[i][0].send(data_send)
                 Transmit_to_all.pop(0)
         #Daca este client executa ce schimbari a facut serveru
         else :
@@ -363,16 +380,47 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                 started_cooldown = False
             if  cooldown == 0 :
                 if Role == "host" :
-                    In_next_stage = True
-                    Transmit_to_all.append((("enter_next_stage",None),None))
-                    #join all listening threads while in next stage then restart them
-                    for i in range(len(Client_THREADS)) :
-                        Client_THREADS[i].join()
-                    #Enter next stage
+                    if sent_reaquest == False :
+                        In_next_stage = True
+                        #trimite tuturor playerilor ca am trecut la urmatoru stage
+                        data_send = pickle.dumps(("enter_next_stage",None))
+                        data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
+                        for i in range(len(CLIENTS)) :
+                            CLIENTS[i][0].send(data_send)
+                        sent_reaquest = True
+                    elif Confirmatii == nr_clients :  
+                        Confirmatii = 0
+                        while len(Client_THREADS) > 0 :
+                            Client_THREADS[0].join()
+                            Client_THREADS.pop(0)
+                        #Enter next stage
+                        #Return and reset the necesary variables
+                        In_next_stage = False
+                        #incepe sa reasculte pentru alti clienti
+                        if Listening == False and nr_clients < 3 :
+                            Listening_thread.join()
+                            Listening_thread = threading.Thread(target = host_listen_thread)
+                            Listening_thread.start()
+                        #incepe ascultarea clientilor prezenti
+                        for i in range(len(CLIENTS)) :
+                            newthread = threading.Thread(target = reciev_thread_from_client , args =(CLIENTS[i][0],CLIENTS[i][1],0))
+                            Client_THREADS.append(newthread)
+                            Client_THREADS[len(Client_THREADS)-1].start() 
+                        for i in range(len(playeri)) :
+                             playeri[i] = (playeri[i][0],playeri[i][1],0)
+                        started_cooldown = False
+
                 else :
                     if Confirmation == True :
+                        Confirmation = False
                         recv_from_server.join()
                         #Next Stage
+                        #Return and reset the necesary variables
+                        recv_from_server = threading.Thread(target = reciev_thread_from_server, args = (Connection,0))
+                        recv_from_server.start()
+                        for i in range(len(playeri)) :
+                             playeri[i] = (playeri[i][0],playeri[i][1],0)
+                        started_cooldown = False
 
 
 
