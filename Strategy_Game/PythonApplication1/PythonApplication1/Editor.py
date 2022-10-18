@@ -90,9 +90,9 @@ mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * curre
 ToolsSelectedPositions = []
 
 #Editor specific variables:
-Brush_size = 7      #This is not very efficient. Use high values at your own risk (A lot of time required)!
+Brush_size = 1      #This is not very efficient. Use high values at your own risk (A lot of time required)!
 Brush_min = 1
-Brush_max = 8
+Brush_max = 5
 
 GUI.Draw_Tools_GUI(None, Brush_size)
 
@@ -281,7 +281,24 @@ while Running:
                                 find_img("Fill")
                                 find_img("FillAll")
 
-                            GUI.Draw_Tools_GUI(ToolsSelectedPositions, Brush_size)
+                        else:
+                            #Check if plus/minus sign for the brush is pressed.
+                            minus_index = GUI.max_x_pos * GUI.minus_brush[1] + GUI.minus_brush[0]
+                            if GUI.max_x_pos * GUI.minus_brush[1] > 0: minus_index += GUI.minus_brush[1]
+                            plus_index = GUI.max_x_pos * GUI.plus_brush[1] + GUI.plus_brush[0]
+                            if GUI.max_x_pos * GUI.plus_brush[1] > 0: plus_index += GUI.plus_brush[1]
+
+                            if index == minus_index:
+                                if Brush_size - 1 < Brush_min:
+                                    Brush_size = Brush_min
+                                else: Brush_size -= 1;
+
+                            elif index == plus_index:
+                                if Brush_size + 1 > Brush_max:
+                                    Brush_size = Brush_max
+                                else: Brush_size += 1;
+                                
+                        GUI.Draw_Tools_GUI(ToolsSelectedPositions, Brush_size)
 
                 else:  #Mouse is on the map, so check which tile is selected
                     x_layer = (mouse_pos[0] + CurrentCamera.x) // current_tile_length 

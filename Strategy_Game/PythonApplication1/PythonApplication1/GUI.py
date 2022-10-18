@@ -3,6 +3,7 @@ import TileClass
 import os
 
 font = pygame.font.Font('freesansbold.ttf', 1024)
+font_string = pygame.font.Font('freesansbold.ttf', 32)
 
 pygame.init()
 screen = pygame.display.Info()
@@ -11,22 +12,33 @@ HEIGHT = screen.current_h
 
 GUIs_enabled = True
 
+#print(pygame.font.get_fonts())
+
+#Possible screens:
+#-Tiles
+#-Structures
+#-Ores_1
+#-Ores_2
+current_texture_screen = "Tiles"
+
 Tools_icon_size = 64
 
-default_path = 'Assets/EditorToolIcons/'
 icons = []
 icon_names = []
 brush_icons = []
 brush_names = []
 
-for img in os.listdir('Assets/EditorToolBrushIcons/'):
+plus_brush = (0,0)
+minus_brush = (0,0)
+
+for img in os.listdir('Assets/EditorToolBrushIcons/'):  #Load all brush icons
     image = pygame.image.load('Assets/EditorToolBrushIcons/' + img)
     image = pygame.transform.scale(image, (Tools_icon_size, Tools_icon_size))
     brush_icons.append(image)
     brush_names.append(img)
 
-for img in os.listdir(default_path):    #Load all icons
-    icons.append(pygame.image.load(default_path + img))
+for img in os.listdir('Assets/EditorToolIcons/'):    #Load all icons
+    icons.append(pygame.image.load('Assets/EditorToolIcons/' + img))
     icon_names.append(img)
 
 for i in range(len(icons)):
@@ -46,7 +58,6 @@ Tools_max_y_pos = last_icons_index // Tools_max_x_pos
 
 Texture_x_size = (texture_size + texture_distance) * (max_x_pos + 1) + texture_distance
 Tool_x_size = (Tools_icon_size + Tools_icon_distance) * (Tools_max_x_pos + 1) + Tools_icon_distance
-print(Texture_x_size)
 
 #Surfaces for Editor GUI
 TextureSurface = pygame.Surface((Texture_x_size, texture_size * 2 * max_y_pos * texture_distance), pygame.SRCALPHA)
@@ -93,20 +104,37 @@ def Draw_Tools_GUI(positions, brush_size):
             current_x += 1
 
     #Draw Brush Tools
-    current_y += 2
+
+    #First draw a text
+    current_y += 1
+    current_x = 1
+
+    text1 = font_string.render("Brush Size", True, (230,230,230))
+    textRect = text1.get_rect()
+    textRect.center = (current_x * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance + Tools_icon_size / 2,
+                    current_y * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance + int(Tools_icon_size / 1.3))
+    ToolsSurface.blit(text1, textRect)
+
+    current_y += 1
     current_x = 0
 
     ToolsSurface.blit(brush_icons[0], (current_x * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance, current_y * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance))
     
+    global minus_brush
+    minus_brush = (current_x, current_y)
+
     current_x += 1 
     if brush_size != None:
-        text = font.render(str(brush_size), True, (188,188,188))
-        text = pygame.transform.smoothscale(text, (Tools_icon_size, Tools_icon_size))
-        print(brush_size)
+        text = font.render(str(brush_size), True, (230,230,230))
+        text = pygame.transform.smoothscale(text, (Tools_icon_size / 2, Tools_icon_size))
         textRect = text.get_rect()
-        textRect.x = current_x * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance
+        textRect.x = current_x * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance + Tools_icon_size / 4
         textRect.y = current_y * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance
         ToolsSurface.blit(text, textRect)
 
     current_x += 1
+    
+    global plus_brush
+    plus_brush = (current_x, current_y)
+
     ToolsSurface.blit(brush_icons[1], (current_x * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance, current_y * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance))

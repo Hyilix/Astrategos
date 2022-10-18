@@ -34,11 +34,13 @@ mitrhil_flerovium_dict = {
 }
 
 for img in os.listdir(default_path):
-    if img[0:8] != "A-simple":
-        avalible_textures.append(img)
-    texture_names.append(img)
-    textures.append(pygame.image.load(default_path + img))
-    base_textures.append(pygame.image.load(default_path + img))
+    if img[-4:] == '.png':
+        if img[0:8] != "A-simple":
+            avalible_textures.append(img)
+
+        texture_names.append(img)
+        textures.append(pygame.image.load(default_path + img))
+        base_textures.append(pygame.image.load(default_path + img))
 
 def resize_textures(size):
     #resize the original textures based on the zoom level. If we were to do this with 
