@@ -92,9 +92,13 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
     clock = pygame.time.Clock()
     run = True
     next_stage = False
+    exit_cooldown = -1
     while run :
         clock.tick(FPS)
         draw_window()
+
+        if exit_cooldown >= 0 :
+            exit_cooldown -= 1
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT :
@@ -137,6 +141,12 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
                     info[selected] += event.unicode
                     Buttons[selected].text = info[selected]
                     Buttons[selected].render_text()
+            elif selected == -1 and event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE :
+                if exit_cooldown == -1 :
+                    exit_cooldown = 120
+                elif exit_cooldown > 0 :
+                    run= False
+                    break
 
         #Initializeaza actiunile necesare inaintarii la urmatorul stagiu
         if next_stage == True :

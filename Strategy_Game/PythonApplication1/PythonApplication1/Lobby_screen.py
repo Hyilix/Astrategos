@@ -38,6 +38,7 @@ Next_stage_cooldown = 5*60
 Confirmation = False
 Confirmatii = 0
 
+run = True
 
 def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
     pygame.init()
@@ -50,6 +51,10 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
     Cerc_draw = []
     Text_draw = []
     Selected_Colors = [0,0,0,0,0,0,0,0]
+
+    exit_cooldown = -1
+
+    global run 
 
     #coordonatele pentru cercuri
     y = HEIGHT/2
@@ -66,6 +71,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         global Pozitie
         global Selected_Colors
         global Confirmation
+        global run
         if new :
             #Clientul isi trimite numele la server
             data_send = ((SPACE + str(len(name)))[-HEADERSIZE:] + name)
@@ -96,6 +102,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
             while True :
                 header = server.recv(10)
                 header = header.decode("utf-8")
+
                 if len(header) != 0 :
                     data_recv = server.recv(int(header))
                     data_recv = pickle.loads(data_recv)
@@ -104,11 +111,16 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                         data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                         server.send(data_send)
                         Confirmation = True
-                        print("got out")
+                        break
+                    elif data_recv[0] == "I_died...Fuck_off" :
+                        print("sa schimbat")
+                        server.close()
+                        run = False
                         break
                     else :
                         Changes_from_server.append(data_recv)
                 else :
+                    print("da e aici")
                     server.close()
                     run = False
                     break
@@ -164,7 +176,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                             playeri[data_recv[1]] = (playeri[data_recv[1]][0],playeri[data_recv[1]][1],0)
                         Transmit_to_all.append((data_recv,cod))
                     elif data_recv[0] == "enter_next_stage" :
-                        print("yeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeet")
                         Confirmatii += 1 
                         break
                 else :
@@ -182,16 +193,19 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         global nr_clients
         global cod_client
         #al catelea client de la inceputul serverului
-        while nr_clients < 3 and In_next_stage == False  :
-                client, address = Connection.accept()
-                if In_next_stage == False :
-                    Coduri_pozitie_client[cod_client] = nr_clients 
-                    nr_clients += 1
-                    CLIENTS.append((client,cod_client))
-                    newthread = threading.Thread(target = reciev_thread_from_client , args =(client,cod_client,1))
-                    cod_client += 1 
-                    Client_THREADS.append(newthread)
-                    Client_THREADS[len(Client_THREADS)-1].start()
+        try :
+            while nr_clients < 3 and In_next_stage == False  :
+                    client, address = Connection.accept()
+                    if In_next_stage == False :
+                        Coduri_pozitie_client[cod_client] = nr_clients 
+                        nr_clients += 1
+                        CLIENTS.append((client,cod_client))
+                        newthread = threading.Thread(target = reciev_thread_from_client , args =(client,cod_client,1))
+                        cod_client += 1 
+                        Client_THREADS.append(newthread)
+                        Client_THREADS[len(Client_THREADS)-1].start()
+        except :
+            print("daca nu a iesit hostul din lobby si vezi asta, avem o problema")
         Listening = False
 
 
@@ -301,7 +315,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
 
         #Daca lobiul este plin inchide threadul care asculta pentru noi clienti
         if Role == "host":
-            print(Confirmatii)
             if Listening == False and alive_thread == True:
                 Listening_thread.join()
                 alive_thread = False
@@ -363,6 +376,9 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                 Changes_from_server.pop(0)
 
         #Si clientul si serverul verifica daca toata lumea din Lobby este ready ca sa porneasca la urmatorul stage
+        #verifica daca playeru vera sa iasa din acest stage
+        if exit_cooldown >= 0 :
+            exit_cooldown -= 1
         #verificarea Ready stateurilor tuturor ca sa treaca la urmatoru stage
         if len(playeri) >= 2 :
             All_Readied = True
@@ -423,8 +439,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                         started_cooldown = False
 
 
-
-
         draw_window()
 
         Button_rect = pygame.Rect((Cerc_draw[Pozitie][0]-diametru/2 + 5,Cerc_draw[Pozitie][1]+diametru/2 + 25 + 5,diametru -10,90))
@@ -474,7 +488,19 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                         data_send = pickle.dumps(("ready_state_change",Pozitie))
                         data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                         Connection.send(data_send)
-
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE :
+                if exit_cooldown == -1 :
+                    exit_cooldown = 120
+                elif exit_cooldown > 0 :
+                    run= False
+                    if Role == "host" :
+                        data_send = pickle.dumps(("I_died...Fuck_off",None))
+                        data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
+                        for i in range(len(CLIENTS)) :
+                            CLIENTS[i][0].send(data_send)
+                            CLIENTS[i][0].close()
+                    Connection.close()
+                    break
                     
 
 
