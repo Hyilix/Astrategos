@@ -113,14 +113,12 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                         Confirmation = True
                         break
                     elif data_recv[0] == "I_died...Fuck_off" :
-                        print("sa schimbat")
                         server.close()
                         run = False
                         break
                     else :
                         Changes_from_server.append(data_recv)
                 else :
-                    print("da e aici")
                     server.close()
                     run = False
                     break
@@ -280,7 +278,8 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         #threaduri care trebe reunite cu mainul
         Killed_Clients = []
         Coduri_pozitie_client = {}
-        #inceperea ascultari pentru clienti`
+        #inceperea ascultari pentru clienti
+        In_next_stage = False
         Connection.listen(3)
         Listening_thread = threading.Thread(target = host_listen_thread)
         Listening_thread.start()
@@ -289,7 +288,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         #Lucrurile pe care trebe sa le trimita tuturor
         Transmit_to_all = []
         #daca a intrat in urmatoru stage
-        In_next_stage = False
         #numarul de confirmari de la ceilalti plaieri (reprezinta daca clienti au terminat loading baru si au trecut mai departe)
         Confirmatii = 0
         sent_reaquest =False
@@ -330,6 +328,8 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                 Transmit_to_all.append((("leftplayer",Coduri_pozitie_client[Killed_Clients[0]] + 1),None))
                 CLIENTS.pop(Coduri_pozitie_client[Killed_Clients[0]])
                 Text_draw.pop(Coduri_pozitie_client[Killed_Clients[0]] + 1)
+                if playeri[Coduri_pozitie_client[Killed_Clients[0]] + 1][1] != 0 :
+                    Selected_Colors[playeri[Coduri_pozitie_client[Killed_Clients[0]] + 1][1] - 1] = 0
                 playeri.pop(Coduri_pozitie_client[Killed_Clients[0]] + 1)
                 Client_THREADS[Coduri_pozitie_client[Killed_Clients[0]]].join()
                 Client_THREADS.pop(Coduri_pozitie_client[Killed_Clients[0]])
@@ -359,6 +359,8 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                         text_rect.center = (diametru*(i+1) + 50*i + diametru/2,HEIGHT/2 - diametru/2-30)
                         Text_draw.append((text,text_rect))
                 elif Changes_from_server[0][0] == "leftplayer" :
+                    if playeri[Changes_from_server[0][1]][1] != 0 :
+                        Selected_Colors[playeri[Changes_from_server[0][1]][1] - 1] = 0
                     playeri.pop(Changes_from_server[0][1])
                     Text_draw.pop(Changes_from_server[0][1])
                     if Changes_from_server[0][1] < Pozitie :
@@ -440,7 +442,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
 
 
         draw_window()
-
+        print(Pozitie)
         Button_rect = pygame.Rect((Cerc_draw[Pozitie][0]-diametru/2 + 5,Cerc_draw[Pozitie][1]+diametru/2 + 25 + 5,diametru -10,90))
         for event in pygame.event.get():
             if event.type == pygame.QUIT :
