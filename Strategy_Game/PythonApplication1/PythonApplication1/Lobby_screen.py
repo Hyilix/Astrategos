@@ -22,6 +22,8 @@ Light_Green = (0, 255, 0)
 Player_Colors = [White,Blue,Red,Green,Yellow,Orange,Purple,Pink,Cyan]
 Selected_Colors = [0,0,0,0,0,0,0,0]
 
+identifier_color = (255, 181, 0)
+
 #variabile globale
 nr_clients = 0
 cod_client = 0
@@ -42,6 +44,8 @@ Confirmatii = 0
 Font = pygame.font.Font(None, 40)
 FontR = pygame.font.Font(None, 80)
 Exit_text = Font.render("Press Esc twice in a row to exit", True, (0,0,0))
+
+sufixe = [".JR",".III",".IV"]
 
 run = True
 
@@ -95,7 +99,10 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
 
         for i in range(len(playeri)) :
             #Formateaza si pregateste pentru afisare toate numele playerilor
-            text = Font.render(playeri[i][0], True, (0,0,0))
+            if i != Pozitie :
+                text = Font.render(playeri[i][0], True, (0,0,0))
+            else :
+                text = Font.render(playeri[i][0], True, identifier_color)
             text_rect = text.get_rect()
             text_rect.center = (diametru*(i+1) + 50*i + diametru/2,HEIGHT/2 - diametru/2-30)
             Text_draw.append((text,text_rect))
@@ -142,7 +149,16 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
             header = client.recv(10)
             header = header.decode("utf-8")
             data_recv = client.recv(int(header))
-            playeri.append((data_recv.decode("utf-8"),0,0))
+            data_recv = data_recv.decode("utf-8")
+            #se verifica  daca numele lui este deja luat
+            samename = -1
+            for i in range(len(playeri)) :
+                if playeri[i][0] == data_recv or playeri[i][0] == data_recv + ".Jr" or playeri[i][0] == data_recv +".III" or playeri[i][0] == data_recv + ".IV" :
+                    samename += 1
+            if samename >= 0 :
+                data_recv = data_recv + sufixe[samename]
+            #for i in range(len(playeri)) :
+            playeri.append((data_recv,0,0))
             Pozitie = len(playeri)-1
             Transmit_to_all.append((("newplayer",playeri[len(playeri)-1]),cod))
             #Trimite tot vectorul de playeri clientului
@@ -284,7 +300,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         #crearea textului de afisat al Portului
         Port_text = Font.render("Port: " + str(Port), True, Light_Green)
         #crearea textului de afisat al numelui
-        text = Font.render(playeri[0][0], True, (0,0,0))
+        text = Font.render(playeri[0][0], True, identifier_color)
         text_rect = text.get_rect()
         text_rect.center = (diametru + diametru/2,HEIGHT/2 - diametru/2-30)
         Text_draw.append((text,text_rect))
