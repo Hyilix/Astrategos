@@ -102,11 +102,9 @@ def render_tiles_in_camera():
             j += 1
             counter += 1
         i += 1
-    #print(counter)
 
 while Running:
     clock.tick(FPS)
-    #print(clock.get_fps())
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

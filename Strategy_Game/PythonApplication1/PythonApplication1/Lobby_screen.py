@@ -6,6 +6,7 @@ import threading
 import math
 import time
 
+pygame.init()
 #Culori
 White = (255,255,255)
 Gri = (225, 223, 240)
@@ -38,21 +39,25 @@ Next_stage_cooldown = 5*60
 Confirmation = False
 Confirmatii = 0
 
+Font = pygame.font.Font(None, 40)
+FontR = pygame.font.Font(None, 80)
+Exit_text = Font.render("Press Esc twice in a row to exit", True, (0,0,0))
+
 run = True
 
 def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
-    pygame.init()
 
     global playeri
     global Selected_Colors
     playeri = []
-    Font = pygame.font.Font(None, 40)
-    FontR = pygame.font.Font(None, 80)
     Cerc_draw = []
     Text_draw = []
     Selected_Colors = [0,0,0,0,0,0,0,0]
 
     exit_cooldown = -1
+
+    Exit_rect = Exit_text.get_rect()
+    Exit_rect.center = (WIDTH/2, HEIGHT -50)
 
     global run 
 
@@ -82,6 +87,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
             data_recv = server.recv(int(header))
             playeri = pickle.loads(data_recv)
             #serveru va trimite pozitia clientului printre playeri
+
             header = server.recv(10)
             header = header.decode("utf-8")
             data_recv = server.recv(int(header))
@@ -112,7 +118,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                         server.send(data_send)
                         Confirmation = True
                         break
-                    elif data_recv[0] == "I_died...Fuck_off" :
+                    elif data_recv[0] == "I_died...Fuck_off" or data_recv[0] == "Fuck_off":
                         server.close()
                         run = False
                         break
@@ -212,6 +218,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         global Selected_Colors
         WIN.fill((255,255,255))
         WIN.blit(Port_text,(25,25))
+        WIN.blit(Exit_text,Exit_rect)
         WIN.blit(FPS_text,(25,25+40))
         #deseneaza cercurile si info-urile playerilor
         for i in range( len(Cerc_draw)) :
@@ -233,6 +240,14 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                 text_rect.center = (Cerc_draw[i][0]-diametru/2 + 5 +(diametru-10)/2 , Cerc_draw[i][1]+diametru/2 + 25 + 5 + 45)
                 pygame.draw.rect(WIN,(255,255,255),(Cerc_draw[i][0]-diametru/2 + 5,Cerc_draw[i][1]+diametru/2 + 25 + 5,diametru -10,90))
                 WIN.blit(text,text_rect)
+                #desenarea butoanelor de kick
+                if Role == "host" and i != 0 :
+                    pygame.draw.rect(WIN,(0,0,0),(Cerc_draw[i][0]-diametru/2,Cerc_draw[i][1]+diametru/2 + 150,diametru,100))
+                    pygame.draw.rect(WIN,(255,255,255),(Cerc_draw[i][0]-diametru/2 + 5,Cerc_draw[i][1]+diametru/2 + 150 + 5,diametru -10,90))
+                    text = FontR.render("Kick", True, (0,0,0))
+                    text_rect = text.get_rect()
+                    text_rect.center = (Cerc_draw[i][0]-diametru/2 + 5 +(diametru-10)/2 , Cerc_draw[i][1]+diametru/2 + 150 + 5 + 45)
+                    WIN.blit(text,text_rect)
 
         #deseneaza costumization rectul si tot ce e pe el
         if Costumization_Tab == True :
@@ -352,12 +367,11 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         else :
             while len(Changes_from_server) > 0 :
                 if Changes_from_server[0][0] == "newplayer" :
-                    if name != Changes_from_server[0][1][0] :
-                        playeri.append(Changes_from_server[0][1])
-                        text = Font.render(Changes_from_server[0][1][0], True, (0,0,0))
-                        text_rect = text.get_rect()
-                        text_rect.center = (diametru*(i+1) + 50*i + diametru/2,HEIGHT/2 - diametru/2-30)
-                        Text_draw.append((text,text_rect))
+                    playeri.append(Changes_from_server[0][1])
+                    text = Font.render(Changes_from_server[0][1][0], True, (0,0,0))
+                    text_rect = text.get_rect()
+                    text_rect.center = (diametru*(i+1) + 50*i + diametru/2,HEIGHT/2 - diametru/2-30)
+                    Text_draw.append((text,text_rect))
                 elif Changes_from_server[0][0] == "leftplayer" :
                     if playeri[Changes_from_server[0][1]][1] != 0 :
                         Selected_Colors[playeri[Changes_from_server[0][1]][1] - 1] = 0
@@ -442,7 +456,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
 
 
         draw_window()
-        print(Pozitie)
         Button_rect = pygame.Rect((Cerc_draw[Pozitie][0]-diametru/2 + 5,Cerc_draw[Pozitie][1]+diametru/2 + 25 + 5,diametru -10,90))
         for event in pygame.event.get():
             if event.type == pygame.QUIT :
@@ -477,7 +490,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                                     data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                                     Connection.send(data_send)
                                 break
-                #verifica daca apasa ready buttonul sau
+                #verifica daca apasa ready buttonul 
                 elif Button_rect.collidepoint(press_coordonaits) :
                     if playeri[Pozitie][2] == 0 :
                         playeri[Pozitie] = (playeri[Pozitie][0],playeri[Pozitie][1],1)  
@@ -490,6 +503,16 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                         data_send = pickle.dumps(("ready_state_change",Pozitie))
                         data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                         Connection.send(data_send)
+
+                elif Role == "host" :
+                    print("yes")
+                    for i in range(len(playeri)-1) :
+                        button_rect = pygame.Rect((Cerc_draw[i+1][0]-diametru/2 + 5,Cerc_draw[i+1][1]+diametru/2 + 150 + 5,diametru -10,90))
+                        if button_rect.collidepoint(press_coordonaits) :
+                            data_send = pickle.dumps(("Fuck_off",None))
+                            data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
+                            CLIENTS[i][0].send(data_send)
+
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE :
                 if exit_cooldown == -1 :
                     exit_cooldown = 120
