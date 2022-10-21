@@ -2,6 +2,7 @@ import TileClass
 import Structures
 import Units
 import Connection_Screen
+import Menu
 
 import pygame
 
@@ -9,17 +10,13 @@ pygame.init()
 screen = pygame.display.Info()
 WIDTH = screen.current_w
 HEIGHT = screen.current_h
-
-
-i = input()
-#PUT this here to test my shit
-#Mark as Comment if needed
-WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 FPS = 60
-if int(i) == 1 :
-    Connection_Screen.connection_screen(WIN,WIDTH,HEIGHT,FPS,"client")
-else :
-    Connection_Screen.connection_screen(WIN,WIDTH,HEIGHT,FPS,"host")
+WIN = pygame.display.set_mode((WIDTH, HEIGHT))
+
+#Aici se intra in meniu
+Menu.menu_screen(WIN,WIDTH,HEIGHT,FPS)
+
+
 
 
 
