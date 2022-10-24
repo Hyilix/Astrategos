@@ -8,7 +8,7 @@ pygame.init()
 
 #Numele jocului
 gamename = "NUMELE"
-FontR = pygame.font.Font(None, 80)
+FontR = pygame.font.Font(None, 60)
 Titlu = FontR.render(gamename,True,(0,0,0))
 Titlu_rect = Titlu.get_rect()
 #butoanele si dreptunghiurile lor
@@ -21,19 +21,25 @@ def menu_screen(WIN,WIDTH,HEIGHT,FPS) :
 
     #initializarea butoanelor si toate cele dupa marimile ecranului
 
-    Titlu_rect.center = (WIDTH/2,(HEIGHT-110*3-50*3-80)/2 + 40)
+    Titlu_rect.center = (WIDTH/2,(HEIGHT-90*4-50*4-60)/2 + 40)
 
-    Rect_draw.append(((WIDTH-260)/2-5,(HEIGHT-110*3-50*3-80)/2-5 + 80 + 50,260,110))
-    Buton = Button(((WIDTH-260)/2,(HEIGHT-110*3-50*3-80)/2 + 80 +50,250,100),(255,255,255),None,**{"text": "Host","font": FontR})
+    Rect_draw.append(((WIDTH-260)/2-5,(HEIGHT-90*4-50*4-60)/2-5 + 60 + 50,260,90))
+    Buton = Button(((WIDTH-260)/2,(HEIGHT-90*4-50*4-60)/2 + 60 +50,250,80),(255,255,255),None,**{"text": "Host","font": FontR})
     Buttons.append(Buton)
 
-    Rect_draw.append(((WIDTH-260)/2-5,(HEIGHT-110*3-50*3-80)/2 + 80 +50 +160 - 5,260,110))
-    Buton = Button(((WIDTH-260)/2,(HEIGHT-110*3-50*3-80)/2 +50 +80 + 160 ,250,100),(255,255,255),None,**{"text": "Join","font": FontR})
+    Rect_draw.append(((WIDTH-260)/2-5,(HEIGHT-90*4-50*4-60)/2 + 60 +50*2 +90 - 5,260,90))
+    Buton = Button(((WIDTH-260)/2,(HEIGHT-90*4-50*4-60)/2 +60 +50*2 + 90 ,250,80),(255,255,255),None,**{"text": "Join","font": FontR})
     Buttons.append(Buton)
 
-    Rect_draw.append(((WIDTH-260)/2-5,(HEIGHT-110*3-50*3-80)/2 + 50 +80 + 160*2 -5,260,110))
-    Buton = Button(((WIDTH-260)/2,(HEIGHT-110*3-50*3-80)/2 + 50 + 80  + 160*2,250,100),(255,255,255),None,**{"text": "QUIT","font": FontR})
+    Rect_draw.append(((WIDTH-260)/2-5,(HEIGHT-90*4-50*4-60)/2 + 50*3 +60 + 90*2 -5,260,90))
+    Buton = Button(((WIDTH-260)/2,(HEIGHT-90*4-50*4-60)/2 + 50*3 + 60  + 90*2,250,80),(255,255,255),None,**{"text": "Map Editor","font": FontR})
     Buttons.append(Buton)
+
+    Rect_draw.append(((WIDTH-260)/2-5,(HEIGHT-90*4-50*4-60)/2 + 50*4 +60 + 90*3 -5,260,90))
+    Buton = Button(((WIDTH-260)/2,(HEIGHT-90*4-50*4-60)/2 + 50*4 + 60  + 90*3,250,80),(255,255,255),None,**{"text": "QUIT","font": FontR})
+    Buttons.append(Buton)
+
+   
 
 
     def draw_window() :
@@ -63,7 +69,7 @@ def menu_screen(WIN,WIDTH,HEIGHT,FPS) :
                             Connection_Screen.connection_screen(WIN,WIDTH,HEIGHT,FPS,"host")
                         elif i == 1 :
                             Connection_Screen.connection_screen(WIN,WIDTH,HEIGHT,FPS,"client")
-                        elif i == 2:
+                        elif i == 3:
                             run = False
                             pygame.quit()
                             os._exit(0)
