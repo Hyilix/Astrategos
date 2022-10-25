@@ -139,10 +139,10 @@ def place_tile(target_img = None):     #Function to determine what to place and 
         isDone = False
 
         while not isDone:
-            tries += 1
+
+            new_tiles = []
 
             for myTile in queued_tiles:
-                queued_tiles.remove(myTile)
                 x = myTile[0]
                 y = myTile[1]
 
@@ -159,10 +159,18 @@ def place_tile(target_img = None):     #Function to determine what to place and 
                         tiles[y][x].collidable = Editor_var_dict["Collision"]
                         tiles[y][x].image_name = TileClass.avalible_textures[current_index]
                         tiles[y][x].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+
                         for direction in directions:
                             in_x = direction[0]
                             in_y = direction[1]
-                            queued_tiles.append((x + in_x, y + in_y))
+                            print("OFFSET", in_x, in_y)
+                            new_tiles.append((x + in_x, y + in_y))
+
+                queued_tiles.remove(myTile)
+
+            if len(new_tiles) == 0 and len(queued_tiles) == 0: isDone = True
+
+            queued_tiles += new_tiles
 
 
         visited_vec.clear()
