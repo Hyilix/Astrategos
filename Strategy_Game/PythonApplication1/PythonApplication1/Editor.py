@@ -57,7 +57,7 @@ class Camera:
         self.x = int((self.x + WIDTH // 2) / last_map_size_x * map_size_x) - WIDTH // 2
         self.y = int((self.y + HEIGHT // 2) / last_map_size_y * map_size_y) - HEIGHT // 2
 
-CurrentCamera = Camera((0,0), 1, 3, 0.6)
+CurrentCamera = Camera((0,0), 1, 3, 0.4)
 
 normal_tile_length = int(TileClass.base_texture_length * (WIDTH / HEIGHT))     #the length of a tile when the zoom is 1
 current_tile_length = normal_tile_length * CurrentCamera.zoom
