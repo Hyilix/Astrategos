@@ -3,6 +3,7 @@ import Structures
 import Units
 import GUI
 import math
+import sys
 
 import pygame
 
@@ -15,6 +16,8 @@ WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 
 GUI.Initialize_Editor_GUIs()
 GUI.Draw_Textures_GUI((0,0))
+
+MAX_RECURSION_LIMIT = sys.getrecursionlimit()
 
 class Camera:
     def __init__(self, position, zoom, max_zoom, min_zoom):
@@ -91,7 +94,7 @@ mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * curre
 ToolsSelectedPositions = []
 
 #Editor specific variables:
-Brush_size = 1      #This is not very efficient. Use high values at your own risk (A lot of time required)!
+Brush_size = 1
 Brush_min = 1
 Brush_max = 35
 
@@ -113,7 +116,61 @@ Editor_var_dict = {
 
 def place_tile(target_img = None):     #Function to determine what to place and how
     if Editor_var_dict["Fill"] == True:
-        print("NOT IMPLEMENTED. LEAVE ME ALONE")
+        mouse_pos = pygame.mouse.get_pos()
+
+        x_layer = (mouse_pos[0] + CurrentCamera.x) // current_tile_length 
+        y_layer = (mouse_pos[1] + CurrentCamera.y) // current_tile_length
+
+        visited_vec = []
+        queued_tiles = [(x_layer, y_layer)]
+
+        directions = [
+            (-1,0),
+            (1,0),
+            (0,1),
+            (0,-1)
+        ]
+
+        checks = 0
+        tries = 0
+
+        print(visited_vec)
+
+        isDone = False
+
+        while not isDone:
+            tries += 1
+
+            for myTile in queued_tiles:
+                queued_tiles.remove(myTile)
+                x = myTile[0]
+                y = myTile[1]
+
+                print((x, y))
+                if (x, y) not in visited_vec:
+
+                    if x >= 0 and y >= 0 and x < rows and y < tiles_per_row and tiles[y][x].image_name[:-4] == target_img:
+                        checks += 1
+                        visited_vec.append((x, y))
+                        if Editor_var_dict["Eraser"] == True:
+                            tiles[y][x].structure = None
+                            tiles[y][x].special = None
+                            tiles[y][x].unit = None
+                        tiles[y][x].collidable = Editor_var_dict["Collision"]
+                        tiles[y][x].image_name = TileClass.avalible_textures[current_index]
+                        tiles[y][x].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+                        for direction in directions:
+                            in_x = direction[0]
+                            in_y = direction[1]
+                            queued_tiles.append((x + in_x, y + in_y))
+
+
+        visited_vec.clear()
+        queued_tiles.clear()
+
+        print("CHECKS", checks)
+        print("TRIES", tries)
+        #print("NOT IMPLEMENTED. LEAVE ME ALONE")
 
     elif Editor_var_dict["FillAll"] == True:
         for x in range(rows):
@@ -139,41 +196,6 @@ def place_tile(target_img = None):     #Function to determine what to place and 
                     tiles[y][x].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
 
     else:
-        """
-        direction_dict = {
-            "Left"  :   (0,-1),
-            "Right" :   (0,1),
-            "Up"    :   (1,0),
-            "Down"  :   (-1,0),
-            "None"  :   (0,0)
-            }
-
-        visited_tiles = []
-
-        def next_tile(range, direction, x, y):
-            y += direction_dict[direction][0]
-            x += direction_dict[direction][1]
-
-            if y >= 0 and x >= 0 and y < tiles_per_row and x < rows and range > 0 and visited_tiles.count((y,x)) == 0 :
-                if Editor_var_dict["Eraser"] == True:
-                    tiles[y][x].structure = None
-                    tiles[y][x].special = None
-                    tiles[y][x].unit = None
-                tiles[y][x].collidable = Editor_var_dict["Collision"]
-                tiles[y][x].image_name = TileClass.avalible_textures[current_index]
-                tiles[y][x].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
-                visited_tiles.append((y,x))
-
-            if range > 0:
-                next_tile(range - 1, "Left", x, y)
-                next_tile(range - 1, "Right", x, y)
-                next_tile(range - 1, "Up", x, y)
-                next_tile(range - 1, "Down", x, y)
-
-        visited_tiles.clear()
-        next_tile(Brush_size, "None", x_layer, y_layer)
-        """
-
         mouse_pos = pygame.mouse.get_pos()
 
         x_layer = (mouse_pos[0] + CurrentCamera.x) // current_tile_length 

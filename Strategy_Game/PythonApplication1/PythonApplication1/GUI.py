@@ -2,7 +2,7 @@ import pygame
 import TileClass
 import os
 
-font = pygame.font.Font('freesansbold.ttf', 1024)
+font = pygame.font.Font('freesansbold.ttf', 256)
 font_string = pygame.font.Font('freesansbold.ttf', 32)
 
 pygame.init()
@@ -126,9 +126,9 @@ def Draw_Tools_GUI(positions, brush_size):
     current_x += 1 
     if brush_size != None:
         text = font.render(str(brush_size), True, (230,230,230))
-        text = pygame.transform.smoothscale(text, (Tools_icon_size / 2 + Tools_icon_size * (brush_size > 9), Tools_icon_size))
+        text = pygame.transform.smoothscale(text, (Tools_icon_size / 2 + Tools_icon_size * (brush_size > 9) / 2, Tools_icon_size))
         textRect = text.get_rect()
-        textRect.x = current_x * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance + Tools_icon_size / 4
+        textRect.x = current_x * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance + Tools_icon_size / 4 - Tools_icon_size / 4 * (brush_size > 9)
         textRect.y = current_y * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance
         ToolsSurface.blit(text, textRect)
 
