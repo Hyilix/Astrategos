@@ -83,10 +83,10 @@ for x in range(rows):  #Create the map with empty tiles
     tiles.append(newLine)
 
 #For testing purposes, 2 tiles have been modified. Each modification has to be updated.
-tiles[1][2].structure = Structures.Core((2, 1), None)
+tiles[1][2].structure = Structures.Structure("Core", (2, 1), None)
 tiles[1][2].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
 
-tiles[3][3].unit = Units.Marine((3, 3), None)
+tiles[3][3].unit = Units.Unit("Marine", (3, 3), None)
 tiles[3][3].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
 
 mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
@@ -114,6 +114,23 @@ Editor_var_dict = {
     "FillSame" : FillSame
 }
 
+def image_modifier(x,y):
+    if GUI.current_texture_screen == "Tiles":
+        tiles[y][x].image_name = TileClass.avalible_textures[current_index]
+    elif GUI.current_texture_screen == "Structures":
+        struct = Structures.Structure(Structures.texture_names[current_index][:-4], (x,y), None)
+        tiles[y][x].structure = struct
+    elif GUI.current_texture_screen == "Units":
+        unit = Units.Unit(Units.texture_names[current_index][:-4], (x,y), None)
+        tiles[y][x].structure = unit
+
+    if Editor_var_dict["Eraser"] == True:
+        tiles[y][x].structure = None
+        tiles[y][x].special = None
+        tiles[y][x].unit = None
+    tiles[y][x].collidable = Editor_var_dict["Collision"]
+    tiles[y][x].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+
 def place_tile(target_img = None):     #Function to determine what to place and how
     if Editor_var_dict["Fill"] == True:
         mouse_pos = pygame.mouse.get_pos()
@@ -134,8 +151,6 @@ def place_tile(target_img = None):     #Function to determine what to place and 
         checks = 0
         tries = 0
 
-        print(visited_vec)
-
         isDone = False
 
         while not isDone:
@@ -143,65 +158,43 @@ def place_tile(target_img = None):     #Function to determine what to place and 
             new_tiles = []
 
             for myTile in queued_tiles:
+
+                tries += 1
+
                 x = myTile[0]
                 y = myTile[1]
 
-                print((x, y))
                 if (x, y) not in visited_vec:
-
                     if x >= 0 and y >= 0 and x < rows and y < tiles_per_row and tiles[y][x].image_name[:-4] == target_img:
                         checks += 1
                         visited_vec.append((x, y))
-                        if Editor_var_dict["Eraser"] == True:
-                            tiles[y][x].structure = None
-                            tiles[y][x].special = None
-                            tiles[y][x].unit = None
-                        tiles[y][x].collidable = Editor_var_dict["Collision"]
-                        tiles[y][x].image_name = TileClass.avalible_textures[current_index]
-                        tiles[y][x].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+                        image_modifier(x, y)
 
                         for direction in directions:
                             in_x = direction[0]
                             in_y = direction[1]
-                            print("OFFSET", in_x, in_y)
-                            new_tiles.append((x + in_x, y + in_y))
+                            if (x + in_x, y + in_y) not in visited_vec:
+                                new_tiles.append((x + in_x, y + in_y))
 
-                queued_tiles.remove(myTile)
+            queued_tiles.clear()
 
-            if len(new_tiles) == 0 and len(queued_tiles) == 0: isDone = True
+            if len(new_tiles) == 0: isDone = True
 
             queued_tiles += new_tiles
-
 
         visited_vec.clear()
         queued_tiles.clear()
 
-        print("CHECKS", checks)
-        print("TRIES", tries)
-        #print("NOT IMPLEMENTED. LEAVE ME ALONE")
-
     elif Editor_var_dict["FillAll"] == True:
         for x in range(rows):
             for y in range(tiles_per_row):
-                if Editor_var_dict["Eraser"] == True:
-                    tiles[y][x].structure = None
-                    tiles[y][x].special = None
-                    tiles[y][x].unit = None
-                tiles[y][x].collidable = Editor_var_dict["Collision"]
-                tiles[y][x].image_name = TileClass.avalible_textures[current_index]
-                tiles[y][x].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+                image_modifier(x,y)
 
     elif Editor_var_dict["FillSame"] == True:
         for x in range(rows):
             for y in range(tiles_per_row):
                 if tiles[y][x].image_name[:-4] == target_img:
-                    if Editor_var_dict["Eraser"] == True:
-                        tiles[y][x].structure = None
-                        tiles[y][x].special = None
-                        tiles[y][x].unit = None
-                    tiles[y][x].collidable = Editor_var_dict["Collision"]
-                    tiles[y][x].image_name = TileClass.avalible_textures[current_index]
-                    tiles[y][x].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+                    image_modifier(x,y)
 
     else:
         mouse_pos = pygame.mouse.get_pos()
@@ -215,30 +208,16 @@ def place_tile(target_img = None):     #Function to determine what to place and 
         if Brush_size == 1:
             if x_layer >= 0 and x_layer < tiles_per_row:
                 if y_layer >= 0 and y_layer < rows:
-                    if Editor_var_dict["Eraser"] == True:
-                        tiles[y][x].structure = None
-                        tiles[y][x].special = None
-                        tiles[y][x].unit = None
-                    tiles[y][x].collidable = Editor_var_dict["Collision"]
-                    tiles[y][x].image_name = TileClass.avalible_textures[current_index]
-                    tiles[y][x].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+                    image_modifier(x,y)
 
         else:
             for Y in range(y - math.ceil(Brush_size / 2), y + math.ceil(Brush_size / 2) + 1):
                 for X in range(x - math.ceil(Brush_size / 2), x + math.ceil(Brush_size / 2) + 1):
                     if X >= 0 and X < tiles_per_row:
                         if Y >= 0 and Y < rows:
-                            if Editor_var_dict["Eraser"] == True:
-                                tiles[Y][X].structure = None
-                                tiles[Y][X].special = None
-                                tiles[Y][X].unit = None
-                            tiles[Y][X].collidable = Editor_var_dict["Collision"]
-                            tiles[Y][X].image_name = TileClass.avalible_textures[current_index]
-                            tiles[Y][X].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+                            image_modifier(X,Y)
 
-
-                       
-                          
+                     
 current_index = 0
 max_index = TileClass.last_index
 
@@ -283,6 +262,14 @@ while Running:
                     x_layer = (mouse_pos[0] - (WIDTH - GUI.Texture_x_size)) // (GUI.texture_size + GUI.texture_distance)
                     y_layer = mouse_pos[1] // (GUI.texture_size + GUI.texture_distance)
                     
+                    index_to_use = None
+                    if GUI.current_texture_screen == "Tiles":
+                        index_to_use = TileClass.last_index
+                    elif GUI.current_texture_screen == "Structures":
+                        index_to_use = Structures.last_index
+                    elif GUI.current_texture_screen == "Units":
+                        index_to_use = Units.last_index
+
                     if (mouse_pos[0] - (WIDTH - GUI.Texture_x_size)) % (GUI.texture_size + GUI.texture_distance) < GUI.texture_distance:
                         break
                     elif mouse_pos[1] % (GUI.texture_size + GUI.texture_distance) < GUI.texture_distance:
@@ -290,7 +277,7 @@ while Running:
                     else:
                         index = GUI.max_x_pos * y_layer + x_layer
                         if GUI.max_x_pos * y_layer > 0: index += y_layer
-                        if index < TileClass.last_index:
+                        if index < index_to_use:
                             current_index = index
                             GUI.Draw_Textures_GUI((x_layer, y_layer))
 

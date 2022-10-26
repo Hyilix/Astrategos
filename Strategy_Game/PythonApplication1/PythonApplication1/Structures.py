@@ -17,6 +17,7 @@ structure_prices_dict = {   #Prices for all structures: first and second ore
     "Pylon" : (15,0)
 }
 
+
 for img in os.listdir(default_path):    #Load all images.
     texture_names.append(img)
     textures.append(pygame.image.load(default_path + img))
@@ -29,17 +30,27 @@ def resize_textures(size):
         newTexture = pygame.transform.scale(base_textures[i], (size, size))
         textures[i] = newTexture
 
-class Core():
-    def __init__(self, position, owner):
+last_index = len(texture_names)
+
+predefined_structures = {   #HP, MaxHp, attack, defence, canShareSpace, fog_range
+    "Core" : [100, 5, 2, 3, False, (2,2)],
+    }
+
+class Structure():
+    def __init__(self, name, position, owner):
         self.position = position    #The position of the tile it's sitted.
         self.owner = owner          #The owner of the unit.
+        self.name = name            #The structure.
 
-        self.texture = "Core" + ".png"
-        self.HP = 100
-        self.attack = 2
-        self.defence = 3
-        self.canShareSpace = False
-        self.fog_range = (2,2)      #How much can the structure see
+        vec = predefined_structures[name]
+
+        self.texture = name + ".png"
+        self.HP = vec[0]
+        self.MaxHP = vec[1]
+        self.attack = vec[2]
+        self.defence = vec[3]
+        self.canShareSpace = vec[4]
+        self.fog_range = vec[5]      #How much can the structure see
 
     def DrawImage(self, screen, size):
         screen.blit(textures[texture_names.index(self.texture)], (self.position[0] * size[0], self.position[1]  * size[1]))

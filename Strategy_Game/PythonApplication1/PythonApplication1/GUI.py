@@ -1,5 +1,7 @@
 import pygame
 import TileClass
+import Structures
+import Units
 import os
 
 font = pygame.font.Font('freesansbold.ttf', 256)
@@ -17,9 +19,11 @@ GUIs_enabled = True
 #Possible screens:
 #-Tiles
 #-Structures
+#-Units
 #-Ores_1
 #-Ores_2
-current_texture_screen = "Tiles"
+#-Decorators
+current_texture_screen = "Units"
 
 Tools_icon_size = 64
 
@@ -73,16 +77,44 @@ def Draw_Textures_GUI(position):
     current_x = 0
     current_y = 0
 
-    for image_name in TileClass.avalible_textures:
-        cloned_image = pygame.transform.scale(TileClass.base_textures[TileClass.texture_names.index(image_name)], (texture_size, texture_size))
-        if position != None:
-            pygame.draw.rect(TextureSurface, (255, 255, 0), (position[0] * (texture_size + texture_distance) + texture_distance - 5, position[1] * (texture_size + texture_distance) + texture_distance - 5, texture_size + 10, texture_size + 10), 5)
-        TextureSurface.blit(cloned_image, (current_x * (texture_size + texture_distance) + texture_distance, current_y * (texture_size + texture_distance) + texture_distance))
-        if current_x >= max_x_pos:
-            current_x = 0
-            current_y += 1
-        else:
-            current_x += 1
+    if current_texture_screen == "Tiles":
+
+        for image_name in TileClass.avalible_textures:
+            cloned_image = pygame.transform.scale(TileClass.base_textures[TileClass.texture_names.index(image_name)], (texture_size, texture_size))
+            if position != None:
+                pygame.draw.rect(TextureSurface, (255, 255, 0), (position[0] * (texture_size + texture_distance) + texture_distance - 5, position[1] * (texture_size + texture_distance) + texture_distance - 5, texture_size + 10, texture_size + 10), 5)
+            TextureSurface.blit(cloned_image, (current_x * (texture_size + texture_distance) + texture_distance, current_y * (texture_size + texture_distance) + texture_distance))
+            if current_x >= max_x_pos:
+                current_x = 0
+                current_y += 1
+            else:
+                current_x += 1
+
+    elif current_texture_screen == "Structures":
+
+        for image_name in Structures.texture_names:
+            cloned_image = pygame.transform.scale(Structures.base_textures[Structures.texture_names.index(image_name)], (texture_size, texture_size))
+            if position != None:
+                pygame.draw.rect(TextureSurface, (255, 255, 0), (position[0] * (texture_size + texture_distance) + texture_distance - 5, position[1] * (texture_size + texture_distance) + texture_distance - 5, texture_size + 10, texture_size + 10), 5)
+            TextureSurface.blit(cloned_image, (current_x * (texture_size + texture_distance) + texture_distance, current_y * (texture_size + texture_distance) + texture_distance))
+            if current_x >= max_x_pos:
+                current_x = 0
+                current_y += 1
+            else:
+                current_x += 1
+
+    elif current_texture_screen == "Units":
+
+        for image_name in Units.texture_names:
+            cloned_image = pygame.transform.scale(Units.base_textures[Units.texture_names.index(image_name)], (texture_size, texture_size))
+            if position != None:
+                pygame.draw.rect(TextureSurface, (255, 255, 0), (position[0] * (texture_size + texture_distance) + texture_distance - 5, position[1] * (texture_size + texture_distance) + texture_distance - 5, texture_size + 10, texture_size + 10), 5)
+            TextureSurface.blit(cloned_image, (current_x * (texture_size + texture_distance) + texture_distance, current_y * (texture_size + texture_distance) + texture_distance))
+            if current_x >= max_x_pos:
+                current_x = 0
+                current_y += 1
+            else:
+                current_x += 1
 
 def Draw_Tools_GUI(positions, brush_size):
     #Draw Tools
