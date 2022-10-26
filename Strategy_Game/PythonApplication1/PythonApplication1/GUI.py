@@ -22,8 +22,8 @@ GUIs_enabled = True
 #-Units
 #-Ores_1
 #-Ores_2
-#-Decorators
-current_texture_screen = "Units"
+#-Decorators????
+current_texture_screen = "Tiles"
 
 Tools_icon_size = 64
 
@@ -72,7 +72,7 @@ def Initialize_Editor_GUIs():
     ToolsSurface.convert_alpha()
             
 def Draw_Textures_GUI(position):
-    TextureSurface.fill((0, 0, 0, 150))
+    TextureSurface.fill((32, 32, 32, 150))
 
     current_x = 0
     current_y = 0
@@ -118,7 +118,7 @@ def Draw_Textures_GUI(position):
 
 def Draw_Tools_GUI(positions, brush_size):
     #Draw Tools
-    ToolsSurface.fill((0, 0, 0, 150))
+    ToolsSurface.fill((32, 32, 32, 150))
 
     current_x = 0
     current_y = 0
