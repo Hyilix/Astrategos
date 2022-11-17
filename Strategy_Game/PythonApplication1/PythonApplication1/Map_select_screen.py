@@ -27,7 +27,10 @@ Font = pygame.font.Font(None, 40)
 HEADERSIZE = 10
 SPACE = "          "
 
+run = False
+
 def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client) :
+    global run
     WIN.fill((255,255,255))
     pygame.display.update()
 
@@ -84,6 +87,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
             Killed_Clients.append(cod)
     
     def reciev_thread_from_server(server) :
+        global run
         try :
             while True :
                 header = server.recv(10)
@@ -100,16 +104,19 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                         break
                     elif data_recv[0] == "I_died...Fuck_off" or data_recv[0] == "Fuck_off":
                         server.close()
+                        print("aveai dreptate")
                         run = False
                         break
                     else :
                         Changes_from_server.append(data_recv)
                 else :
                     server.close()
+                    print("aveai dreptate")
                     run = False
                     break
         except :
             server.close()
+            print("aveai dreptate")
             run = False
 
     if Role == "host" :
@@ -175,3 +182,8 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                         scroll = limita_scroll
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE :
                 run =False
+    #Returnarea variabilelor necesare care s-ar fi putut schimba si motivul intoarceri in lobby
+    if Role == "host" :
+        return playeri, CLIENTS, Coduri_pozitie_client
+    else :
+        return "finnished",playeri,Pozitie 

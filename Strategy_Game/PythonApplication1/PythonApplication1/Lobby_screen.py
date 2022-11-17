@@ -450,15 +450,26 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                         while len(Client_THREADS) > 0 :
                             Client_THREADS[0].join()
                             Client_THREADS.pop(0)
+                        nr = len(playeri)
                         #Enter next stage
-                        Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client)
+                        playeri, CLIENTS, Coduri_pozitie_client = Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client)
                         #Return and reset the necesary variables
                         In_next_stage = False
-                        #incepe sa reasculte pentru alti clienti
-                        if Listening == False and nr_clients < 3 :
-                            Listening_thread.join()
-                            Listening_thread = threading.Thread(target = host_listen_thread)
-                            Listening_thread.start()
+                        if nr != len(playeri) :
+                            nr_clients = len(playeri) -1
+                            # se reseteaza culorile selectate si draw_text
+                            Selected_Colors = [0,0,0,0,0,0,0,0]
+                            Text_draw = []
+                            for i in range(len(playeri)) :
+                                Selected_Colors[playeri[i][1]-1] = 1
+                                if i != Pozitie :
+                                    text = Font.render(playeri[i][0], True, (0,0,0))
+                                else :
+                                    text = Font.render(playeri[i][0], True, identifier_color)
+                                text_rect = text.get_rect()
+                                text_rect.center = (diametru*(i+1) + 50*i + diametru/2,HEIGHT/2 - diametru/2-30)
+                                Text_draw.append((text,text_rect))
+
                         #incepe ascultarea clientilor prezenti
                         for i in range(len(CLIENTS)) :
                             newthread = threading.Thread(target = reciev_thread_from_client , args =(CLIENTS[i][0],CLIENTS[i][1],0))
@@ -471,15 +482,30 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                     if Confirmation == True :
                         Confirmation = False
                         recv_from_server.join()
-                        print("IDK")
+                        nr = len(playeri)
                         #Next Stage
-                        Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,None,None)
+                        Motiv, playeri, Pozitie =Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,None,None)
                         #Return and reset the necesary variables
-                        recv_from_server = threading.Thread(target = reciev_thread_from_server, args = (Connection,0))
-                        recv_from_server.start()
-                        for i in range(len(playeri)) :
-                             playeri[i] = (playeri[i][0],playeri[i][1],0)
-                        started_cooldown = False
+                        if Motiv == "finnished" :
+                            #verifica daca au iesit playeri in proces
+                            if nr != len(playeri) :
+                                # se reseteaza culorile selectate si draw_text
+                                Selected_Colors = [0,0,0,0,0,0,0,0]
+                                Text_draw = []
+                                for i in range(len(playeri)) :
+                                    Selected_Colors[playeri[i][1]-1] = 1
+                                    if i != Pozitie :
+                                        text = Font.render(playeri[i][0], True, (0,0,0))
+                                    else :
+                                        text = Font.render(playeri[i][0], True, identifier_color)
+                                    text_rect = text.get_rect()
+                                    text_rect.center = (diametru*(i+1) + 50*i + diametru/2,HEIGHT/2 - diametru/2-30)
+                                    Text_draw.append((text,text_rect))
+                            recv_from_server = threading.Thread(target = reciev_thread_from_server, args = (Connection,0))
+                            recv_from_server.start()
+                            for i in range(len(playeri)) :
+                                    playeri[i] = (playeri[i][0],playeri[i][1],0)
+                            started_cooldown = False
 
 
         draw_window()
