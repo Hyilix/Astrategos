@@ -6,6 +6,8 @@ import threading
 import math
 import time
 
+from Map_select_screen import Map_select
+
 pygame.init()
 #Culori
 White = (255,255,255)
@@ -157,8 +159,13 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                     samename += 1
             if samename >= 0 :
                 data_recv = data_recv + sufixe[samename]
-            #for i in range(len(playeri)) :
-            playeri.append((data_recv,0,0))
+            #se decide ce culoare ii dam
+            for i in range(len(Selected_Colors)) :
+                if Selected_Colors[i]==0 :
+                    p_color = i
+                    Selected_Colors[i] = 1
+                    break
+            playeri.append((data_recv,p_color+1,0))
             Pozitie = len(playeri)-1
             Transmit_to_all.append((("newplayer",playeri[len(playeri)-1]),cod))
             #Trimite tot vectorul de playeri clientului
@@ -296,7 +303,8 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         global Confirmatii
         nr_clients = 0
         cod_client = 0
-        playeri.append((name,0,0))
+        playeri.append((name,1,0))
+        Selected_Colors[0]=1
         #crearea textului de afisat al Portului
         Port_text = Font.render("Port: " + str(Port), True, Light_Green)
         #crearea textului de afisat al numelui
@@ -384,6 +392,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
             while len(Changes_from_server) > 0 :
                 if Changes_from_server[0][0] == "newplayer" :
                     playeri.append(Changes_from_server[0][1])
+                    Selected_Colors[playeri[len(playeri)-1][1]-1] = 1
                     text = Font.render(Changes_from_server[0][1][0], True, (0,0,0))
                     text_rect = text.get_rect()
                     text_rect.center = (diametru*(i+1) + 50*i + diametru/2,HEIGHT/2 - diametru/2-30)
@@ -412,7 +421,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         if exit_cooldown >= 0 :
             exit_cooldown -= 1
         #verificarea Ready stateurilor tuturor ca sa treaca la urmatoru stage
-        if len(playeri) >= 2 :
+        if len(playeri) >= 1 :
             All_Readied = True
             for i in range(len(playeri)) :
                 if playeri[i][2] == 0 :
@@ -426,7 +435,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                 cooldown -= 1
             elif All_Readied == False and started_cooldown == True :
                 started_cooldown = False
-            if  cooldown == 0 :
+            if  cooldown == 0 and  started_cooldown == True:
                 if Role == "host" :
                     if sent_reaquest == False :
                         In_next_stage = True
@@ -442,6 +451,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                             Client_THREADS[0].join()
                             Client_THREADS.pop(0)
                         #Enter next stage
+                        Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client)
                         #Return and reset the necesary variables
                         In_next_stage = False
                         #incepe sa reasculte pentru alti clienti
@@ -457,12 +467,13 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                         for i in range(len(playeri)) :
                              playeri[i] = (playeri[i][0],playeri[i][1],0)
                         started_cooldown = False
-
                 else :
                     if Confirmation == True :
                         Confirmation = False
                         recv_from_server.join()
+                        print("IDK")
                         #Next Stage
+                        Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,None,None)
                         #Return and reset the necesary variables
                         recv_from_server = threading.Thread(target = reciev_thread_from_server, args = (Connection,0))
                         recv_from_server.start()
@@ -521,7 +532,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                         Connection.send(data_send)
 
                 elif Role == "host" :
-                    print("yes")
                     for i in range(len(playeri)-1) :
                         button_rect = pygame.Rect((Cerc_draw[i+1][0]-diametru/2 + 5,Cerc_draw[i+1][1]+diametru/2 + 150 + 5,diametru -10,90))
                         if button_rect.collidepoint(press_coordonaits) :

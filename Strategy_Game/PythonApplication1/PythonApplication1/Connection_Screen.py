@@ -87,7 +87,7 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
     #informatile care pot fi colectate de la player 1.nume si daca e client 2.hostname 3.port 
     info = ["","",""]
     #limita de caractere pentru fiecare informatie
-    char_limit = [15,25,5]
+    char_limit = [10,25,5]
     
     clock = pygame.time.Clock()
     run = True
