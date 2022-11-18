@@ -38,7 +38,7 @@ Text_draw = []
 HEADERSIZE = 10
 SPACE = "          "
 
-Next_stage_cooldown = 5*60
+Next_stage_cooldown = 3*60
 
 Confirmation = False
 Confirmatii = 0

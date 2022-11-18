@@ -158,6 +158,10 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
 
         if Role == "host":
             while len(Killed_Clients) > 0 :
+                #actualizarea voturiilor
+                for i in range(Coduri_pozitie_client[Killed_Clients[0]] + 1,3) :
+                    Voturi[i] = Voturi[i+1]
+                Voturi [3] = None 
                 Transmit_to_all.append((("leftplayer",Coduri_pozitie_client[Killed_Clients[0]] + 1),None))
                 CLIENTS.pop(Coduri_pozitie_client[Killed_Clients[0]])
                 playeri.pop(Coduri_pozitie_client[Killed_Clients[0]] + 1)
@@ -168,6 +172,8 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                 for i in Coduri_pozitie_client :
                     if Coduri_pozitie_client[i] > Killed_Clients[0] :
                         Coduri_pozitie_client[i] -= 1 
+                #actualizarea voturiilor
+
                 Killed_Clients.pop(0)
             while len(Transmit_to_all) > 0 :
                 data_send = pickle.dumps(Transmit_to_all[0][0])
@@ -182,6 +188,9 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                     playeri.pop(Changes_from_server[0][1])
                     if Changes_from_server[0][1] < Pozitie :
                         Pozitie -= 1 
+                    for i in range(Changes_from_server[0][1],3) :
+                        Voturi[i] = Voturi[i+1]
+                    Voturi [3] = None 
                 elif Changes_from_server[0][0] == "sa_votat" :
                     Voturi[Changes_from_server[0][3]]=(Changes_from_server[0][1],Changes_from_server[0][2])
                 Changes_from_server.pop(0)
