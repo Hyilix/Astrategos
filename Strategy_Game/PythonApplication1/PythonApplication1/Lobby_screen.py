@@ -55,6 +55,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
 
     global playeri
     global Selected_Colors
+    global Text_draw
     playeri = []
     Cerc_draw = []
     Text_draw = []
@@ -83,6 +84,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         global Selected_Colors
         global Confirmation
         global run
+        global Text_draw
         if new :
             #Clientul isi trimite numele la server
             data_send = ((SPACE + str(len(name)))[-HEADERSIZE:] + name)
@@ -146,6 +148,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         global playeri
         global Selected_Colors 
         global Confirmatii
+        global Text_draw
         if new :
             #Primeste numele clientului
             header = client.recv(10)
@@ -166,13 +169,14 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                     Selected_Colors[i] = 1
                     break
             playeri.append((data_recv,p_color+1,0))
-            Pozitie = len(playeri)-1
+            P = len(playeri)-1
             Transmit_to_all.append((("newplayer",playeri[len(playeri)-1]),cod))
             #Trimite tot vectorul de playeri clientului
             data_send = pickle.dumps(playeri)
             data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
             client.send(data_send)
-            data_send = pickle.dumps(Pozitie)
+            print(P)
+            data_send = pickle.dumps(P)
             data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
             client.send(data_send)
             #Formateaza numele si il pregateste de afisare

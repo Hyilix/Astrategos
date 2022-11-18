@@ -91,6 +91,10 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                 if len(header) != 0 :
                     data_recv = client.recv(int(header))
                     data_recv = pickle.loads(data_recv)
+                    if data_recv[0] == "sa_votat" :
+                        Voturi[data_recv[3]]=(data_recv[1],data_recv[2])
+                        Transmit_to_all.append((("sa_votat",data_recv[1],data_recv[2],data_recv[3]),data_recv[3]-1))
+                        
                 else :
                     client.close()
                     Killed_Clients.append(cod)
@@ -206,11 +210,14 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                                      for j in range(6) :
                                          x_coloana = 75 + j*latura + j*25
                                          if press_coordonaits[0] >= x_coloana and press_coordonaits[0] <= x_coloana + latura :
-                                             print(i," ",j)
+                                             Voturi[Pozitie]=(i,j)
                                              #voteaza harta
                                              if Role == "host" :
-                                                 Voturi[Pozitie]=(i,j)
                                                  Transmit_to_all.append((("sa_votat",i,j,Pozitie),None))
+                                             else :
+                                                 data_send = pickle.dumps(("sa_votat",i,j,Pozitie))
+                                                 data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
+                                                 Connection.send(data_send)
                                              break
                                      break
 
