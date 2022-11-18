@@ -50,10 +50,23 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
         pygame.draw.rect(WIN,(80, 82, 81),(50,50,Map_part,HEIGHT-100))
         for i in range(10) :
             y_rand = 75 + i*latura + i*25 -scroll
-            if y_rand >50 or y_rand+latura >50 :
+            if y_rand+latura >50 :
                 for j in range(6) :
                     x_coloana = 75 + j*latura + j*25
                     pygame.draw.rect(WIN,Gri,(x_coloana,y_rand,latura,latura))
+        for i in range(len(Voturi)) :
+            if  Voturi[i] != None :
+                y_rand = 75 + Voturi[i][0]*latura + Voturi[i][0]*25 -scroll
+                if y_rand +latura > 50 and y_rand < HEIGHT - 50 - latura/2 :
+                    x_coloana = 75 + Voturi[i][1]*latura + Voturi[i][1]*25
+                    #afiseaza votul
+                    x = x_coloana + latura/8 + i*latura/4
+                    if latura/8 > 25 :
+                        y = y_rand + latura +25 - latura/8
+                    else :
+                        y = y_rand+latura
+                    pygame.draw.circle(WIN,(225, 223, 240),(x,y),latura/8)
+                    pygame.draw.circle(WIN,Player_Colors[playeri[i][1]],(x,y),latura/8 - (latura/8)/10)
         pygame.display.update((50,50,Map_part,HEIGHT-100))
         #Afisarea playerilor in dreapta
         pygame.draw.rect(WIN,(255, 255, 255),(50 + Map_part,50,diametru + 100,HEIGHT-50))
@@ -104,19 +117,16 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                         break
                     elif data_recv[0] == "I_died...Fuck_off" or data_recv[0] == "Fuck_off":
                         server.close()
-                        print("aveai dreptate")
                         run = False
                         break
                     else :
                         Changes_from_server.append(data_recv)
                 else :
                     server.close()
-                    print("aveai dreptate")
                     run = False
                     break
         except :
             server.close()
-            print("aveai dreptate")
             run = False
 
     if Role == "host" :
@@ -133,6 +143,8 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
         recv_from_server = threading.Thread(target = reciev_thread_from_server, args = (Connection,))
         recv_from_server.start()
         Changes_from_server = []
+    #variabile de care au nevoie amandoi 
+    Voturi = [None,None,None,None]
 
     clock = pygame.time.Clock()
     run=True
@@ -166,6 +178,8 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                     playeri.pop(Changes_from_server[0][1])
                     if Changes_from_server[0][1] < Pozitie :
                         Pozitie -= 1 
+                elif Changes_from_server[0][0] == "sa_votat" :
+                    Voturi[Changes_from_server[0][3]]=(Changes_from_server[0][1],Changes_from_server[0][2])
                 Changes_from_server.pop(0)
         for event in pygame.event.get():
             if event.type == pygame.QUIT :
@@ -180,10 +194,31 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                     scroll = scroll + 50
                     if scroll > limita_scroll :
                         scroll = limita_scroll
+                elif event.button == 1  : 
+                     press_coordonaits =  event.pos 
+                     # se vede daca a apasat pe partea cu harti
+                     if press_coordonaits[0]>50 and press_coordonaits[0]< 50 + Map_part and press_coordonaits[1]>50 and press_coordonaits[1]< HEIGHT - 50 :
+                         # se determina ce rand si conoala se afla harta apasata
+                         for i in range(10) :
+                             y_rand = 75 + i*latura +i*25 - scroll
+                             if y_rand +latura >50 :
+                                 if press_coordonaits[1] >= y_rand and press_coordonaits[1] <= y_rand+latura :
+                                     for j in range(6) :
+                                         x_coloana = 75 + j*latura + j*25
+                                         if press_coordonaits[0] >= x_coloana and press_coordonaits[0] <= x_coloana + latura :
+                                             print(i," ",j)
+                                             #voteaza harta
+                                             if Role == "host" :
+                                                 Voturi[Pozitie]=(i,j)
+                                                 Transmit_to_all.append((("sa_votat",i,j,Pozitie),None))
+                                             break
+                                     break
+
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE :
                 run =False
+
     #Returnarea variabilelor necesare care s-ar fi putut schimba si motivul intoarceri in lobby
     if Role == "host" :
         return playeri, CLIENTS, Coduri_pozitie_client
     else :
-        return "finnished",playeri,Pozitie 
+        return playeri,Pozitie 

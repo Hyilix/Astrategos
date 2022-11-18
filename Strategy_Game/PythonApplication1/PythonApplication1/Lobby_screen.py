@@ -63,7 +63,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
     exit_cooldown = -1
 
     Exit_rect = Exit_text.get_rect()
-    Exit_rect.center = (WIDTH/2, HEIGHT -50)
+    Exit_rect.center = (WIDTH/2, HEIGHT -HEIGHT/25 - 30)
 
     global run 
 
@@ -417,7 +417,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                 Changes_from_server.pop(0)
 
         #Si clientul si serverul verifica daca toata lumea din Lobby este ready ca sa porneasca la urmatorul stage
-        #verifica daca playeru vera sa iasa din acest stage
+        #verifica daca playeru vrea sa iasa din acest stage
         if exit_cooldown >= 0 :
             exit_cooldown -= 1
         #verificarea Ready stateurilor tuturor ca sa treaca la urmatoru stage
@@ -484,28 +484,27 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                         recv_from_server.join()
                         nr = len(playeri)
                         #Next Stage
-                        Motiv, playeri, Pozitie =Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,None,None)
+                        playeri, Pozitie =Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,None,None)
                         #Return and reset the necesary variables
-                        if Motiv == "finnished" :
-                            #verifica daca au iesit playeri in proces
-                            if nr != len(playeri) :
-                                # se reseteaza culorile selectate si draw_text
-                                Selected_Colors = [0,0,0,0,0,0,0,0]
-                                Text_draw = []
-                                for i in range(len(playeri)) :
-                                    Selected_Colors[playeri[i][1]-1] = 1
-                                    if i != Pozitie :
-                                        text = Font.render(playeri[i][0], True, (0,0,0))
-                                    else :
-                                        text = Font.render(playeri[i][0], True, identifier_color)
-                                    text_rect = text.get_rect()
-                                    text_rect.center = (diametru*(i+1) + 50*i + diametru/2,HEIGHT/2 - diametru/2-30)
-                                    Text_draw.append((text,text_rect))
-                            recv_from_server = threading.Thread(target = reciev_thread_from_server, args = (Connection,0))
-                            recv_from_server.start()
+                        #verifica daca au iesit playeri in proces
+                        if nr != len(playeri) :
+                            # se reseteaza culorile selectate si draw_text
+                            Selected_Colors = [0,0,0,0,0,0,0,0]
+                            Text_draw = []
                             for i in range(len(playeri)) :
-                                    playeri[i] = (playeri[i][0],playeri[i][1],0)
-                            started_cooldown = False
+                                Selected_Colors[playeri[i][1]-1] = 1
+                                if i != Pozitie :
+                                    text = Font.render(playeri[i][0], True, (0,0,0))
+                                else :
+                                    text = Font.render(playeri[i][0], True, identifier_color)
+                                text_rect = text.get_rect()
+                                text_rect.center = (diametru*(i+1) + 50*i + diametru/2,HEIGHT/2 - diametru/2-30)
+                                Text_draw.append((text,text_rect))
+                        recv_from_server = threading.Thread(target = reciev_thread_from_server, args = (Connection,0))
+                        recv_from_server.start()
+                        for i in range(len(playeri)) :
+                                playeri[i] = (playeri[i][0],playeri[i][1],0)
+                        started_cooldown = False
 
 
         draw_window()
