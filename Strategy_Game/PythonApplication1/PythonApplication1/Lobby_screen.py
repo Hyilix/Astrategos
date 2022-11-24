@@ -450,7 +450,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                             CLIENTS[i][0].send(data_send)
                         sent_reaquest = True
                     elif Confirmatii == nr_clients :  
-                        Confirmatii = 0
                         while len(Client_THREADS) > 0 :
                             Client_THREADS[0].join()
                             Client_THREADS.pop(0)
@@ -458,6 +457,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                         #Enter next stage
                         playeri, CLIENTS, Coduri_pozitie_client = Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client)
                         #Return and reset the necesary variables
+                        Confirmatii = 0
                         In_next_stage = False
                         if nr != len(playeri) :
                             nr_clients = len(playeri) -1
@@ -484,12 +484,12 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                         started_cooldown = False
                 else :
                     if Confirmation == True :
-                        Confirmation = False
                         recv_from_server.join()
                         nr = len(playeri)
                         #Next Stage
                         playeri, Pozitie =Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,None,None)
                         #Return and reset the necesary variables
+                        Confirmation = False
                         #verifica daca au iesit playeri in proces
                         if nr != len(playeri) :
                             # se reseteaza culorile selectate si draw_text

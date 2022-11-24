@@ -29,12 +29,16 @@ SPACE = "          "
 
 run = False
 
+Confirmation = False
+Confirmatii = 0
+Next_stage_cooldown = 15*60
+
 def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client) :
     global run
     WIN.fill((255,255,255))
     pygame.display.update()
 
-    diametru = (HEIGHT - 400)/4
+    diametru = (HEIGHT - 5*50 - HEIGHT/25)/4
     Map_part = WIDTH - diametru - 150
     if(Map_part < (WIDTH-150)*4/5) :
         Map_part = (WIDTH-150)*4/5
@@ -47,17 +51,17 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
         limita_scroll = 0
     def draw_window () :
         #afisarea hartilor
-        pygame.draw.rect(WIN,(80, 82, 81),(50,50,Map_part,HEIGHT-100))
+        pygame.draw.rect(WIN,(80, 82, 81),(50,50,Map_part,HEIGHT- 75 - HEIGHT/25))
         for i in range(10) :
             y_rand = 75 + i*latura + i*25 -scroll
-            if y_rand+latura >50 :
+            if y_rand+latura >50 and y_rand < HEIGHT -75 - HEIGHT/25  :
                 for j in range(6) :
                     x_coloana = 75 + j*latura + j*25
                     pygame.draw.rect(WIN,Gri,(x_coloana,y_rand,latura,latura))
         for i in range(len(Voturi)) :
             if  Voturi[i] != None :
                 y_rand = 75 + Voturi[i][0]*latura + Voturi[i][0]*25 -scroll
-                if y_rand +latura > 50 and y_rand < HEIGHT - 50 - latura/2 :
+                if y_rand +latura > 50 and y_rand < HEIGHT - 75 - HEIGHT/25 - latura/2 :
                     x_coloana = 75 + Voturi[i][1]*latura + Voturi[i][1]*25
                     #afiseaza votul
                     x = x_coloana + latura/8 + i*latura/4
@@ -67,11 +71,11 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                         y = y_rand+latura
                     pygame.draw.circle(WIN,(225, 223, 240),(x,y),latura/8)
                     pygame.draw.circle(WIN,Player_Colors[playeri[i][1]],(x,y),latura/8 - (latura/8)/10)
-        pygame.display.update((50,50,Map_part,HEIGHT-100))
+        pygame.display.update((50,50,Map_part,HEIGHT- 75 - HEIGHT/25))
         #Afisarea playerilor in dreapta
         pygame.draw.rect(WIN,(255, 255, 255),(50 + Map_part,50,diametru + 100,HEIGHT-50))
         for i in range(len(playeri)) :
-            y = 50 + diametru/2 + ((HEIGHT -100- diametru*4)/3)*i + diametru*i
+            y = 50 + diametru/2 + ((HEIGHT -100-HEIGHT/25- diametru*4)/3)*i + diametru*i
             pygame.draw.circle(WIN,(225, 223, 240),(WIDTH-diametru/2-50,y),diametru/2)
             pygame.draw.circle(WIN,Player_Colors[playeri[i][1]],(WIDTH-diametru/2-50,y),diametru/2 - 10)
             if i == Pozitie :
@@ -82,8 +86,13 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
             text_rect.center = (WIDTH-diametru/2-50,y+diametru/2+25)
             WIN.blit(text,text_rect)
         pygame.display.update((50 + Map_part,50,diametru + 100,HEIGHT-50))
+        #desenarea barii de cooldown 
+        pygame.draw.rect(WIN, (255, 255, 255), pygame.Rect(0, HEIGHT - HEIGHT/25 , WIDTH,HEIGHT/25 ))
+        pygame.draw.rect(WIN, (230, 0, 0), pygame.Rect(0, HEIGHT - HEIGHT/25 , cooldown*WIDTH/Next_stage_cooldown,HEIGHT/25 ))
+        pygame.display.update(0,HEIGHT-HEIGHT/25,WIDTH,HEIGHT/25)
 
     def reciev_thread_from_client(client,cod) :
+        global Confirmatii
         try :
             while True :
                 header = client.recv(10)
@@ -94,7 +103,9 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                     if data_recv[0] == "sa_votat" :
                         Voturi[data_recv[3]]=(data_recv[1],data_recv[2])
                         Transmit_to_all.append((("sa_votat",data_recv[1],data_recv[2],data_recv[3]),data_recv[3]-1))
-                        
+                    elif data_recv[0] == "enter_next_stage" :
+                        Confirmatii += 1 
+                        break
                 else :
                     client.close()
                     Killed_Clients.append(cod)
@@ -104,6 +115,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
             Killed_Clients.append(cod)
     
     def reciev_thread_from_server(server) :
+        global Confirmation
         global run
         try :
             while True :
@@ -134,6 +146,9 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
             run = False
 
     if Role == "host" :
+        global Confiramtii
+        Confirmatii=0
+        sent_reaquest = False
         Client_THREADS = []
         Killed_Clients = []
         Transmit_to_all = []
@@ -149,9 +164,11 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
         Changes_from_server = []
     #variabile de care au nevoie amandoi 
     Voturi = [None,None,None,None]
+    All_voted = False
 
     clock = pygame.time.Clock()
     run=True
+    cooldown = Next_stage_cooldown
     while run==True :
         clock.tick(FPS)
         draw_window()
@@ -172,8 +189,6 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                 for i in Coduri_pozitie_client :
                     if Coduri_pozitie_client[i] > Killed_Clients[0] :
                         Coduri_pozitie_client[i] -= 1 
-                #actualizarea voturiilor
-
                 Killed_Clients.pop(0)
             while len(Transmit_to_all) > 0 :
                 data_send = pickle.dumps(Transmit_to_all[0][0])
@@ -194,6 +209,35 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                 elif Changes_from_server[0][0] == "sa_votat" :
                     Voturi[Changes_from_server[0][3]]=(Changes_from_server[0][1],Changes_from_server[0][2])
                 Changes_from_server.pop(0)
+
+        # se verifica daca toti au votat si se modifica timerul in functie de asta
+        if All_voted == False :
+            All_voted = True
+            for i in range(len(playeri)) :
+                if Voturi[i] == None :
+                    All_voted = False
+                    break
+        if cooldown>0 :
+            if All_voted :
+                cooldown  -=3
+            else :
+                cooldown -=1
+        else :
+            if Role == "host" :
+                if sent_reaquest == False :
+                    #trimite tuturor playerilor ca am trecut la urmatoru stage
+                    data_send = pickle.dumps(("enter_next_stage",None))
+                    data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
+                    for i in range(len(CLIENTS)) :
+                        CLIENTS[i][0].send(data_send)
+                    sent_reaquest = True
+                elif Confirmatii == len(playeri)-1 :  
+                    while len(Client_THREADS) > 0 :
+                        Client_THREADS[0].join()
+                        Client_THREADS.pop(0)
+            elif Confirmation ==  True :
+                recv_from_server.join()
+            
         for event in pygame.event.get():
             if event.type == pygame.QUIT :
                 pygame.quit()
