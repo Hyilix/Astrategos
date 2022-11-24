@@ -20,9 +20,7 @@ GUIs_enabled = True
 #-Tiles
 #-Structures
 #-Units
-#-Ores_1
-#-Ores_2
-#-Decorators????
+#Ores
 current_texture_screen = "Tiles"
 
 Tools_icon_size = 64
@@ -170,3 +168,4 @@ def Draw_Tools_GUI(positions, brush_size):
     plus_brush = (current_x, current_y)
 
     ToolsSurface.blit(brush_icons[1], (current_x * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance, current_y * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance))
+

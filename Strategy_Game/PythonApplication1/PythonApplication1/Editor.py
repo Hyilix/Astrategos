@@ -3,7 +3,9 @@ import Structures
 import Units
 import GUI
 import math
-import sys
+import os
+import pickle
+import numpy
 
 import pygame
 
@@ -16,8 +18,6 @@ WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 
 GUI.Initialize_Editor_GUIs()
 GUI.Draw_Textures_GUI((0,0))
-
-MAX_RECURSION_LIMIT = sys.getrecursionlimit()
 
 class Camera:
     def __init__(self, position, zoom, max_zoom, min_zoom):
@@ -81,6 +81,7 @@ for x in range(rows):  #Create the map with empty tiles
         newLine.append(newTile)
         newTile.DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
     tiles.append(newLine)
+    del newTile
 
 #For testing purposes, 2 tiles have been modified. Each modification has to be updated.
 tiles[1][2].structure = Structures.Structure("Core", (2, 1), None)
@@ -107,7 +108,7 @@ FillAll = False
 FillSame = False
 
 Editor_var_dict = {
-    "Collision" : Collision,
+    "ZCollision" : Collision,
     "Eraser" : Eraser,
     "Fill" : Fill,
     "FillAll" : FillAll,
@@ -128,7 +129,7 @@ def image_modifier(x,y):
         tiles[y][x].structure = None
         tiles[y][x].special = None
         tiles[y][x].unit = None
-    tiles[y][x].collidable = Editor_var_dict["Collision"]
+    tiles[y][x].collidable = Editor_var_dict["ZCollision"]
     tiles[y][x].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
 
 def place_tile(target_img = None):     #Function to determine what to place and how
@@ -231,6 +232,9 @@ hasLeftClickPressed = False    #Determine if left mouse is pressed down.
 
 WIN.fill((0,0,0))
 
+def clearMap():
+    print("1")
+
 while Running:
     clock.tick(FPS)
     #print(clock.get_fps())
@@ -251,6 +255,45 @@ while Running:
             elif event.unicode.lower() == 'l':  #Enable/Disable GUIs
                 GUI.GUIs_enabled = not GUI.GUIs_enabled
 
+            if event.unicode.lower() == 'q':    #Something simple to save the map. WILL CHANGE
+                pygame.image.save(mapSurfaceNormal, "Maps/images/test.jpg")
+                used_textures = []
+                with open("Maps/info/test.txt", "wb") as outfile:   #Saves the map into the file.
+                    for x in range(rows):
+                        for y in range(tiles_per_row):
+                            rawUnitData = None
+                            rawStructureData = None
+                            if tiles[x][y].structure != None:
+                                rawStructureData = {
+                                    "Position" : tiles[x][y].structure.position,
+                                    "Owner" : tiles[x][y].structure.owner,
+                                    "Name" : tiles[x][y].structure.name,
+                                    }
+
+                            if tiles[x][y].unit != None:
+                                rawUnitData = {
+                                    "Position" : tiles[x][y].unit.position,
+                                    "Owner" : tiles[x][y].unit.owner,
+                                    "Name" : tiles[x][y].unit.name,
+                                    }
+
+                            rawTileData = {
+                                "Position" : tiles[x][y].position,
+                                "Collidable" : tiles[x][y].collidable,
+                                "Image_name" : tiles[x][y].image_name,
+                                "Unit" : rawUnitData,
+                                "Structure" : rawStructureData,
+                                }
+
+                            #pickle.dump(rawTileData, outfile)
+                            used_textures.append(tiles[x][y].image_name)
+                    pickle.dump(used_textures, outfile)
+                outfile.close()
+            if event.unicode.lower() == 'w': 
+                with open("Maps/info/test.txt", "rb") as infile:
+                    for x in range(rows):
+                        for y in range(tiles_per_row):        
+                            loaded_object = pickle.load(infile)
         if event.type == pygame.MOUSEBUTTONDOWN:    #Check if mouse was scrolled or pressed
             if event.button == 1:   #Left-click. Editor specific
                 mouse_pos = pygame.mouse.get_pos()
