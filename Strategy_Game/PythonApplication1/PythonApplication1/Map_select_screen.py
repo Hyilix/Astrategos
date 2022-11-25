@@ -131,7 +131,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                         server.send(data_send)
                         Confirmation = True
                         break
-                    elif data_recv[0] == "I_died...Fuck_off" or data_recv[0] == "Fuck_off":
+                    elif data_recv[0] == "I_died...Fuck_off":
                         server.close()
                         run = False
                         break
