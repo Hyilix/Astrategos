@@ -33,6 +33,8 @@ Confirmation = False
 Confirmatii = 0
 Next_stage_cooldown = 15*60
 
+nr_harti = 100
+
 def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client) :
     global run
     WIN.fill((255,255,255))
@@ -45,24 +47,28 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
         diametru = (WIDTH-150)/5
 
     scroll = 0
-    latura = (Map_part-25*7)/6
+    latura = 200
+    pe_rand = 6
+    while pe_rand >4 and latura*pe_rand + 25 * 7 > Map_part :
+        pe_rand =- 1
+    spatiu_intre = (Map_part-latura*pe_rand)/7
     limita_scroll =  150 + 10 *latura + 10 *25 - HEIGHT
     if limita_scroll <0 :
         limita_scroll = 0
     def draw_window () :
         #afisarea hartilor
-        pygame.draw.rect(WIN,(80, 82, 81),(50,50,Map_part,HEIGHT- 75 - HEIGHT/25))
-        for i in range(10) :
+        pygame.draw.rect(WIN,(80, 82, 81),(50,75,Map_part,HEIGHT- 100 - HEIGHT/25))
+        for i in range(int(nr_harti/pe_rand)) :
             y_rand = 75 + i*latura + i*25 -scroll
-            if y_rand+latura >50 and y_rand < HEIGHT -75 - HEIGHT/25  :
-                for j in range(6) :
-                    x_coloana = 75 + j*latura + j*25
+            if y_rand+latura >50 and y_rand < HEIGHT -50 - HEIGHT/25  :
+                for j in range(pe_rand) :
+                    x_coloana = 50 + j*latura + (j+1)*spatiu_intre
                     pygame.draw.rect(WIN,Gri,(x_coloana,y_rand,latura,latura))
         for i in range(len(Voturi)) :
             if  Voturi[i] != None :
                 y_rand = 75 + Voturi[i][0]*latura + Voturi[i][0]*25 -scroll
                 if y_rand +latura > 50 and y_rand < HEIGHT - 75 - HEIGHT/25 - latura/2 :
-                    x_coloana = 75 + Voturi[i][1]*latura + Voturi[i][1]*25
+                    x_coloana = 50 + Voturi[i][1]*latura + (Voturi[i][1]+1)*spatiu_intre
                     #afiseaza votul
                     x = x_coloana + latura/8 + i*latura/4
                     if latura/8 > 25 :
@@ -71,6 +77,9 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                         y = y_rand+latura
                     pygame.draw.circle(WIN,(225, 223, 240),(x,y),latura/8)
                     pygame.draw.circle(WIN,Player_Colors[playeri[i][1]],(x,y),latura/8 - (latura/8)/10)
+        pygame.draw.rect(WIN,(80, 82, 81),(50,50,Map_part,25))
+        pygame.draw.rect(WIN,(80, 82, 81),(50,HEIGHT- 50 - HEIGHT/25,Map_part,25))
+
         pygame.display.update((50,50,Map_part,HEIGHT- 75 - HEIGHT/25))
         #Afisarea playerilor in dreapta
         pygame.draw.rect(WIN,(255, 255, 255),(50 + Map_part,50,diametru + 100,HEIGHT-50))
@@ -261,7 +270,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                              if y_rand +latura >50 :
                                  if press_coordonaits[1] >= y_rand and press_coordonaits[1] <= y_rand+latura :
                                      for j in range(6) :
-                                         x_coloana = 75 + j*latura + j*25
+                                         x_coloana = 50 + j*latura + (j+1)*spatiu_intre
                                          if press_coordonaits[0] >= x_coloana and press_coordonaits[0] <= x_coloana + latura :
                                              Voturi[Pozitie]=(i,j)
                                              #voteaza harta
