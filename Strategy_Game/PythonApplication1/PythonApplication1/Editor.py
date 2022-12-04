@@ -248,7 +248,7 @@ while Running:
                 for x in range(rows):  #Redraw the whole map
                     for y in range(tiles_per_row):
                         tiles[x][y].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
-                    tiles.append(newLine)
+                    #tiles.append(newLine)
 
                 mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
 
@@ -261,8 +261,8 @@ while Running:
                 with open("Maps/info/test.txt", "wb") as outfile:   #Saves the map into the file.
                     for x in range(rows):
                         for y in range(tiles_per_row):
-                            rawUnitData = None
-                            rawStructureData = None
+                            rawUnitData = {}
+                            rawStructureData = {}
                             if tiles[x][y].structure != None:
                                 rawStructureData = {
                                     "Position" : tiles[x][y].structure.position,
@@ -285,15 +285,51 @@ while Running:
                                 "Structure" : rawStructureData,
                                 }
 
-                            #pickle.dump(rawTileData, outfile)
+                            pickle.dump(rawTileData, outfile)
                             used_textures.append(tiles[x][y].image_name)
                     pickle.dump(used_textures, outfile)
                 outfile.close()
-            if event.unicode.lower() == 'w': 
+
+            if event.unicode.lower() == 'w':    #Load maps. WILL CHANGE
                 with open("Maps/info/test.txt", "rb") as infile:
+                    tiles.clear()
                     for x in range(rows):
+                        new_vec = []
                         for y in range(tiles_per_row):        
                             loaded_object = pickle.load(infile)
+                            new_unit, new_structure = None, None
+                            if loaded_object["Unit"]:  
+                                new_unit = Units.Unit(loaded_object["Unit"]["Name"],
+                                                      loaded_object["Unit"]["Position"],
+                                                      loaded_object["Unit"]["Owner"]
+                                                        )
+
+                            if loaded_object["Structure"]:
+                                new_structure = Structures.Structure(loaded_object["Structure"]["Name"],
+                                                      loaded_object["Structure"]["Position"],
+                                                      loaded_object["Structure"]["Owner"]
+                                                        )
+
+                            new_tile = TileClass.Tile(loaded_object["Position"],
+                                                      loaded_object["Collidable"],
+                                                      None,     #Image Class
+                                                      loaded_object["Image_name"],
+                                                      None,     #Special
+                                                      new_unit,
+                                                      new_structure
+                                                        )
+
+                            new_vec.append(new_tile)
+                        tiles.append(new_vec)
+
+                    for x in range(rows):  #Redraw the whole map
+                        for y in range(tiles_per_row):
+                            tiles[x][y].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+                        #tiles.append(newLine)
+
+                    mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
+
+
         if event.type == pygame.MOUSEBUTTONDOWN:    #Check if mouse was scrolled or pressed
             if event.button == 1:   #Left-click. Editor specific
                 mouse_pos = pygame.mouse.get_pos()
