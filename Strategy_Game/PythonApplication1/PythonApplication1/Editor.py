@@ -7,6 +7,9 @@ import os
 import pickle
 import numpy
 
+import Connection_Screen
+
+
 import pygame
 
 pygame.init()
@@ -15,6 +18,11 @@ WIDTH = screen.current_w
 HEIGHT = screen.current_h
 
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
+FPS = 60
+
+#PUT this here to test my shit
+#Mark as Comment if needed
+Connection_Screen.connection_screen(WIN,WIDTH,HEIGHT,FPS,0)
 
 GUI.Initialize_Editor_GUIs()
 GUI.Draw_Textures_GUI((0,0))
@@ -222,7 +230,6 @@ def place_tile(target_img = None):     #Function to determine what to place and 
 current_index = 0
 max_index = TileClass.last_index
 
-FPS = 60
 
 clock = pygame.time.Clock()
 
