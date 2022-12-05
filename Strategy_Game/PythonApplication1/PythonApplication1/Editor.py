@@ -22,7 +22,7 @@ FPS = 60
 
 #PUT this here to test my shit
 #Mark as Comment if needed
-Connection_Screen.connection_screen(WIN,WIDTH,HEIGHT,FPS,0)
+#Connection_Screen.connection_screen(WIN,WIDTH,HEIGHT,FPS,0)
 
 GUI.Initialize_Editor_GUIs()
 GUI.Draw_Textures_GUI((0,0))
