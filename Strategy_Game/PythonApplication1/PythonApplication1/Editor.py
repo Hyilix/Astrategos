@@ -8,6 +8,7 @@ import pickle
 import numpy
 
 import Connection_Screen
+import Menu
 
 
 import pygame
@@ -16,13 +17,11 @@ pygame.init()
 screen = pygame.display.Info()
 WIDTH = screen.current_w
 HEIGHT = screen.current_h
-
-WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 FPS = 60
+WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 
-#PUT this here to test my shit
-#Mark as Comment if needed
-#Connection_Screen.connection_screen(WIN,WIDTH,HEIGHT,FPS,0)
+#Aici se intra in meniu
+Menu.menu_screen(WIN,WIDTH,HEIGHT,FPS)
 
 GUI.Initialize_Editor_GUIs()
 GUI.Draw_Textures_GUI((0,0))
