@@ -22,6 +22,8 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Camera.py" />
+    <Compile Include="GUI.py" />
     <Compile Include="button.py" />
     <Compile Include="Editor.py" />
     <Compile Include="Connection_Screen.py">
