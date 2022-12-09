@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>dd5e53bc-a873-4a2d-9903-0a6eb860b070</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Editor.py</StartupFile>
+    <StartupFile>Main.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -25,7 +25,7 @@
     <Compile Include="Camera.py" />
     <Compile Include="GUI.py" />
     <Compile Include="button.py" />
-    <Compile Include="Editor.py" />
+    <Compile Include="Main.py" />
     <Compile Include="Connection_Screen.py">
       <SubType>Code</SubType>
     </Compile>
@@ -36,6 +36,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Map_select_screen.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Editor.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Structures.py" />
