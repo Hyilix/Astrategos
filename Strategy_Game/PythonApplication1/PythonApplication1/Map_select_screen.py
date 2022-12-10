@@ -33,19 +33,20 @@ Confirmation = False
 Confirmatii = 0
 Next_stage_cooldown = 15*60
 
-nr_harti = 100
-
 def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client) :
     global run
     WIN.fill((255,255,255))
     pygame.display.update()
 
+
+    # determinarea marimilor icon-urilor playerilor
     diametru = (HEIGHT - 5*50 - HEIGHT/25)/4
     Map_part = WIDTH - diametru - 150
     if(Map_part < (WIDTH-150)*4/5) :
         Map_part = (WIDTH-150)*4/5
         diametru = (WIDTH-150)/5
 
+    #dimensiunea hartilor afisate
     scroll = 0
     latura = 200
     pe_rand = 6
@@ -55,15 +56,22 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
     limita_scroll =  150 + 10 *latura + 10 *25 - HEIGHT
     if limita_scroll <0 :
         limita_scroll = 0
+    #incarcarea hartiilor
+    nr_harti = 0
+    directory = "Maps\images"
+    for filename in os.listdir(directory):
+        nr_harti +=1
+    print(nr_harti)
     def draw_window () :
         #afisarea hartilor
         pygame.draw.rect(WIN,(80, 82, 81),(50,75,Map_part,HEIGHT- 100 - HEIGHT/25))
-        for i in range(int(nr_harti/pe_rand)) :
+        for i in range(int(nr_harti/pe_rand)+2) :
             y_rand = 75 + i*latura + i*25 -scroll
             if y_rand+latura >50 and y_rand < HEIGHT -50 - HEIGHT/25  :
-                for j in range(pe_rand) :
+                for j in range(min(nr_harti-i*pe_rand,pe_rand)) :
                     x_coloana = 50 + j*latura + (j+1)*spatiu_intre
                     pygame.draw.rect(WIN,Gri,(x_coloana,y_rand,latura,latura))
+
         for i in range(len(Voturi)) :
             if  Voturi[i] != None :
                 y_rand = 75 + Voturi[i][0]*latura + Voturi[i][0]*25 -scroll
