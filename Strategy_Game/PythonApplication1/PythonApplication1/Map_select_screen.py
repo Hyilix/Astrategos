@@ -5,6 +5,7 @@ import pickle
 import threading
 import math
 import time
+import random
 
 pygame.init()
 
@@ -127,6 +128,30 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
         pygame.draw.rect(WIN, (255, 255, 255), pygame.Rect(0, HEIGHT - HEIGHT/25 , WIDTH,HEIGHT/25 ))
         pygame.draw.rect(WIN, (230, 0, 0), pygame.Rect(0, HEIGHT - HEIGHT/25 , cooldown*WIDTH/Next_stage_cooldown,HEIGHT/25 ))
         pygame.display.update(0,HEIGHT-HEIGHT/25,WIDTH,HEIGHT/25)
+    #functia care  determina ce harta castiga dupa vot
+    def rezultat_voturi () :
+        harti_voturi = {}
+        nrmax = 0
+        candidati = []
+        for i in range (len(Voturi)) :
+            if Voturi[i] != None :
+                #transforma coordonata 2-dimensionala in ce uni-dimensionala
+                hart_nr = Voturi[i][0]*pe_rand + Voturi[i][1]
+                try :
+                    harti_voturi[hart_nr] += 1
+                except :
+                    harti_voturi[hart_nr] = 1
+        for map in harti_voturi :
+            if harti_voturi[map] > nrmax :
+                candidati = []
+                candidati.append(map)
+            elif harti_voturi[map] == nrmax :
+                candidati.append(map)
+        #daca nu a fost nici una votata atunci alege una random
+        if len(candidati) == 0 :
+            return random.randint(0,nr_harti-1)
+        else :
+            return candidati[random.randint(0,len(candidati)-1)]
 
     def reciev_thread_from_client(client,cod) :
         global Confirmatii
@@ -272,8 +297,12 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                     while len(Client_THREADS) > 0 :
                         Client_THREADS[0].join()
                         Client_THREADS.pop(0)
+                THE_MAP = rezultat_voturi()
+                print(THE_MAP)
+                #Enter next stage
             elif Confirmation ==  True :
                 recv_from_server.join()
+                #Enter next stage
             
         for event in pygame.event.get():
             if event.type == pygame.QUIT :
