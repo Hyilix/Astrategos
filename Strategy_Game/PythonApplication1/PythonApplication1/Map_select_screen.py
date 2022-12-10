@@ -41,11 +41,10 @@ directory = "Maps\images"
 print("Loading maps")
 for filename in os.listdir(directory):
     adres=os.path.join(directory, filename)
-    print( adres)
-    map = pygame.image.load(adres)
-    MAPS.append(map)
-    adres=adres[12:-4]
     print(adres)
+    MAPS.append(pygame.image.load(adres))
+    map_names.append(adres[12:-4])
+
 resized = False
 
 def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client) :
