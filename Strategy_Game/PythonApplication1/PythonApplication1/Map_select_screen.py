@@ -3,6 +3,8 @@ import os
 import socket
 import pickle
 import threading
+import math
+import time
 
 pygame.init()
 
@@ -48,29 +50,36 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
 
     #dimensiunea hartilor afisate
     scroll = 0
-    latura = 200
+    latura = 300
     pe_rand = 6
-    while pe_rand >4 and latura*pe_rand + 25 * 7 > Map_part :
-        pe_rand =- 1
-    spatiu_intre = (Map_part-latura*pe_rand)/7
-    limita_scroll =  150 + 10 *latura + 10 *25 - HEIGHT
-    if limita_scroll <0 :
-        limita_scroll = 0
+    while (pe_rand >4) and (latura*pe_rand + 25 * 7 > Map_part) :
+        pe_rand -= 1
+    print(pe_rand)
+    spatiu_intre = (Map_part-100-latura*pe_rand)/pe_rand
     #incarcarea hartiilor
     nr_harti = 0
+    MAPS = []
     directory = "Maps\images"
     for filename in os.listdir(directory):
         nr_harti +=1
+        map = pygame.transform.scale(pygame.image.load(os.path.join(directory, filename)), (latura, latura))
+        MAPS.append(map)
+    del map
     print(nr_harti)
+    #stabilirea limitei de scroll
+    limita_scroll =  100  + HEIGHT/25 + math.ceil(nr_harti/pe_rand) *latura + math.ceil(nr_harti/pe_rand) *25 - HEIGHT
+    if limita_scroll <0 :
+        limita_scroll = 0
     def draw_window () :
         #afisarea hartilor
         pygame.draw.rect(WIN,(80, 82, 81),(50,75,Map_part,HEIGHT- 100 - HEIGHT/25))
-        for i in range(int(nr_harti/pe_rand)+2) :
+        for i in range(math.ceil(nr_harti/pe_rand)) :
             y_rand = 75 + i*latura + i*25 -scroll
             if y_rand+latura >50 and y_rand < HEIGHT -50 - HEIGHT/25  :
                 for j in range(min(nr_harti-i*pe_rand,pe_rand)) :
                     x_coloana = 50 + j*latura + (j+1)*spatiu_intre
-                    pygame.draw.rect(WIN,Gri,(x_coloana,y_rand,latura,latura))
+                    #pygame.draw.rect(WIN,Gri,(x_coloana,y_rand,latura,latura))
+                    WIN.blit(MAPS[i*pe_rand + j],(x_coloana,y_rand))
 
         for i in range(len(Voturi)) :
             if  Voturi[i] != None :
@@ -272,12 +281,12 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                      press_coordonaits =  event.pos 
                      # se vede daca a apasat pe partea cu harti
                      if press_coordonaits[0]>50 and press_coordonaits[0]< 50 + Map_part and press_coordonaits[1]>50 and press_coordonaits[1]< HEIGHT - 50 :
-                         # se determina ce rand si conoala se afla harta apasata
-                         for i in range(10) :
+                         # se determina ce rand si coloana se afla harta apasata
+                         for i in range(math.ceil(nr_harti/pe_rand)) :
                              y_rand = 75 + i*latura +i*25 - scroll
                              if y_rand +latura >50 :
                                  if press_coordonaits[1] >= y_rand and press_coordonaits[1] <= y_rand+latura :
-                                     for j in range(6) :
+                                     for j in range(min(pe_rand,nr_harti-i*pe_rand)) :
                                          x_coloana = 50 + j*latura + (j+1)*spatiu_intre
                                          if press_coordonaits[0] >= x_coloana and press_coordonaits[0] <= x_coloana + latura :
                                              Voturi[Pozitie]=(i,j)
