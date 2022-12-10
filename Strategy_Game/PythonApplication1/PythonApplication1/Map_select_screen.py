@@ -35,8 +35,24 @@ Confirmation = False
 Confirmatii = 0
 Next_stage_cooldown = 15*60
 
+MAPS = []
+map_names =[]
+directory = "Maps\images"
+print("Loading maps")
+for filename in os.listdir(directory):
+    adres=os.path.join(directory, filename)
+    print( adres)
+    map = pygame.image.load(adres)
+    MAPS.append(map)
+    adres=adres[12:-4]
+    print(adres)
+resized = False
+
 def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client) :
     global run
+    global MAPS
+    global resized
+
     WIN.fill((255,255,255))
     pygame.display.update()
 
@@ -54,18 +70,14 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
     pe_rand = 6
     while (pe_rand >4) and (latura*pe_rand + 25 * 7 > Map_part) :
         pe_rand -= 1
-    print(pe_rand)
     spatiu_intre = (Map_part-100-latura*pe_rand)/pe_rand
     #incarcarea hartiilor
-    nr_harti = 0
-    MAPS = []
-    directory = "Maps\images"
-    for filename in os.listdir(directory):
-        nr_harti +=1
-        map = pygame.transform.scale(pygame.image.load(os.path.join(directory, filename)), (latura, latura))
-        MAPS.append(map)
-    del map
-    print(nr_harti)
+    nr_harti = len(MAPS)
+    if resized == False :
+        for i in range(nr_harti):
+            MAPS[i] = pygame.transform.scale(MAPS[i], (latura, latura))
+        resized = True
+
     #stabilirea limitei de scroll
     limita_scroll =  100  + HEIGHT/25 + math.ceil(nr_harti/pe_rand) *latura + math.ceil(nr_harti/pe_rand) *25 - HEIGHT
     if limita_scroll <0 :
