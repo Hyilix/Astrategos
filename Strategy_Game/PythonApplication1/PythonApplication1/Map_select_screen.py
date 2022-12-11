@@ -47,11 +47,14 @@ for filename in os.listdir(directory):
     map_names.append(adres[12:-4])
 
 resized = False
+THE_MAP = -1
 
 def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client) :
     global run
     global MAPS
     global resized
+    global THE_MAP
+    THE_MAP = -1
 
     WIN.fill((255,255,255))
     pygame.display.update()
@@ -179,6 +182,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
     def reciev_thread_from_server(server) :
         global Confirmation
         global run
+        global THE_MAP
         try :
             while True :
                 header = server.recv(10)
@@ -188,6 +192,8 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                     data_recv = server.recv(int(header))
                     data_recv = pickle.loads(data_recv)
                     if data_recv[0] == "enter_next_stage" :
+                        THE_MAP = data_recv[1]
+                        print("se alocheaza harta nr = " +str(THE_MAP))
                         data_send = pickle.dumps(("enter_next_stage",None))
                         data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                         server.send(data_send)
@@ -207,6 +213,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
             server.close()
             run = False
 
+    #declararea variabilelor rolurilor specifice
     if Role == "host" :
         global Confiramtii
         Confirmatii=0
@@ -287,8 +294,11 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
         else :
             if Role == "host" :
                 if sent_reaquest == False :
-                    #trimite tuturor playerilor ca am trecut la urmatoru stage
-                    data_send = pickle.dumps(("enter_next_stage",None))
+                    #DETERMINA CARE ESTE HARTA CARE A CASTIGAT VOTUL
+                    THE_MAP = rezultat_voturi()
+                    print(THE_MAP)
+                    #trimite tuturor playerilor ca am trecut la urmatoru stage dar le trimite si harta aleasa
+                    data_send = pickle.dumps(("enter_next_stage",THE_MAP))
                     data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                     for i in range(len(CLIENTS)) :
                         CLIENTS[i][0].send(data_send)
@@ -297,10 +307,10 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                     while len(Client_THREADS) > 0 :
                         Client_THREADS[0].join()
                         Client_THREADS.pop(0)
-                THE_MAP = rezultat_voturi()
-                print(THE_MAP)
                 #Enter next stage
             elif Confirmation ==  True :
+                print(THE_MAP)
+                time.sleep(100)
                 recv_from_server.join()
                 #Enter next stage
             
