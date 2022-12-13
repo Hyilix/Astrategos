@@ -75,7 +75,7 @@ def Initialize_Editor_GUIs():
     ToolsSurface.convert_alpha()
     ButtonSurface.convert_alpha()
        
-    new_button = button.Button((WIDTH * 9.4 // 10 - (texture_size * 2 // 2), HEIGHT * 9 // 10, texture_size * 2, texture_size), (96,96,96,60), None, **{"text": "Menu","font": pygame.font.Font(None, 50),"font_color": (196,196,196), "border_color" : (255,0,255)})
+    new_button = button.Button((WIDTH * 9.4 // 10 - (texture_size * 2 // 2), HEIGHT * 9 // 10, texture_size * 2, texture_size), (64,64,64,180), None, **{"text": "Menu","font": pygame.font.Font(None, 50),"font_color": (196,196,196), "border_color" : (64,64,64,180)})
     GUI_BUTTONS.append(new_button)
 
 def Draw_Textures_GUI(position):
