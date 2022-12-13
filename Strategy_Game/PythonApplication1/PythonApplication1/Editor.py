@@ -510,9 +510,15 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
         tempSurface.blit(mapSurface, (0, 0), (CurrentCamera.x, CurrentCamera.y, WIDTH, HEIGHT))
 
         WIN.blit(tempSurface, (0, 0))
+
+        for i in GUI.GUI_BUTTONS:
+            i.update(GUI.ButtonSurface)
+
         if GUI.GUIs_enabled == True: 
             WIN.blit(GUI.TextureSurface, (WIDTH - GUI.Texture_x_size, 0))
             WIN.blit(GUI.ToolsSurface, (WIDTH - GUI.Texture_x_size - GUI.Tool_x_size, 0))
+            WIN.blit(GUI.ButtonSurface, (0,0))
+
         pygame.display.update()
 
     #END
