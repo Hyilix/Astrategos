@@ -126,7 +126,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
             text_rect = text.get_rect()
             text_rect.center = (WIDTH-diametru/2-50,y+diametru/2+25)
             WIN.blit(text,text_rect)
-        pygame.display.update((50 + Map_part,50,diametru + 100,HEIGHT-50))
+        pygame.display.update((50 + Map_part,50,diametru + 100,HEIGHT-50 - HEIGHT/25))
         #desenarea barii de cooldown 
         pygame.draw.rect(WIN, (255, 255, 255), pygame.Rect(0, HEIGHT - HEIGHT/25 , WIDTH,HEIGHT/25 ))
         pygame.draw.rect(WIN, (230, 0, 0), pygame.Rect(0, HEIGHT - HEIGHT/25 , cooldown*WIDTH/Next_stage_cooldown,HEIGHT/25 ))
