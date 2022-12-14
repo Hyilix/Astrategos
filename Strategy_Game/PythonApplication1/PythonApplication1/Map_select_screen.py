@@ -7,6 +7,8 @@ import math
 import time
 import random
 
+from Gameplay import gameplay
+
 pygame.init()
 
 #Culori
@@ -308,11 +310,18 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                         Client_THREADS[0].join()
                         Client_THREADS.pop(0)
                 #Enter next stage
+                playeri, CLIENTS, Coduri_pozitie_client = gameplay(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client,map_names[THE_MAP])
+                #Se iese si din map_select
+                run = False
+
             elif Confirmation ==  True :
                 print(THE_MAP)
                 time.sleep(100)
                 recv_from_server.join()
                 #Enter next stage
+                playeri, Pozitie = gameplay(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,None,None,map_names[THE_MAP])
+                #Se iese si din map_select
+                run = False
             
         for event in pygame.event.get():
             if event.type == pygame.QUIT :
