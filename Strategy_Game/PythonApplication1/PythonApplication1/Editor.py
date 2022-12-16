@@ -236,8 +236,18 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
     def clearMap():
         print("1")
 
+    #variabila pusa de Sorin
+    #este folosita ca sa determine daca iesi sau nu o data ce apesi Escape
+    exit_cooldown = -1
+
     while Running:
         clock.tick(FPS)
+
+        #Pus de Sorin
+        #are rol in iesirea din Map_Editor
+        if exit_cooldown >= 0 :
+            exit_cooldown -= 1
+
         #print(clock.get_fps())
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -245,7 +255,10 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                 os._exit(0)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE : #Intoarcerea in meniu
-                    Running = False
+                    if exit_cooldown == -1 :
+                        exit_cooldown = 120
+                    elif exit_cooldown > 0 :
+                        Running = False
                 elif event.unicode.lower() == 'p':    #Enable/Disable simple textures
                     TileClass.simple_textures_enabled = not TileClass.simple_textures_enabled
 

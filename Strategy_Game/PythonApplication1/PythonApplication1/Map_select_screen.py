@@ -73,9 +73,12 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
     scroll = 0
     latura = 300
     pe_rand = 6
-    while (pe_rand >4) and (latura*pe_rand + 25 * 7 > Map_part) :
+    while (pe_rand >4) and (Map_part-50-latura*pe_rand)/(pe_rand-1)<20 :
         pe_rand -= 1
-    spatiu_intre = (Map_part-100-latura*pe_rand)/pe_rand
+    while (Map_part-50-latura*pe_rand)/(pe_rand-1)<20 and latura >200 :
+        latura -=25
+    spatiu_intre = (Map_part-50-latura*pe_rand)/(pe_rand-1)
+    print(latura)
     #incarcarea hartiilor
     nr_harti = len(MAPS)
     if resized == False :
@@ -94,7 +97,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
             y_rand = 75 + i*latura + i*25 -scroll
             if y_rand+latura >50 and y_rand < HEIGHT -50 - HEIGHT/25  :
                 for j in range(min(nr_harti-i*pe_rand,pe_rand)) :
-                    x_coloana = 50 + j*latura + (j+1)*spatiu_intre
+                    x_coloana = 75 + j*latura + (j)*spatiu_intre
                     #pygame.draw.rect(WIN,Gri,(x_coloana,y_rand,latura,latura))
                     WIN.blit(MAPS[i*pe_rand + j],(x_coloana,y_rand))
 
