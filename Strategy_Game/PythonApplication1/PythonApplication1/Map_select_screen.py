@@ -76,9 +76,10 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
     while (pe_rand >4) and (Map_part-50-latura*pe_rand)/(pe_rand-1)<20 :
         pe_rand -= 1
     while (Map_part-50-latura*pe_rand)/(pe_rand-1)<20 and latura >200 :
-        latura -=25
+        latura -= 25
     spatiu_intre = (Map_part-50-latura*pe_rand)/(pe_rand-1)
     print(latura)
+    print(spatiu_intre)
     #incarcarea hartiilor
     nr_harti = len(MAPS)
     if resized == False :
