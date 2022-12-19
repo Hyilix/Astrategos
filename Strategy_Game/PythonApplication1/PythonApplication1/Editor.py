@@ -23,6 +23,9 @@ tiles_per_row = 100
 tiles = []
 
 def editor(WIN,WIDTH,HEIGHT,FPS) :
+    global Running
+    Running = True
+
     GUI.Initialize_Editor_GUIs()
     GUI.Draw_Textures_GUI((0,0))
 
@@ -196,6 +199,10 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
 
         load_map(map_text)
 
+    def Menu():
+        global Running
+        Running = False
+
     #Buttons
     ButtonSurface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
 
@@ -209,7 +216,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
         button.Button(  (WIDTH * 9.5 // 10 - (texture_size * 1.5 // 2),
                         HEIGHT * 9 // 10, texture_size * 1.5, texture_size * 0.85),
                         (64,64,64,180),
-                        None,
+                        Menu,
                         **{"text": "Menu","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (255,255,255,255)}
                         )
     )
@@ -381,8 +388,6 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
     max_index = TileClass.last_index
 
     clock = pygame.time.Clock()
-
-    Running = True
 
     hasLeftClickPressed = False    #Determine if left mouse is pressed down.
 
