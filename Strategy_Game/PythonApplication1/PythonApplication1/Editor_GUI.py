@@ -1,5 +1,4 @@
 import pygame
-import button
 
 import TileClass
 import Structures
@@ -66,48 +65,11 @@ Tool_x_size = (Tools_icon_size + Tools_icon_distance) * (Tools_max_x_pos + 1) + 
 #Surfaces for Editor GUI
 TextureSurface = pygame.Surface((Texture_x_size, texture_size * 2 * max_y_pos * texture_distance), pygame.SRCALPHA)
 ToolsSurface = pygame.Surface((Tool_x_size, HEIGHT), pygame.SRCALPHA)
-ButtonSurface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
 
-GUI_BUTTONS = []
 
-def Initialize_Editor_GUIs(array):
+def Initialize_Editor_GUIs():
     TextureSurface.convert_alpha()
     ToolsSurface.convert_alpha()
-    ButtonSurface.convert_alpha()
-    
-    func_index = 0
-    GUI_BUTTONS.append( #Menu button
-        button.Button(  (WIDTH * 9.5 // 10 - (texture_size * 1.5 // 2),
-                        HEIGHT * 9 // 10, texture_size * 1.5, texture_size * 0.85),
-                        (64,64,64,180),
-                        array[func_index],
-                        **{"text": "Menu","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_font_color" : (255,255,255)}
-                        )
-    )
-
-    func_index += 1
-
-    GUI_BUTTONS.append( #Load button
-        button.Button(  (WIDTH * 9.5 // 10 - (texture_size * 1.5 // 2) - texture_size * 1.5 - texture_size // 3,
-                        HEIGHT * 9 // 10, texture_size * 1.5, texture_size * 0.85),
-                        (64,64,64,180),
-                        array[func_index],
-                        **{"text": "Load","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180)}
-                        )
-    )
-
-    func_index += 1
-
-    GUI_BUTTONS.append( #Save button
-        button.Button(  (WIDTH * 9.5 // 10 - (texture_size * 1.5 // 2) + 2 * (- texture_size * 1.5 - texture_size // 3),
-                        HEIGHT * 9 // 10, texture_size * 1.5, texture_size * 0.85),
-                        (64,64,64,180),
-                        array[func_index],
-                        **{"text": "Save","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180)}
-                        )
-    )
-
-    func_index += 1
 
 def Draw_Textures_GUI(position):
     TextureSurface.fill((32, 32, 32, 150))

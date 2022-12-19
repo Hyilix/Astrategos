@@ -7,7 +7,7 @@ import os
 import pickle
 import numpy
 
-
+import button
 import pygame
 
 pygame.init()
@@ -23,7 +23,7 @@ tiles_per_row = 100
 tiles = []
 
 def editor(WIN,WIDTH,HEIGHT,FPS) :
-    
+    GUI.Initialize_Editor_GUIs()
     GUI.Draw_Textures_GUI((0,0))
 
     class Camera:
@@ -76,13 +76,9 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
     #The base surface of the map. Zooming in/out will use this surface.
     mapSurfaceNormal = pygame.Surface((int(tiles_per_row * normal_tile_length), int(rows * normal_tile_length)))
 
-    #Initialize functions for GUI buttons
-    function_array = []
-
-    function_array.append(None) #Menu here
-
-    def load_map():
-        with open("Maps/info/test.txt", "rb") as infile:
+    #Editor functions
+    def load_map(map_name):
+        with open("Maps/info/" + map_name + ".txt", "rb") as infile:
             print("STARTED")
             tiles.clear()
             for x in range(rows):
@@ -120,12 +116,20 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
             #tiles.append(newLine)
 
         mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
-    function_array.append(load_map)
 
-    def save_map():
-        pygame.image.save(mapSurfaceNormal, "Maps/images/test.jpg")
+    def save_map(map_name):
+        '''
+        try:
+            print("Overwrite warning!")
+            os.remove("Maps/images/" + map_name + ".jpg")
+            os.remove("Maps/info/" + map_name + ".txt")
+        except:
+            print("No overwrite found.")
+        '''
+        print(map_name)
+        pygame.image.save(mapSurfaceNormal, "Maps/images/" + map_name + ".jpg")
         used_textures = []
-        with open("Maps/info/test.txt", "wb") as outfile:   #Saves the map into the file.
+        with open("Maps/info/" + map_name + ".txt", "wb") as outfile:   #Saves the map into the file.
             for x in range(rows):
                 for y in range(tiles_per_row):
                     rawUnitData = {}
@@ -156,9 +160,75 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                     used_textures.append(tiles[x][y].image_name)
             pickle.dump(used_textures, outfile)
         outfile.close()
-    function_array.append(save_map)
 
-    GUI.Initialize_Editor_GUIs(function_array)
+
+    #Button functions
+
+    def save_screen():
+        done = False
+        map_text = ''
+        while not done:
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        done = True
+                    elif event.key == pygame.K_BACKSPACE:
+                        map_text = map_text[:-1]
+                    else:
+                        map_text += event.unicode
+
+        save_map(map_text)
+
+    def load_screen():
+        done = False
+        map_text = ''
+        while not done:
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        done = True
+                    elif event.key == pygame.K_BACKSPACE:
+                        map_text = map_text[:-1]
+                    else:
+                        map_text += event.unicode
+
+        load_map(map_text)
+
+    #Buttons
+    ButtonSurface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+
+    GUI_BUTTONS = []
+
+    ButtonSurface.convert_alpha()
+    
+    texture_size = GUI.texture_size
+
+    GUI_BUTTONS.append( #Menu button
+        button.Button(  (WIDTH * 9.5 // 10 - (texture_size * 1.5 // 2),
+                        HEIGHT * 9 // 10, texture_size * 1.5, texture_size * 0.85),
+                        (64,64,64,180),
+                        None,
+                        **{"text": "Menu","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (255,255,255,255)}
+                        )
+    )
+
+    GUI_BUTTONS.append( #Load button
+        button.Button(  (WIDTH * 9.5 // 10 - (texture_size * 1.5 // 2) - texture_size * 1.5 - texture_size // 3,
+                        HEIGHT * 9 // 10, texture_size * 1.5, texture_size * 0.85),
+                        (64,64,64,180),
+                        load_screen,
+                        **{"text": "Load","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (255,255,255,255)}
+                        )
+    )
+
+    GUI_BUTTONS.append( #Save button
+        button.Button(  (WIDTH * 9.5 // 10 - (texture_size * 1.5 // 2) + 2 * (- texture_size * 1.5 - texture_size // 3),
+                        HEIGHT * 9 // 10, texture_size * 1.5, texture_size * 0.85),
+                        (64,64,64,180),
+                        save_screen,
+                        **{"text": "Save","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (255,255,255,255)}
+                        )
+    )
 
     for x in range(rows):  #Create the map with empty tiles
         newLine = []
@@ -495,7 +565,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                                 place_tile(tiles[y_layer][x_layer].image_name[:-4])
                                 mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
 
-            for i in GUI.GUI_BUTTONS:
+            for i in GUI_BUTTONS:
                 i.check_event(event)
 
         #Check if user wants to change the camera's position
@@ -519,13 +589,13 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
 
         WIN.blit(tempSurface, (0, 0))
 
-        for i in GUI.GUI_BUTTONS:
-            i.update(GUI.ButtonSurface)
+        for i in GUI_BUTTONS:
+            i.update(ButtonSurface)
 
         if GUI.GUIs_enabled == True: 
             WIN.blit(GUI.TextureSurface, (WIDTH - GUI.Texture_x_size, 0))
             WIN.blit(GUI.ToolsSurface, (WIDTH - GUI.Texture_x_size - GUI.Tool_x_size, 0))
-            WIN.blit(GUI.ButtonSurface, (0,0))
+            WIN.blit(ButtonSurface, (0,0))
 
         pygame.display.update()
 
