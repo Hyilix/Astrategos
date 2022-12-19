@@ -572,8 +572,9 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                                 place_tile(tiles[y_layer][x_layer].image_name[:-4])
                                 mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
 
-            for i in GUI_BUTTONS:
-                i.check_event(event)
+            if GUI.GUIs_enabled == True: 
+                for i in GUI_BUTTONS:
+                    i.check_event(event)
 
         #Check if user wants to change the camera's position
         x_pos = pygame.mouse.get_pos()[0]
@@ -594,12 +595,13 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
         tempSurface = pygame.Surface((WIDTH, HEIGHT))
         tempSurface.blit(mapSurface, (0, 0), (CurrentCamera.x, CurrentCamera.y, WIDTH, HEIGHT))
 
-        WIN.blit(tempSurface, (0, 0))
-
-        for i in GUI_BUTTONS:
-            i.update(ButtonSurface)
+        WIN.blit(tempSurface, (0, 0)) 
 
         if GUI.GUIs_enabled == True: 
+
+            for i in GUI_BUTTONS:
+                i.update(ButtonSurface)
+
             WIN.blit(GUI.TextureSurface, (WIDTH - GUI.Texture_x_size, 0))
             WIN.blit(GUI.ToolsSurface, (WIDTH - GUI.Texture_x_size - GUI.Tool_x_size, 0))
             WIN.blit(ButtonSurface, (0,0))
