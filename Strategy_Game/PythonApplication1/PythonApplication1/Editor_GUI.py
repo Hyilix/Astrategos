@@ -70,13 +70,44 @@ ButtonSurface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
 
 GUI_BUTTONS = []
 
-def Initialize_Editor_GUIs():
+def Initialize_Editor_GUIs(array):
     TextureSurface.convert_alpha()
     ToolsSurface.convert_alpha()
     ButtonSurface.convert_alpha()
-       
-    new_button = button.Button((WIDTH * 9.4 // 10 - (texture_size * 2 // 2), HEIGHT * 9 // 10, texture_size * 2, texture_size), (64,64,64,180), None, **{"text": "Menu","font": pygame.font.Font(None, 50),"font_color": (196,196,196), "border_color" : (64,64,64,180)})
-    GUI_BUTTONS.append(new_button)
+    
+    func_index = 0
+    GUI_BUTTONS.append( #Menu button
+        button.Button(  (WIDTH * 9.5 // 10 - (texture_size * 1.5 // 2),
+                        HEIGHT * 9 // 10, texture_size * 1.5, texture_size * 0.85),
+                        (64,64,64,180),
+                        array[func_index],
+                        **{"text": "Menu","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_font_color" : (255,255,255)}
+                        )
+    )
+
+    func_index += 1
+
+    GUI_BUTTONS.append( #Load button
+        button.Button(  (WIDTH * 9.5 // 10 - (texture_size * 1.5 // 2) - texture_size * 1.5 - texture_size // 3,
+                        HEIGHT * 9 // 10, texture_size * 1.5, texture_size * 0.85),
+                        (64,64,64,180),
+                        array[func_index],
+                        **{"text": "Load","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180)}
+                        )
+    )
+
+    func_index += 1
+
+    GUI_BUTTONS.append( #Save button
+        button.Button(  (WIDTH * 9.5 // 10 - (texture_size * 1.5 // 2) + 2 * (- texture_size * 1.5 - texture_size // 3),
+                        HEIGHT * 9 // 10, texture_size * 1.5, texture_size * 0.85),
+                        (64,64,64,180),
+                        array[func_index],
+                        **{"text": "Save","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180)}
+                        )
+    )
+
+    func_index += 1
 
 def Draw_Textures_GUI(position):
     TextureSurface.fill((32, 32, 32, 150))
