@@ -23,6 +23,9 @@ tiles_per_row = 100
 tiles = []
 
 def editor(WIN,WIDTH,HEIGHT,FPS) :
+    global Running
+    Running = True
+
     GUI.Initialize_Editor_GUIs()
     GUI.Draw_Textures_GUI((0,0))
 
@@ -78,54 +81,56 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
 
     #Editor functions
     def load_map(map_name):
-        with open("Maps/info/" + map_name + ".txt", "rb") as infile:
-            print("STARTED")
-            tiles.clear()
-            for x in range(rows):
-                new_vec = []
-                for y in range(tiles_per_row):        
-                    loaded_object = pickle.load(infile)
-                    new_unit, new_structure = None, None
-                    if loaded_object["Unit"]:  
-                        new_unit = Units.Unit(loaded_object["Unit"]["Name"],
-                                                loaded_object["Unit"]["Position"],
-                                                loaded_object["Unit"]["Owner"]
-                                                )
+        try:
+            with open("Maps/info/" + map_name + ".txt", "rb") as infile:
+                print("STARTED")
+                tiles.clear()
+                for x in range(rows):
+                    new_vec = []
+                    for y in range(tiles_per_row):        
+                        loaded_object = pickle.load(infile)
+                        new_unit, new_structure = None, None
+                        if loaded_object["Unit"]:  
+                            new_unit = Units.Unit(loaded_object["Unit"]["Name"],
+                                                    loaded_object["Unit"]["Position"],
+                                                    loaded_object["Unit"]["Owner"]
+                                                    )
 
-                    if loaded_object["Structure"]:
-                        new_structure = Structures.Structure(loaded_object["Structure"]["Name"],
-                                                loaded_object["Structure"]["Position"],
-                                                loaded_object["Structure"]["Owner"]
-                                                )
+                        if loaded_object["Structure"]:
+                            new_structure = Structures.Structure(loaded_object["Structure"]["Name"],
+                                                    loaded_object["Structure"]["Position"],
+                                                    loaded_object["Structure"]["Owner"]
+                                                    )
 
-                    new_tile = TileClass.Tile(loaded_object["Position"],
-                                                loaded_object["Collidable"],
-                                                None,     #Image Class
-                                                loaded_object["Image_name"],
-                                                None,     #Special
-                                                new_unit,
-                                                new_structure
-                                                )
+                        new_tile = TileClass.Tile(loaded_object["Position"],
+                                                    loaded_object["Collidable"],
+                                                    None,     #Image Class
+                                                    loaded_object["Image_name"],
+                                                    None,     #Special
+                                                    new_unit,
+                                                    new_structure
+                                                    )
 
-                    new_vec.append(new_tile)
-                tiles.append(new_vec)
+                        new_vec.append(new_tile)
+                    tiles.append(new_vec)
 
-        for x in range(rows):  #Redraw the whole map
-            for y in range(tiles_per_row):
-                tiles[x][y].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
-            #tiles.append(newLine)
+            for x in range(rows):  #Redraw the whole map
+                for y in range(tiles_per_row):
+                    tiles[x][y].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+                #tiles.append(newLine)
 
-        mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
+            mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
+
+        except:
+            print("No such file exists")
 
     def save_map(map_name):
-        '''
         try:
             print("Overwrite warning!")
             os.remove("Maps/images/" + map_name + ".jpg")
             os.remove("Maps/info/" + map_name + ".txt")
         except:
             print("No overwrite found.")
-        '''
         print(map_name)
         pygame.image.save(mapSurfaceNormal, "Maps/images/" + map_name + ".jpg")
         used_textures = []
@@ -194,6 +199,10 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
 
         load_map(map_text)
 
+    def Menu():
+        global Running
+        Running = False
+
     #Buttons
     ButtonSurface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
 
@@ -207,7 +216,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
         button.Button(  (WIDTH * 9.5 // 10 - (texture_size * 1.5 // 2),
                         HEIGHT * 9 // 10, texture_size * 1.5, texture_size * 0.85),
                         (64,64,64,180),
-                        None,
+                        Menu,
                         **{"text": "Menu","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (255,255,255,255)}
                         )
     )
@@ -379,8 +388,6 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
     max_index = TileClass.last_index
 
     clock = pygame.time.Clock()
-
-    Running = True
 
     hasLeftClickPressed = False    #Determine if left mouse is pressed down.
 
@@ -565,8 +572,9 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                                 place_tile(tiles[y_layer][x_layer].image_name[:-4])
                                 mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
 
-            for i in GUI_BUTTONS:
-                i.check_event(event)
+            if GUI.GUIs_enabled == True: 
+                for i in GUI_BUTTONS:
+                    i.check_event(event)
 
         #Check if user wants to change the camera's position
         x_pos = pygame.mouse.get_pos()[0]
@@ -587,12 +595,13 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
         tempSurface = pygame.Surface((WIDTH, HEIGHT))
         tempSurface.blit(mapSurface, (0, 0), (CurrentCamera.x, CurrentCamera.y, WIDTH, HEIGHT))
 
-        WIN.blit(tempSurface, (0, 0))
-
-        for i in GUI_BUTTONS:
-            i.update(ButtonSurface)
+        WIN.blit(tempSurface, (0, 0)) 
 
         if GUI.GUIs_enabled == True: 
+
+            for i in GUI_BUTTONS:
+                i.update(ButtonSurface)
+
             WIN.blit(GUI.TextureSurface, (WIDTH - GUI.Texture_x_size, 0))
             WIN.blit(GUI.ToolsSurface, (WIDTH - GUI.Texture_x_size - GUI.Tool_x_size, 0))
             WIN.blit(ButtonSurface, (0,0))
