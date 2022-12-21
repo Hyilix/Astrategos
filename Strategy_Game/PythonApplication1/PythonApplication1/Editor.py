@@ -172,30 +172,62 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
     def save_screen():
         done = False
         map_text = ''
+        max_str_length = 24
+        font = pygame.font.Font('freesansbold.ttf', 32)
         while not done:
+            pygame.draw.rect(WIN, (148,148,148), pygame.Rect(WIDTH // 2 - WIDTH // 8, HEIGHT // 2 - HEIGHT // 8, WIDTH // 4, HEIGHT // 4))
+
+            text1 = font.render(map_text, True, (32,32,32))
+            textRect = text1.get_rect()
+            textRect.center = (WIDTH // 2, HEIGHT // 2)
+            WIN.blit(text1, textRect)
+
+            pygame.display.update()
+
             for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    os._exit(0)
+
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         done = True
                     elif event.key == pygame.K_BACKSPACE:
                         map_text = map_text[:-1]
+                    elif event.key == pygame.K_ESCAPE:
+                        return
                     else:
-                        map_text += event.unicode
+                        if len(map_text) < max_str_length:
+                            map_text += event.unicode
 
         save_map(map_text)
 
     def load_screen():
         done = False
         map_text = ''
+        max_str_length = 24
+        font = pygame.font.Font('freesansbold.ttf', 32)
         while not done:
+            pygame.draw.rect(WIN, (148,148,148), pygame.Rect(WIDTH // 2 - WIDTH // 8, HEIGHT // 2 - HEIGHT // 8, WIDTH // 4, HEIGHT // 4))
+
+            text1 = font.render(map_text, True, (32,32,32))
+            textRect = text1.get_rect()
+            textRect.center = (WIDTH // 2, HEIGHT // 2)
+            WIN.blit(text1, textRect)
+
+            pygame.display.update()
+
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         done = True
                     elif event.key == pygame.K_BACKSPACE:
                         map_text = map_text[:-1]
+                    elif event.key == pygame.K_ESCAPE:
+                        return
                     else:
-                        map_text += event.unicode
+                        if len(map_text) < max_str_length:
+                            map_text += event.unicode
 
         load_map(map_text)
 
