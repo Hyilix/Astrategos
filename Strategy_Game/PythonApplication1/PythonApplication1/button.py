@@ -33,6 +33,7 @@ class Button(object):
             "clicked_font_color": None,
             "click_sound": None,
             "hover_sound": None,
+            "border_color" : pg.Color("black"),
         }
         for kwarg in kwargs:
             if kwarg in settings:
@@ -96,7 +97,7 @@ class Button(object):
             color = self.hover_color
             if self.hover_font_color:
                 text = self.hover_text
-        surface.fill(pg.Color("black"), self.rect)
+        surface.fill(self.border_color, self.rect)
         surface.fill(color, self.rect.inflate(-4, -4))
         if self.text:
             text_rect = text.get_rect(center=self.rect.center)

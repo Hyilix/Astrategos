@@ -1,4 +1,5 @@
 import pygame
+
 import TileClass
 import Structures
 import Units
@@ -65,10 +66,11 @@ Tool_x_size = (Tools_icon_size + Tools_icon_distance) * (Tools_max_x_pos + 1) + 
 TextureSurface = pygame.Surface((Texture_x_size, texture_size * 2 * max_y_pos * texture_distance), pygame.SRCALPHA)
 ToolsSurface = pygame.Surface((Tool_x_size, HEIGHT), pygame.SRCALPHA)
 
+
 def Initialize_Editor_GUIs():
     TextureSurface.convert_alpha()
     ToolsSurface.convert_alpha()
-            
+
 def Draw_Textures_GUI(position):
     TextureSurface.fill((32, 32, 32, 150))
 
@@ -113,6 +115,7 @@ def Draw_Textures_GUI(position):
                 current_y += 1
             else:
                 current_x += 1
+
 
 def Draw_Tools_GUI(positions, brush_size):
     #Draw Tools
