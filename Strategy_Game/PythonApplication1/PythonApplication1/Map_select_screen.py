@@ -57,6 +57,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
     global resized
     global THE_MAP
     THE_MAP = -1
+    Map_Location = -1
 
     WIN.fill((255,255,255))
     pygame.display.update()
@@ -78,8 +79,6 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
     while (Map_part-50-latura*pe_rand)/(pe_rand-1)<20 and latura >200 :
         latura -= 25
     spatiu_intre = (Map_part-50-latura*pe_rand)/(pe_rand-1)
-    print(latura)
-    print(spatiu_intre)
     #incarcarea hartiilor
     nr_harti = len(MAPS)
     if resized == False :
@@ -189,6 +188,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
         global Confirmation
         global run
         global THE_MAP
+        global Map_Location
         try :
             while True :
                 header = server.recv(10)
@@ -199,7 +199,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                     data_recv = pickle.loads(data_recv)
                     if data_recv[0] == "enter_next_stage" :
                         THE_MAP = data_recv[1]
-                        print("se alocheaza harta nr = " +str(THE_MAP))
+                        Map_Location = data_recv[2]
                         data_send = pickle.dumps(("enter_next_stage",None))
                         data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                         server.send(data_send)
@@ -300,13 +300,22 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
         else :
             if Role == "host" :
                 if sent_reaquest == False :
-                    #DETERMINA CARE ESTE HARTA CARE A CASTIGAT VOTUL
+                    #DETERMINA CARE ESTE HARTA CARE A CASTIGAT VOTUL 
                     THE_MAP = rezultat_voturi()
-                    print(THE_MAP)
+                    # De asemenea se determina pe ce pozitii vor di playeri
+                    nr_pozitii = [1,2,3,4]
+                    rand_pos = random.randint(0,3)
+                    Host_position = nr_pozitii[rand_pos]
+                    nr_pozitii.pop(rand_pos)
+                    Client_positions = []
+                    for i in range(3) :
+                        rand_pos = random.randint(0,len(nr_pozitii)-1)
+                        Client_positions.append(nr_pozitii[rand_pos])
+                        nr_pozitii.pop(rand_pos)
                     #trimite tuturor playerilor ca am trecut la urmatoru stage dar le trimite si harta aleasa
-                    data_send = pickle.dumps(("enter_next_stage",THE_MAP))
-                    data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                     for i in range(len(CLIENTS)) :
+                        data_send = pickle.dumps(("enter_next_stage",THE_MAP,Client_positions[i]))
+                        data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                         CLIENTS[i][0].send(data_send)
                     sent_reaquest = True
                 elif Confirmatii == len(playeri)-1 :  
@@ -314,16 +323,15 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                         Client_THREADS[0].join()
                         Client_THREADS.pop(0)
                 #Enter next stage
-                playeri, CLIENTS, Coduri_pozitie_client = gameplay(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client,map_names[THE_MAP])
+                playeri, CLIENTS, Coduri_pozitie_client = gameplay(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client,map_names[THE_MAP],Host_position)
                 #Se iese si din map_select
                 run = False
 
             elif Confirmation ==  True :
-                print(THE_MAP)
                 time.sleep(100)
                 recv_from_server.join()
                 #Enter next stage
-                playeri, Pozitie = gameplay(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,None,None,map_names[THE_MAP])
+                playeri, Pozitie = gameplay(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,None,None,map_names[THE_MAP],Map_Location)
                 #Se iese si din map_select
                 run = False
             

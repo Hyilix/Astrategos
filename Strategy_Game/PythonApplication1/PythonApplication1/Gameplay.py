@@ -12,7 +12,8 @@ SPACE = "          "
 
 run = True
 
-def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client,map_name) :
+#De stiut map_position este un nr de la 1 la 4 care reprezinta ce pozitie ii apartine acestei instante pe harta
+def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client,map_name,player,map_position) :
     global run
 
     #adresa pentru txt-ul hartii pe care se afla playeri
