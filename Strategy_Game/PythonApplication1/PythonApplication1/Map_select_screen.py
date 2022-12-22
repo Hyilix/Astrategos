@@ -3,6 +3,11 @@ import os
 import socket
 import pickle
 import threading
+import math
+import time
+import random
+
+from Gameplay import gameplay
 
 pygame.init()
 
@@ -33,37 +38,69 @@ Confirmation = False
 Confirmatii = 0
 Next_stage_cooldown = 15*60
 
-nr_harti = 100
+MAPS = []
+map_names =[]
+directory = "Maps\images"
+print("Loading maps")
+for filename in os.listdir(directory):
+    adres=os.path.join(directory, filename)
+    print(adres)
+    MAPS.append(pygame.image.load(adres))
+    map_names.append(adres[12:-4])
+
+resized = False
+THE_MAP = -1
 
 def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client) :
     global run
+    global MAPS
+    global resized
+    global THE_MAP
+    THE_MAP = -1
+    Map_Location = -1
+
     WIN.fill((255,255,255))
     pygame.display.update()
 
+
+    # determinarea marimilor icon-urilor playerilor
     diametru = (HEIGHT - 5*50 - HEIGHT/25)/4
     Map_part = WIDTH - diametru - 150
     if(Map_part < (WIDTH-150)*4/5) :
         Map_part = (WIDTH-150)*4/5
         diametru = (WIDTH-150)/5
 
+    #dimensiunea hartilor afisate
     scroll = 0
-    latura = 200
+    latura = 300
     pe_rand = 6
-    while pe_rand >4 and latura*pe_rand + 25 * 7 > Map_part :
-        pe_rand =- 1
-    spatiu_intre = (Map_part-latura*pe_rand)/7
-    limita_scroll =  150 + 10 *latura + 10 *25 - HEIGHT
+    while (pe_rand >4) and (Map_part-50-latura*pe_rand)/(pe_rand-1)<20 :
+        pe_rand -= 1
+    while (Map_part-50-latura*pe_rand)/(pe_rand-1)<20 and latura >200 :
+        latura -= 25
+    spatiu_intre = (Map_part-50-latura*pe_rand)/(pe_rand-1)
+    #incarcarea hartiilor
+    nr_harti = len(MAPS)
+    if resized == False :
+        for i in range(nr_harti):
+            MAPS[i] = pygame.transform.scale(MAPS[i], (latura, latura))
+        resized = True
+
+    #stabilirea limitei de scroll
+    limita_scroll =  100  + HEIGHT/25 + math.ceil(nr_harti/pe_rand) *latura + math.ceil(nr_harti/pe_rand) *25 - HEIGHT
     if limita_scroll <0 :
         limita_scroll = 0
     def draw_window () :
         #afisarea hartilor
         pygame.draw.rect(WIN,(80, 82, 81),(50,75,Map_part,HEIGHT- 100 - HEIGHT/25))
-        for i in range(int(nr_harti/pe_rand)) :
+        for i in range(math.ceil(nr_harti/pe_rand)) :
             y_rand = 75 + i*latura + i*25 -scroll
             if y_rand+latura >50 and y_rand < HEIGHT -50 - HEIGHT/25  :
-                for j in range(pe_rand) :
-                    x_coloana = 50 + j*latura + (j+1)*spatiu_intre
-                    pygame.draw.rect(WIN,Gri,(x_coloana,y_rand,latura,latura))
+                for j in range(min(nr_harti-i*pe_rand,pe_rand)) :
+                    x_coloana = 75 + j*latura + (j)*spatiu_intre
+                    #pygame.draw.rect(WIN,Gri,(x_coloana,y_rand,latura,latura))
+                    WIN.blit(MAPS[i*pe_rand + j],(x_coloana,y_rand))
+
         for i in range(len(Voturi)) :
             if  Voturi[i] != None :
                 y_rand = 75 + Voturi[i][0]*latura + Voturi[i][0]*25 -scroll
@@ -94,11 +131,35 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
             text_rect = text.get_rect()
             text_rect.center = (WIDTH-diametru/2-50,y+diametru/2+25)
             WIN.blit(text,text_rect)
-        pygame.display.update((50 + Map_part,50,diametru + 100,HEIGHT-50))
+        pygame.display.update((50 + Map_part,50,diametru + 100,HEIGHT-50 - HEIGHT/25))
         #desenarea barii de cooldown 
         pygame.draw.rect(WIN, (255, 255, 255), pygame.Rect(0, HEIGHT - HEIGHT/25 , WIDTH,HEIGHT/25 ))
         pygame.draw.rect(WIN, (230, 0, 0), pygame.Rect(0, HEIGHT - HEIGHT/25 , cooldown*WIDTH/Next_stage_cooldown,HEIGHT/25 ))
         pygame.display.update(0,HEIGHT-HEIGHT/25,WIDTH,HEIGHT/25)
+    #functia care  determina ce harta castiga dupa vot
+    def rezultat_voturi () :
+        harti_voturi = {}
+        nrmax = 0
+        candidati = []
+        for i in range (len(Voturi)) :
+            if Voturi[i] != None :
+                #transforma coordonata 2-dimensionala in ce uni-dimensionala
+                hart_nr = Voturi[i][0]*pe_rand + Voturi[i][1]
+                try :
+                    harti_voturi[hart_nr] += 1
+                except :
+                    harti_voturi[hart_nr] = 1
+        for map in harti_voturi :
+            if harti_voturi[map] > nrmax :
+                candidati = []
+                candidati.append(map)
+            elif harti_voturi[map] == nrmax :
+                candidati.append(map)
+        #daca nu a fost nici una votata atunci alege una random
+        if len(candidati) == 0 :
+            return random.randint(0,nr_harti-1)
+        else :
+            return candidati[random.randint(0,len(candidati)-1)]
 
     def reciev_thread_from_client(client,cod) :
         global Confirmatii
@@ -126,6 +187,8 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
     def reciev_thread_from_server(server) :
         global Confirmation
         global run
+        global THE_MAP
+        global Map_Location
         try :
             while True :
                 header = server.recv(10)
@@ -135,6 +198,8 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                     data_recv = server.recv(int(header))
                     data_recv = pickle.loads(data_recv)
                     if data_recv[0] == "enter_next_stage" :
+                        THE_MAP = data_recv[1]
+                        Map_Location = data_recv[2]
                         data_send = pickle.dumps(("enter_next_stage",None))
                         data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                         server.send(data_send)
@@ -154,6 +219,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
             server.close()
             run = False
 
+    #declararea variabilelor rolurilor specifice
     if Role == "host" :
         global Confiramtii
         Confirmatii=0
@@ -234,18 +300,40 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
         else :
             if Role == "host" :
                 if sent_reaquest == False :
-                    #trimite tuturor playerilor ca am trecut la urmatoru stage
-                    data_send = pickle.dumps(("enter_next_stage",None))
-                    data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
+                    #DETERMINA CARE ESTE HARTA CARE A CASTIGAT VOTUL 
+                    THE_MAP = rezultat_voturi()
+                    # De asemenea se determina pe ce pozitii vor di playeri
+                    nr_pozitii = [1,2,3,4]
+                    rand_pos = random.randint(0,3)
+                    Host_position = nr_pozitii[rand_pos]
+                    nr_pozitii.pop(rand_pos)
+                    Client_positions = []
+                    for i in range(3) :
+                        rand_pos = random.randint(0,len(nr_pozitii)-1)
+                        Client_positions.append(nr_pozitii[rand_pos])
+                        nr_pozitii.pop(rand_pos)
+                    #trimite tuturor playerilor ca am trecut la urmatoru stage dar le trimite si harta aleasa
                     for i in range(len(CLIENTS)) :
+                        data_send = pickle.dumps(("enter_next_stage",THE_MAP,Client_positions[i]))
+                        data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                         CLIENTS[i][0].send(data_send)
                     sent_reaquest = True
                 elif Confirmatii == len(playeri)-1 :  
                     while len(Client_THREADS) > 0 :
                         Client_THREADS[0].join()
                         Client_THREADS.pop(0)
+                #Enter next stage
+                playeri, CLIENTS, Coduri_pozitie_client = gameplay(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client,map_names[THE_MAP],Host_position)
+                #Se iese si din map_select
+                run = False
+
             elif Confirmation ==  True :
+                time.sleep(100)
                 recv_from_server.join()
+                #Enter next stage
+                playeri, Pozitie = gameplay(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,None,None,map_names[THE_MAP],Map_Location)
+                #Se iese si din map_select
+                run = False
             
         for event in pygame.event.get():
             if event.type == pygame.QUIT :
@@ -264,13 +352,13 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                      press_coordonaits =  event.pos 
                      # se vede daca a apasat pe partea cu harti
                      if press_coordonaits[0]>50 and press_coordonaits[0]< 50 + Map_part and press_coordonaits[1]>50 and press_coordonaits[1]< HEIGHT - 50 :
-                         # se determina ce rand si conoala se afla harta apasata
-                         for i in range(10) :
+                         # se determina ce rand si coloana se afla harta apasata
+                         for i in range(math.ceil(nr_harti/pe_rand)) :
                              y_rand = 75 + i*latura +i*25 - scroll
                              if y_rand +latura >50 :
                                  if press_coordonaits[1] >= y_rand and press_coordonaits[1] <= y_rand+latura :
-                                     for j in range(6) :
-                                         x_coloana = 50 + j*latura + (j+1)*spatiu_intre
+                                     for j in range(min(pe_rand,nr_harti-i*pe_rand)) :
+                                         x_coloana = 50 + j*latura + j*spatiu_intre
                                          if press_coordonaits[0] >= x_coloana and press_coordonaits[0] <= x_coloana + latura :
                                              Voturi[Pozitie]=(i,j)
                                              #voteaza harta
