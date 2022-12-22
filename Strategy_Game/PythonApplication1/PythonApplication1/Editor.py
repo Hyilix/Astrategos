@@ -207,6 +207,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
         map_text = ''
         max_str_length = 24
         font = pygame.font.Font('freesansbold.ttf', 32)
+        esc_font = pygame.font.Font('freesansbold.ttf', 64)
         while not done:
             pygame.draw.rect(WIN, (148,148,148), pygame.Rect(WIDTH // 2 - WIDTH // 8, HEIGHT // 2 - HEIGHT // 8, WIDTH // 4, HEIGHT // 4))
 
