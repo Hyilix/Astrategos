@@ -160,6 +160,14 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 Transmit_to_all.append((("leftplayer",Coduri_pozitie_client[Killed_Clients[0]] + 1),None))
                 CLIENTS.pop(Coduri_pozitie_client[Killed_Clients[0]])
                 playeri.pop(Coduri_pozitie_client[Killed_Clients[0]] + 1)
+                #modificarea turelor
+                if Whos_turn == Coduri_pozitie_client[Killed_Clients[0]] + 1 :
+                    timer = turn_time
+                    Whos_turn += 1
+                    if Whos_turn >= len(playeri) :
+                        Whos_turn = 0
+                elif Whos_turn > Whos_turn == Coduri_pozitie_client[Killed_Clients[0]] + 1 :
+                    Whos_turn -= 1
                 Client_THREADS[Coduri_pozitie_client[Killed_Clients[0]]].join()
                 Client_THREADS.pop(Coduri_pozitie_client[Killed_Clients[0]])
                 Coduri_pozitie_client.pop(Killed_Clients[0])
@@ -181,6 +189,13 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             while len(Changes_from_server) > 0 :
                 if Changes_from_server[0][0] == "leftplayer" :
                     playeri.pop(Changes_from_server[0][1])
+                    if Whos_turn == Changes_from_server[0][1] :
+                        timer = turn_time
+                        Whos_turn += 1
+                        if Whos_turn >= len(playeri) :
+                            Whos_turn = 0
+                    elif Whos_turn > Whos_turn == Changes_from_server[0][1] :
+                        Whos_turn -= 1
                     if Changes_from_server[0][1] < Pozitie :
                         Pozitie -= 1 
                 elif Changes_from_server[0][0] == "a second passed" :
