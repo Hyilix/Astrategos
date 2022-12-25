@@ -9,6 +9,7 @@ pygame.init()
 
 HEADERSIZE = 10
 SPACE = "          "
+Font = pygame.font.Font(None, 30)
 
 run = True
 
@@ -33,6 +34,15 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         #turn part
         pygame.draw.rect(WIN,(255, 0, 0),((WIDTH-260)/2,0,260,HEIGHT*2/25 + 5))
         pygame.draw.rect(WIN,(225, 223, 240),((WIDTH-250)/2,0,250,HEIGHT*2/25 ))
+        text = Font.render(playeri[Whos_turn][0]+"'s TURN", True, (0,0,0))
+        text_rect = text.get_rect()
+        text_rect.center = (WIDTH/2,20)
+        WIN.blit(text,text_rect)
+        text = Font.render("Timer: "+("  "+str(timer))[-3:], True, (0,0,0))
+        text_rect = text.get_rect()
+        text_rect.center = (WIDTH/2,50)
+        WIN.blit(text,text_rect)
+        
         pygame.display.update()
 
     #Functia cu care serverul asculta pentru mesajele unui client
@@ -93,6 +103,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         recv_from_server = threading.Thread(target = reciev_thread_from_server, args = (Connection,))
         recv_from_server.start()
         Changes_from_server = []
+    #variabilele necesare indiferent de rol
+    Whos_turn = 0
+    turn_time = 120
+    timer = 120
 
     clock = pygame.time.Clock()
     run=True
@@ -132,6 +146,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     if Changes_from_server[0][1] < Pozitie :
                         Pozitie -= 1 
                 Changes_from_server.pop(0)
+
+        #The event loop
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT :
+                pygame.quit()
+                os._exit(0)
 
     #finalul functiei si returnarea variabilelor necesare care s-ar fi putut schimba
     if Role == "host" :
