@@ -13,14 +13,26 @@ SPACE = "          "
 run = True
 
 #De stiut map_position este un nr de la 1 la 4 care reprezinta ce pozitie ii apartine acestei instante pe harta
-def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client,map_name,player,map_position) :
+def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client,map_name,map_position) :
     global run
+
+
+    WIN.fill((255,255,255))
+    pygame.display.update()
 
     #adresa pentru txt-ul hartii pe care se afla playeri
     map_adres = "Maps\info" + map_name + ".txt"
 
 
     def draw_window () :
+
+        #desenarea Ui - ului 
+        #Partea de sus
+        pygame.draw.rect(WIN,(225, 223, 240),(0,0,WIDTH,HEIGHT/25))
+        pygame.draw.rect(WIN,(0, 0, 0),(0,HEIGHT/25,WIDTH,5))
+        #turn part
+        pygame.draw.rect(WIN,(255, 0, 0),((WIDTH-260)/2,0,260,HEIGHT*2/25 + 5))
+        pygame.draw.rect(WIN,(225, 223, 240),((WIDTH-250)/2,0,250,HEIGHT*2/25 ))
         pygame.display.update()
 
     #Functia cu care serverul asculta pentru mesajele unui client
