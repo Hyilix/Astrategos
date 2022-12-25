@@ -3,6 +3,7 @@ import os
 import socket
 import pickle
 import threading
+import time
 
 
 pygame.init()
@@ -12,10 +13,12 @@ SPACE = "          "
 Font = pygame.font.Font(None, 30)
 
 run = True
+timer = 120
 
 #De stiut map_position este un nr de la 1 la 4 care reprezinta ce pozitie ii apartine acestei instante pe harta
 def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client,map_name,map_position) :
     global run
+    global timer 
 
 
     WIN.fill((255,255,255))
@@ -40,7 +43,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         WIN.blit(text,text_rect)
         text = Font.render("Timer: "+("  "+str(timer))[-3:], True, (0,0,0))
         text_rect = text.get_rect()
-        text_rect.center = (WIDTH/2,50)
+        text_rect.center = (WIDTH/2,60)
         WIN.blit(text,text_rect)
         
         pygame.display.update()
@@ -88,6 +91,17 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             server.close()
             run = False
 
+    #Un thread care va functiona la host care are rolul sa tina cont de cat timp trece in timpul jocului
+    def timer_thread ():
+        global timer
+        while True :
+            time.sleep(1)
+            timer = timer - 1
+
+    #variabilele necesare indiferent de rol
+    Whos_turn = 0
+    turn_time = 120
+    timer = 120
     # Incarcarea variabilelor necesare rolurilor de host si client
     if Role == "host" :
         Client_THREADS = []
@@ -98,15 +112,13 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             newthread = threading.Thread(target = reciev_thread_from_client , args =(CLIENTS[i][0],CLIENTS[i][1]))
             Client_THREADS.append(newthread)
             Client_THREADS[len(Client_THREADS)-1].start() 
+        time_thread = threading.Thread(target = timer_thread)
+        time_thread.start() 
     else :
         #restart listenig to the server
         recv_from_server = threading.Thread(target = reciev_thread_from_server, args = (Connection,))
         recv_from_server.start()
         Changes_from_server = []
-    #variabilele necesare indiferent de rol
-    Whos_turn = 0
-    turn_time = 120
-    timer = 120
 
     clock = pygame.time.Clock()
     run=True
