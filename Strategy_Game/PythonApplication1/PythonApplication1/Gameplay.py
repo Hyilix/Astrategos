@@ -8,6 +8,19 @@ import time
 
 pygame.init()
 
+White = (255,255,255)
+Gri = (225, 223, 240)
+Red = (255, 0, 0)
+Blue =(0, 0, 255)
+Green =(0, 150, 0)
+Yellow = (255,255,0)
+Orange = (255, 150, 0)
+Purple = (150, 0, 255)
+Pink = (255, 0, 255)
+Cyan = (60, 160, 255)
+Light_Green = (0, 255, 0)
+Player_Colors = [White,Blue,Red,Green,Yellow,Orange,Purple,Pink,Cyan]
+
 HEADERSIZE = 10
 SPACE = "          "
 Font = pygame.font.Font(None, 30)
@@ -15,10 +28,14 @@ Font = pygame.font.Font(None, 30)
 run = True
 timer = 120
 
+Confirmatii_timer = 0
+
+
 #De stiut map_position este un nr de la 1 la 4 care reprezinta ce pozitie ii apartine acestei instante pe harta
 def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client,map_name,map_position) :
     global run
     global timer 
+    global Confirmatii_timer
 
 
     WIN.fill((255,255,255))
@@ -35,7 +52,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         pygame.draw.rect(WIN,(225, 223, 240),(0,0,WIDTH,HEIGHT/25))
         pygame.draw.rect(WIN,(0, 0, 0),(0,HEIGHT/25,WIDTH,5))
         #turn part
-        pygame.draw.rect(WIN,(255, 0, 0),((WIDTH-260)/2,0,260,HEIGHT*2/25 + 5))
+        pygame.draw.rect(WIN,Player_Colors[playeri[Whos_turn][1]],((WIDTH-260)/2,0,260,HEIGHT*2/25 + 5))
         pygame.draw.rect(WIN,(225, 223, 240),((WIDTH-250)/2,0,250,HEIGHT*2/25 ))
         text = Font.render(playeri[Whos_turn][0]+"'s TURN", True, (0,0,0))
         text_rect = text.get_rect()
@@ -50,6 +67,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
     #Functia cu care serverul asculta pentru mesajele unui client
     def reciev_thread_from_client(client,cod) :
+        global Confirmatii_timer
         try :
             while True :
                 header = client.recv(10)
@@ -58,6 +76,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     data_recv = client.recv(int(header))
                     data_recv = pickle.loads(data_recv)
                     #se va proceseaza mesajul de la clinet
+                    if data_recv[0] == "timer is zero" :
+                        Confirmatii_timer = Confirmatii_timer + 1
                 else :
                     client.close()
                     Killed_Clients.append(cod)
@@ -96,14 +116,17 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         global timer
         while True :
             time.sleep(1)
-            timer = timer - 1
+            if timer > 0 :
+                timer = timer - 1
+                Transmit_to_all.append((("a second passed",None),None))
 
     #variabilele necesare indiferent de rol
     Whos_turn = 0
-    turn_time = 120
-    timer = 120
+    turn_time = 30
+    timer = turn_time
     # Incarcarea variabilelor necesare rolurilor de host si client
     if Role == "host" :
+        Confirmatii_timer = 0
         Client_THREADS = []
         Killed_Clients = []
         Transmit_to_all = []
@@ -119,6 +142,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         recv_from_server = threading.Thread(target = reciev_thread_from_server, args = (Connection,))
         recv_from_server.start()
         Changes_from_server = []
+        timer_notification_sent = False
+        next_turn = False
+
 
     clock = pygame.time.Clock()
     run=True
@@ -157,7 +183,37 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     playeri.pop(Changes_from_server[0][1])
                     if Changes_from_server[0][1] < Pozitie :
                         Pozitie -= 1 
+                elif Changes_from_server[0][0] == "a second passed" :
+                    timer = timer - 1
+                elif Changes_from_server[0][0] == "next_turn" :
+                    next_turn = True
                 Changes_from_server.pop(0)
+
+        if timer == 0 :
+            if Role == "host" :
+                if Confirmatii_timer == len(CLIENTS) :
+                    Transmit_to_all.append((("next_turn",None),None))
+                    #se schimba cel care joaca
+                    Whos_turn += 1 
+                    if Whos_turn == len(playeri) :
+                        Whos_turn = 0
+                    timer = turn_time
+                    Confirmatii_timer = 0
+            else :
+                if timer_notification_sent == False :
+                    data_send = pickle.dumps(("timer is zero",None))
+                    data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
+                    Connection.send(data_send)
+                    timer_notification_sent = True
+                elif next_turn == True :
+                    #se schimba cel care joaca
+                    Whos_turn += 1 
+                    if Whos_turn == len(playeri) :
+                        Whos_turn = 0
+                    timer = turn_time
+                    timer_notification_sent = False
+                    next_turn = False
+
 
         #The event loop
         for event in pygame.event.get():
@@ -169,5 +225,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     if Role == "host" :
         return playeri, CLIENTS, Coduri_pozitie_client
     else :
+        print(run)
         return playeri,Pozitie 
 

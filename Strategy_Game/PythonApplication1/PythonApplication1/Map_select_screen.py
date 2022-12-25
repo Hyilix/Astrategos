@@ -97,7 +97,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
             y_rand = 75 + i*latura + i*25 -scroll
             if y_rand+latura >50 and y_rand < HEIGHT -50 - HEIGHT/25  :
                 for j in range(min(nr_harti-i*pe_rand,pe_rand)) :
-                    x_coloana = 75 + j*latura + (j)*spatiu_intre
+                    x_coloana = 75 + j*latura + j*spatiu_intre
                     #pygame.draw.rect(WIN,Gri,(x_coloana,y_rand,latura,latura))
                     WIN.blit(MAPS[i*pe_rand + j],(x_coloana,y_rand))
 
@@ -105,7 +105,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
             if  Voturi[i] != None :
                 y_rand = 75 + Voturi[i][0]*latura + Voturi[i][0]*25 -scroll
                 if y_rand +latura > 50 and y_rand < HEIGHT - 75 - HEIGHT/25 - latura/2 :
-                    x_coloana = 50 + Voturi[i][1]*latura + (Voturi[i][1]+1)*spatiu_intre
+                    x_coloana = 75 + Voturi[i][1]*latura + Voturi[i][1]*spatiu_intre
                     #afiseaza votul
                     x = x_coloana + latura/8 + i*latura/4
                     if latura/8 > 25 :
@@ -328,7 +328,6 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                 run = False
 
             elif Confirmation ==  True :
-                time.sleep(100)
                 recv_from_server.join()
                 #Enter next stage
                 playeri, Pozitie = gameplay(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,None,None,map_names[THE_MAP],Map_Location)
