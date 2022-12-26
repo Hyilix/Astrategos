@@ -37,7 +37,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     global timer 
     global Confirmatii_timer
 
-
     WIN.fill((255,255,255))
     pygame.display.update()
 
@@ -46,7 +45,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
 
     def draw_window () :
-
         #desenarea Ui - ului 
         #Partea de sus
         pygame.draw.rect(WIN,(225, 223, 240),(0,0,WIDTH,HEIGHT/25))
@@ -93,23 +91,26 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             while True :
                 header = server.recv(10)
                 header = header.decode("utf-8")
-
+                print(header)
                 if len(header) != 0 :
                     data_recv = server.recv(int(header))
                     data_recv = pickle.loads(data_recv)
                     if data_recv[0] == "I_died...Fuck_off":
                         server.close()
                         run = False
+                        print("shiet1")
                         break
                     else :
                         Changes_from_server.append(data_recv)
                 else :
                     server.close()
                     run = False
+                    print("shiet2")
                     break
         except :
             server.close()
             run = False
+            print("shiet3")
 
     #Un thread care va functiona la host care are rolul sa tina cont de cat timp trece in timpul jocului
     def timer_thread ():
@@ -163,7 +164,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 #modificarea turelor
                 if Whos_turn == Coduri_pozitie_client[Killed_Clients[0]] + 1 :
                     timer = turn_time
-                    Whos_turn += 1
                     if Whos_turn >= len(playeri) :
                         Whos_turn = 0
                 elif Whos_turn > Whos_turn == Coduri_pozitie_client[Killed_Clients[0]] + 1 :
@@ -191,10 +191,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     playeri.pop(Changes_from_server[0][1])
                     if Whos_turn == Changes_from_server[0][1] :
                         timer = turn_time
-                        Whos_turn += 1
                         if Whos_turn >= len(playeri) :
                             Whos_turn = 0
-                    elif Whos_turn > Whos_turn == Changes_from_server[0][1] :
+                    elif  Whos_turn >= Changes_from_server[0][1] :
                         Whos_turn -= 1
                     if Changes_from_server[0][1] < Pozitie :
                         Pozitie -= 1 

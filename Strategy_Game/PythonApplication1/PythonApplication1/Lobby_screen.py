@@ -168,6 +168,12 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                     p_color = i
                     Selected_Colors[i] = 1
                     break
+            #Formateaza numele si il pregateste de afisare
+            text = Font.render(data_recv, True, (0,0,0))
+            text_rect = text.get_rect()
+            text_rect.center = (diametru*(Coduri_pozitie_client[cod]+1) + 50*Coduri_pozitie_client[cod] + diametru/2,HEIGHT/2 - diametru/2-30)
+            Text_draw.append((text,text_rect))
+            #il pune in vectorul de playeri
             playeri.append((data_recv,p_color+1,0))
             P = len(playeri)-1
             Transmit_to_all.append((("newplayer",playeri[len(playeri)-1]),cod))
@@ -179,11 +185,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
             data_send = pickle.dumps(P)
             data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
             client.send(data_send)
-            #Formateaza numele si il pregateste de afisare
-            text = Font.render(playeri[len(playeri)-1][0], True, (0,0,0))
-            text_rect = text.get_rect()
-            text_rect.center = (diametru*(Coduri_pozitie_client[cod]+1) + 50*Coduri_pozitie_client[cod] + diametru/2,HEIGHT/2 - diametru/2-30)
-            Text_draw.append((text,text_rect))
+
         #The recieve loop
         try :
             while True :
