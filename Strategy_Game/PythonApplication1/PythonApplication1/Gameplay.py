@@ -45,7 +45,28 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
 
     def draw_window () :
+        WIN.fill((255,255,255))
         #desenarea Ui - ului 
+        #chat windowul daca este deschis
+        if Chat_window :
+            pygame.draw.rect(WIN,(0, 0, 0),((WIDTH-260)/2 + 260,0,5,HEIGHT))
+            pygame.draw.rect(WIN,(225, 223, 240),((WIDTH-260)/2 + 260 + 5,0,(WIDTH-260)/2-5,HEIGHT))
+            #writing box
+            if writing_in_chat == False :
+                pygame.draw.rect(WIN,(0, 0, 0),((WIDTH-260)/2 + 265,HEIGHT -55,(WIDTH-260)/2 - 5,5))
+            else :
+                pygame.draw.rect(WIN,Light_Green,((WIDTH-260)/2 + 265,HEIGHT -55,(WIDTH-260)/2 - 5,5))
+                pygame.draw.rect(WIN,Light_Green,((WIDTH-260)/2 + 260,HEIGHT-55,5,55))
+            #mesajul care se scrie 
+            litere_afisate = 70
+            text = Font.render(message[-litere_afisate:],True,Player_Colors[playeri[Pozitie][2]])
+            text_rect = text.get_rect()
+            while text_rect[2] > (WIDTH-260)/2 -15 :
+                litere_afisate -= 1
+                text = Font.render(message[-litere_afisate:],True,Player_Colors[playeri[Pozitie][2]])
+                text_rect = text.get_rect()
+
+            WIN.blit(text,((WIDTH-260)/2 + 270,HEIGHT-35))
         #Partea de sus
         pygame.draw.rect(WIN,(225, 223, 240),(0,0,WIDTH,HEIGHT/25))
         pygame.draw.rect(WIN,(0, 0, 0),(0,HEIGHT/25,WIDTH,5))
@@ -60,6 +81,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         text_rect = text.get_rect()
         text_rect.center = (WIDTH/2,60)
         WIN.blit(text,text_rect)
+        #butonul de chat din dreapta sus
+        pygame.draw.rect(WIN,(0, 0, 0),(WIDTH-80,0,80,80))
+        pygame.draw.rect(WIN,(225, 223, 240),(WIDTH-75,0,75,75))
         
         pygame.display.update()
 
@@ -125,6 +149,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     Whos_turn = 0
     turn_time = 30
     timer = turn_time
+    Chat_window = False
+    writing_in_chat = False
+    message = ""
     # Incarcarea variabilelor necesare rolurilor de host si client
     if Role == "host" :
         Confirmatii_timer = 0
@@ -234,6 +261,34 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             if event.type == pygame.QUIT :
                 pygame.quit()
                 os._exit(0)
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 :
+                press_coordonaits = event.pos 
+                if press_coordonaits[1] <= 75  and press_coordonaits[0] >= WIDTH -75 :
+                    if Chat_window == False :
+                        Chat_window = True
+                    else :
+                        Chat_window = False
+                        writing_in_chat = False
+                        message = ""
+                if Chat_window == True :
+                    if press_coordonaits[0] < (WIDTH-260)/2 + 265 :
+                        Chat_window = False
+                        writing_in_chat = False
+                        message = ""
+                    elif press_coordonaits[1] >= HEIGHT - 50 and press_coordonaits[0] >= (WIDTH-260)/2 + 265 :
+                        writing_in_chat = True
+                    else :
+                        writing_in_chat = False
+            elif event.type == pygame.KEYDOWN :
+                if writing_in_chat == True and event.key != pygame.K_TAB :
+                    if event.key == pygame.K_ESCAPE :
+                        writing_in_chat = False
+                    elif event.key == pygame.K_BACKSPACE  :
+                        message = message[:-1]
+                    elif event.key == pygame.K_v and event.mod & pygame.KMOD_CTRL :
+                        message += ((pygame.scrap.get(pygame.SCRAP_TEXT)).decode()[:-1])
+                    else :
+                        message += event.unicode
 
     #finalul functiei si returnarea variabilelor necesare care s-ar fi putut schimba
     if Role == "host" :
