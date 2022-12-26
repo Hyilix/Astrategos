@@ -24,7 +24,7 @@ GUIs_enabled = True
 #-Structures
 #-Units
 #-Ores
-current_texture_screen = "Ores"
+current_texture_screen = "Tiles"
 
 Tools_icon_size = 64
 
@@ -78,6 +78,8 @@ TextureSurface = pygame.Surface((Texture_x_size, texture_size * 2 * max_y_pos * 
 ToolsSurface = pygame.Surface((Tool_x_size, HEIGHT), pygame.SRCALPHA)
 PlacableSurface = pygame.Surface((WIDTH,HEIGHT), pygame.SRCALPHA)
 PlacableButtons = []
+
+last_tool_position = None
 
 def Initialize_Editor_GUIs():
     TextureSurface.convert_alpha()
@@ -143,6 +145,8 @@ def Draw_Textures_GUI(position):
                 current_x += 1
 
 def Draw_Tools_GUI(positions, brush_size):
+    global last_tool_position
+    last_tool_position = positions
     #Draw Tools
     PlacableSurface.fill((32, 32, 32, 0))
     ToolsSurface.fill((32, 32, 32, 150))

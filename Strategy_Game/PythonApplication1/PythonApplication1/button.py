@@ -37,6 +37,7 @@ class Button(object):
             "border_color" : pg.Color("black"),
             "enable_render" : True,
             "alternate_text" : None,
+            "func_arg" : None,
         }
         for kwarg in kwargs:
             if kwarg in settings:
@@ -77,7 +78,9 @@ class Button(object):
             self.clicked = True
             self.has_been_activated = not self.has_been_activated
             if not self.call_on_release and self.function != None:
-                self.function()
+                if self.func_arg:
+                    self.function(self.func_arg)
+                else: self.function()
             elif self.function == None :
                 return 1
         elif self.function == None :
