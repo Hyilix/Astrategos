@@ -17,7 +17,6 @@ structure_prices_dict = {   #Prices for all structures: first and second ore
     "Pylon" : (15,0)
 }
 
-
 for img in os.listdir(default_path):    #Load all images.
     texture_names.append(img)
     textures.append(pygame.image.load(default_path + img))

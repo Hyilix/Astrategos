@@ -1,6 +1,7 @@
 import TileClass
 import Structures
 import Units
+import Ores
 import Editor_GUI as GUI
 import math
 import os
@@ -75,6 +76,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
     TileClass.resize_textures(current_tile_length)
     Structures.resize_textures(current_tile_length)
     Units.resize_textures(current_tile_length)
+    Ores.resize_textures(current_tile_length)
 
     #The base surface of the map. Zooming in/out will use this surface.
     mapSurfaceNormal = pygame.Surface((int(tiles_per_row * normal_tile_length), int(rows * normal_tile_length)))
@@ -250,7 +252,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                         HEIGHT * 9 // 10, texture_size * 1.5, texture_size * 0.85),
                         (64,64,64,180),
                         Menu,
-                        **{"text": "Menu","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (255,255,255,255)}
+                        **{"text": "Menu","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (192,192,192,180)}
                         )
     )
 
@@ -259,7 +261,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                         HEIGHT * 9 // 10, texture_size * 1.5, texture_size * 0.85),
                         (64,64,64,180),
                         load_screen,
-                        **{"text": "Load","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (255,255,255,255)}
+                        **{"text": "Load","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (192,192,192,180)}
                         )
     )
 
@@ -268,7 +270,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                         HEIGHT * 9 // 10, texture_size * 1.5, texture_size * 0.85),
                         (64,64,64,180),
                         save_screen,
-                        **{"text": "Save","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (255,255,255,255)}
+                        **{"text": "Save","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (192,192,192,180)}
                         )
     )
 
@@ -321,7 +323,13 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
             tiles[y][x].structure = struct
         elif GUI.current_texture_screen == "Units":
             unit = Units.Unit(Units.texture_names[current_index][:-4], (x,y), None)
-            tiles[y][x].structure = unit
+            tiles[y][x].unit = unit
+        elif GUI.current_texture_screen == "Ores":
+            result = 1
+            if GUI.ore_tier_selection == False:
+                result = 2
+            ore = Ores.Ore((x,y), Ores.texture_names[current_index][:-4], result)
+            tiles[y][x].ore = ore
 
         if Editor_var_dict["Eraser"] == True:
             tiles[y][x].structure = None
@@ -468,6 +476,8 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                             index_to_use = Structures.last_index
                         elif GUI.current_texture_screen == "Units":
                             index_to_use = Units.last_index
+                        elif GUI.current_texture_screen == "Ores":
+                            index_to_use = Ores.last_index
 
                         if (mouse_pos[0] - (WIDTH - GUI.Texture_x_size)) % (GUI.texture_size + GUI.texture_distance) < GUI.texture_distance:
                             break
@@ -608,6 +618,8 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
             if GUI.GUIs_enabled == True: 
                 for i in GUI_BUTTONS:
                     i.check_event(event)
+                for i in GUI.PlacableButtons:
+                    i.check_event(event)
 
         #Check if user wants to change the camera's position
         x_pos = pygame.mouse.get_pos()[0]
@@ -634,10 +646,13 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
 
             for i in GUI_BUTTONS:
                 i.update(ButtonSurface)
+            for i in GUI.PlacableButtons:
+                i.update(GUI.PlacableSurface)
 
             WIN.blit(GUI.TextureSurface, (WIDTH - GUI.Texture_x_size, 0))
             WIN.blit(GUI.ToolsSurface, (WIDTH - GUI.Texture_x_size - GUI.Tool_x_size, 0))
             WIN.blit(ButtonSurface, (0,0))
+            WIN.blit(GUI.PlacableSurface, (0,0))
 
         pygame.display.update()
 

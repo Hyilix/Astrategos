@@ -19,6 +19,7 @@ class Button(object):
         self.clicked_text = None
         self.process_kwargs(kwargs)
         self.render_text()
+        self.has_been_activated = False     #like a switch button
 
     def process_kwargs(self, kwargs):
         """Various optional customization you can change by passing kwargs."""
@@ -34,6 +35,8 @@ class Button(object):
             "click_sound": None,
             "hover_sound": None,
             "border_color" : pg.Color("black"),
+            "enable_render" : True,
+            "alternate_text" : None,
         }
         for kwarg in kwargs:
             if kwarg in settings:
@@ -44,6 +47,15 @@ class Button(object):
 
     def render_text(self):
         """Pre render the button text."""
+        if self.alternate_text:     #Hacky stuff here
+            if self.hover_font_color:
+                color = self.hover_font_color
+                self.hover_text = self.font.render(self.alternate_text, True, color)
+            if self.clicked_font_color:
+                color = self.clicked_font_color
+                self.clicked_text = self.font.render(self.alternate_text, True, color)
+            self.alternate_text = self.font.render(self.alternate_text, True, self.font_color)
+
         if self.text:
             if self.hover_font_color:
                 color = self.hover_font_color
@@ -63,6 +75,7 @@ class Button(object):
     def on_click(self, event):
         if self.rect.collidepoint(event.pos):
             self.clicked = True
+            self.has_been_activated = not self.has_been_activated
             if not self.call_on_release and self.function != None:
                 self.function()
             elif self.function == None :
@@ -88,6 +101,7 @@ class Button(object):
         """Update needs to be called every frame in the main loop."""
         color = self.color
         text = self.text
+        alternate_text = self.alternate_text
         self.check_hover()
         if self.clicked and self.clicked_color:
             color = self.clicked_color
@@ -97,8 +111,13 @@ class Button(object):
             color = self.hover_color
             if self.hover_font_color:
                 text = self.hover_text
-        surface.fill(self.border_color, self.rect)
-        surface.fill(color, self.rect.inflate(-4, -4))
-        if self.text:
+        if self.enable_render == True:
+            surface.fill(self.border_color, self.rect)
+            surface.fill(color, self.rect.inflate(-4, -4))
+
+        if self.alternate_text and self.has_been_activated == True:
+            text_rect = alternate_text.get_rect(center=self.rect.center)
+            surface.blit(alternate_text, text_rect)
+        elif self.text:
             text_rect = text.get_rect(center=self.rect.center)
             surface.blit(text, text_rect)

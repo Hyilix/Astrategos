@@ -15,24 +15,6 @@ avalible_textures = []
 
 base_texture_length = 16
 
-base_mitrhil_extraction = 4 #Amount of ore(base) per turn
-
-mitrhil_extraction_dict = {
-    "no_mine" : -75,
-    "level_1" : -25,
-    "level_2" : 0,
-    "level_3" : 150
-}
-
-base_flerovium_extraction = 2 #Amount of ore(base) per turn
-
-mitrhil_flerovium_dict = {
-    "no_mine" : -100,
-    "level_1" : -100,
-    "level_2" : -50,
-    "level_3" : 0
-}
-
 image_class_familly = {}
 
 for img in os.listdir(default_path):
@@ -76,12 +58,12 @@ simple_textures_dict = {
 last_index = len(avalible_textures)
 
 class Tile:
-    def __init__(self, position, collidable, image_class, image_name, special, unit, structure):
+    def __init__(self, position, collidable, image_class, image_name, ore, unit, structure):
         self.position = position            #a tuple for the position
         self.collidable = collidable        #check if a unit can be placed there (ex. a wall or water)
         self.image_class = image_class
         self.image_name = image_name        #the name of the image. Used by texture_names.
-        self.special = special              #if the tile has a special ability (ex. Mithril, Flerovium, Forest that hides your troops from enemy sight etc.)
+        self.ore = ore                      #The ore oject.
         self.unit = unit                    #store what unit is occupying this tile
         self.structure = structure          #store what structure is placed on this tile
 
@@ -90,7 +72,12 @@ class Tile:
             screen.blit(textures[texture_names.index(self.image_name)], (self.position[0] * size[0], self.position[1]  * size[1]))
         else:
             key = ""
-            if self.collidable == True:
+            if self.ore != None:
+                if self.ore.tier == 1:
+                    key = simple_textures_dict["Ore1"]
+                elif self.ore.tier == 2:
+                    key = simple_textures_dict["Ore2"]
+            elif self.collidable == True:
                 key = simple_textures_dict["Wall"]
             elif self.collidable == False:
                 key = simple_textures_dict["Land"]
@@ -100,3 +87,5 @@ class Tile:
             self.structure.DrawImage(screen, size)
         if self.unit != None:
             self.unit.DrawImage(screen, size)
+        if self.ore != None and simple_textures_enabled == True:
+            self.ore.DrawImage(screen, size)
