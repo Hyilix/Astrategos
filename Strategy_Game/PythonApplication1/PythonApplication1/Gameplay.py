@@ -29,13 +29,14 @@ run = True
 timer = 120
 
 Confirmatii_timer = 0
-
+chat_notification = False
 
 #De stiut map_position este un nr de la 1 la 4 care reprezinta ce pozitie ii apartine acestei instante pe harta
 def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client,map_name,map_position) :
     global run
     global timer 
     global Confirmatii_timer
+    global chat_notification
 
     WIN.fill((255,255,255))
     pygame.display.update()
@@ -99,6 +100,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         pygame.draw.rect(WIN,(0, 0, 0),(WIDTH-80,0,80,80))
         pygame.draw.rect(WIN,(225, 223, 240),(WIDTH-75,0,75,75))
         WIN.blit(chat_icon,(WIDTH - 68,8))
+        if chat_notification == True :
+            pygame.draw.circle(WIN,Red,(WIDTH-10,20),8)
         
         pygame.display.update()
 
@@ -161,7 +164,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
     #functia care prelucreaza un mesaj(indiferent de lung) in randuri pe care sa le puna in mesajes
     def archive_message (mesaj,name,color) :
+        global chat_notification
         chat_archive.append((Font.render("<"+ name + ">",True,color),1))
+        if Chat_window == False :
+            chat_notification = True
+            print(101)
         cuvinte = mesaj.split()
         rand = ""
 
@@ -202,6 +209,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     writing_in_chat = False
     message = ""
     chat_scroll = 0
+    chat_notification = False
     #in acest vector vor fi pastrate randurile de pe chat
     chat_archive = []
     # Incarcarea variabilelor necesare rolurilor de host si client
@@ -330,6 +338,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     if press_coordonaits[1] <= 75  and press_coordonaits[0] >= WIDTH -75 :
                         if Chat_window == False :
                             Chat_window = True
+                            chat_notification = False
                         else :
                             Chat_window = False
                             writing_in_chat = False
