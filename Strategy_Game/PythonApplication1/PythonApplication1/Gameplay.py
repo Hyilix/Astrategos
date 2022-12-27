@@ -59,14 +59,24 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 pygame.draw.rect(WIN,Light_Green,((WIDTH-260)/2 + 260,HEIGHT-55,5,55))
             #mesajul care se scrie 
             litere_afisate = 70
-            text = Font.render(message[-litere_afisate:],True,Player_Colors[playeri[Pozitie][2]])
+            text = Font.render(message[-litere_afisate:],True,Player_Colors[playeri[Pozitie][1]])
             text_rect = text.get_rect()
             while text_rect[2] > (WIDTH-260)/2 -15 :
                 litere_afisate -= 1
-                text = Font.render(message[-litere_afisate:],True,Player_Colors[playeri[Pozitie][2]])
+                text = Font.render(message[-litere_afisate:],True,Player_Colors[playeri[Pozitie][1]])
                 text_rect = text.get_rect()
 
             WIN.blit(text,((WIDTH-260)/2 + 270,HEIGHT-35))
+            #mesajele scrise pana acum
+            x = (WIDTH-260)/2 + 270
+            y = HEIGHT - 90
+            for i in range(len(chat_archive)-1,-1,-1) :
+                WIN.blit(chat_archive[i][0],(x,y))
+                if chat_archive[i][1] == 0 :
+                    y  -= 20
+                else :
+                    y -= 30
+                
         #Partea de sus
         pygame.draw.rect(WIN,(225, 223, 240),(0,0,WIDTH,HEIGHT/25))
         pygame.draw.rect(WIN,(0, 0, 0),(0,HEIGHT/25,WIDTH,5))
@@ -145,6 +155,41 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 timer = timer - 1
                 Transmit_to_all.append((("a second passed",None),None))
 
+    #functia care prelucreaza un mesaj(indiferent de lung) in randuri pe care sa le puna in mesajes
+    def archive_message (mesaj,name,color) :
+        chat_archive.append((Font.render("<"+ name + ">",True,color),1))
+        cuvinte = mesaj.split()
+        rand = ""
+
+        index = 0
+        while index < len(cuvinte) :
+            if len(rand) != 0 :
+                rand_aux = rand +" "+ cuvinte[index]
+            else :
+                rand_aux = cuvinte[index]
+            text = Font.render(rand_aux,True,color)
+            text_rect = text.get_rect()
+            if text_rect[2] > (WIDTH-260)/2 -15 :
+                if rand != "" :
+                    chat_archive.append((Font.render(rand,True,color),0))
+                    rand = ""
+                else :
+                    fin = 0
+                    while text_rect[2] > (WIDTH-260)/2 -15 :
+                        fin -= 1
+                        text = Font.render(rand_aux[:fin],True,Player_Colors[playeri[Pozitie][1]])
+                        text_rect = text.get_rect()
+                    chat_archive.append((text,0))
+                    rand = rand_aux[fin:]
+                    index += 1 
+            else :
+                rand = rand_aux
+                index += 1
+        if len(rand) > 0 :
+            chat_archive.append((Font.render(rand,True,color),0))
+
+
+
     #variabilele necesare indiferent de rol
     Whos_turn = 0
     turn_time = 30
@@ -152,6 +197,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     Chat_window = False
     writing_in_chat = False
     message = ""
+    #in acest vector vor fi pastrate randurile de pe chat
+    chat_archive = []
     # Incarcarea variabilelor necesare rolurilor de host si client
     if Role == "host" :
         Confirmatii_timer = 0
@@ -283,12 +330,16 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 if writing_in_chat == True and event.key != pygame.K_TAB :
                     if event.key == pygame.K_ESCAPE :
                         writing_in_chat = False
+                    elif event.key == pygame.K_RETURN :
+                        archive_message(message,playeri[Pozitie][0],Player_Colors[playeri[Pozitie][1]])
+                        message = ""
                     elif event.key == pygame.K_BACKSPACE  :
                         message = message[:-1]
                     elif event.key == pygame.K_v and event.mod & pygame.KMOD_CTRL :
                         message += ((pygame.scrap.get(pygame.SCRAP_TEXT)).decode()[:-1])
                     else :
                         message += event.unicode
+
 
     #finalul functiei si returnarea variabilelor necesare care s-ar fi putut schimba
     if Role == "host" :
