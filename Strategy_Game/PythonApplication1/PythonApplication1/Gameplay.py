@@ -44,6 +44,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     map_adres = "Maps\info" + map_name + ".txt"
 
 
+    chat_icon = pygame.transform.scale(pygame.image.load('Assets/Gameplay_UI/chatbox-icon.png'),(60,60))
+
     def draw_window () :
         WIN.fill((255,255,255))
         #desenarea Ui - ului 
@@ -96,6 +98,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         #butonul de chat din dreapta sus
         pygame.draw.rect(WIN,(0, 0, 0),(WIDTH-80,0,80,80))
         pygame.draw.rect(WIN,(225, 223, 240),(WIDTH-75,0,75,75))
+        WIN.blit(chat_icon,(WIDTH - 68,8))
         
         pygame.display.update()
 
