@@ -221,7 +221,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
 
     #declararea variabilelor rolurilor specifice
     if Role == "host" :
-        global Confiramtii
+        global Confirmatii
         Confirmatii=0
         sent_reaquest = False
         Client_THREADS = []
@@ -318,14 +318,14 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                         data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                         CLIENTS[i][0].send(data_send)
                     sent_reaquest = True
-                elif Confirmatii == len(playeri)-1 :  
+                elif Confirmatii == len(playeri)-1 : 
                     while len(Client_THREADS) > 0 :
                         Client_THREADS[0].join()
                         Client_THREADS.pop(0)
-                #Enter next stage
-                playeri, CLIENTS, Coduri_pozitie_client = gameplay(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client,map_names[THE_MAP],Host_position)
-                #Se iese si din map_select
-                run = False
+                    #Enter next stage
+                    playeri, CLIENTS, Coduri_pozitie_client = gameplay(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client,map_names[THE_MAP],Host_position)
+                    #Se iese si din map_select
+                    run = False
 
             elif Confirmation ==  True :
                 recv_from_server.join()

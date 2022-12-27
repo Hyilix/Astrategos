@@ -110,6 +110,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     #se va proceseaza mesajul de la clinet
                     if data_recv[0] == "timer is zero" :
                         Confirmatii_timer = Confirmatii_timer + 1
+                    elif data_recv[0] == "new_message" :
+                        Changes_from_clients.append(data_recv)
+                        Transmit_to_all.append((data_recv,None))
                 else :
                     client.close()
                     Killed_Clients.append(cod)
@@ -125,26 +128,22 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             while True :
                 header = server.recv(10)
                 header = header.decode("utf-8")
-                print(header)
                 if len(header) != 0 :
                     data_recv = server.recv(int(header))
                     data_recv = pickle.loads(data_recv)
                     if data_recv[0] == "I_died...Fuck_off":
                         server.close()
                         run = False
-                        print("shiet1")
                         break
                     else :
                         Changes_from_server.append(data_recv)
                 else :
                     server.close()
                     run = False
-                    print("shiet2")
                     break
         except :
             server.close()
             run = False
-            print("shiet3")
 
     #Un thread care va functiona la host care are rolul sa tina cont de cat timp trece in timpul jocului
     def timer_thread ():
@@ -205,6 +204,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         Client_THREADS = []
         Killed_Clients = []
         Transmit_to_all = []
+        Changes_from_clients = []
         #restart listening threads
         for i in range(len(CLIENTS)) :
             newthread = threading.Thread(target = reciev_thread_from_client , args =(CLIENTS[i][0],CLIENTS[i][1]))
@@ -258,6 +258,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     if Transmit_to_all[0][1] == None or Coduri_pozitie_client[Transmit_to_all[0][1]] != i  :
                         CLIENTS[i][0].send(data_send)
                 Transmit_to_all.pop(0)
+            #In celelalte stagii (lobby, map_select) nu a fost nevoie de acest vector care are scopul sa se ocupe de schimbarile care provin de la clienti care trebe 
+            #sa fie executate consecutiv ca sa nu interfereze intre ele
+            while len(Changes_from_clients) > 0 :
+                if Changes_from_clients[0][0] == "new_message" :
+                    archive_message(Changes_from_clients[0][1],Changes_from_clients[0][2],Changes_from_clients[0][3])
+                Changes_from_clients.pop(0)
         else :
             #Se verifica daca serverul a trimis lucruri spre acest client
             while len(Changes_from_server) > 0 :
@@ -275,6 +281,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     timer = timer - 1
                 elif Changes_from_server[0][0] == "next_turn" :
                     next_turn = True
+                elif Changes_from_server[0][0] == "new_message" :
+                    archive_message(Changes_from_server[0][1],Changes_from_server[0][2],Changes_from_server[0][3])
                 Changes_from_server.pop(0)
 
         if timer == 0 :
@@ -331,7 +339,13 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     if event.key == pygame.K_ESCAPE :
                         writing_in_chat = False
                     elif event.key == pygame.K_RETURN :
-                        archive_message(message,playeri[Pozitie][0],Player_Colors[playeri[Pozitie][1]])
+                        if Role == "host" :
+                            archive_message(message,playeri[Pozitie][0],Player_Colors[playeri[Pozitie][1]])
+                            Transmit_to_all.append((("new_message",message,playeri[Pozitie][0],Player_Colors[playeri[Pozitie][1]]),None))
+                        else :
+                            data_send = pickle.dumps(("new_message",message,playeri[Pozitie][0],Player_Colors[playeri[Pozitie][1]]))
+                            data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
+                            Connection.send(data_send)
                         message = ""
                     elif event.key == pygame.K_BACKSPACE  :
                         message = message[:-1]
@@ -345,6 +359,5 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     if Role == "host" :
         return playeri, CLIENTS, Coduri_pozitie_client
     else :
-        print(run)
         return playeri,Pozitie 
 
