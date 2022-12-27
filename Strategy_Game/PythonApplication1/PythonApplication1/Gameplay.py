@@ -70,12 +70,14 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             #mesajele scrise pana acum
             x = (WIDTH-260)/2 + 270
             y = HEIGHT - 90
-            for i in range(len(chat_archive)-1,-1,-1) :
+            for i in range(len(chat_archive)-1 - chat_scroll,-1,-1) :
                 WIN.blit(chat_archive[i][0],(x,y))
                 if chat_archive[i][1] == 0 :
                     y  -= 20
                 else :
                     y -= 30
+                if  y < HEIGHT/25 + 5 - 10 :
+                    break
                 
         #Partea de sus
         pygame.draw.rect(WIN,(225, 223, 240),(0,0,WIDTH,HEIGHT/25))
@@ -196,6 +198,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     Chat_window = False
     writing_in_chat = False
     message = ""
+    chat_scroll = 0
     #in acest vector vor fi pastrate randurile de pe chat
     chat_archive = []
     # Incarcarea variabilelor necesare rolurilor de host si client
@@ -316,37 +319,59 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             if event.type == pygame.QUIT :
                 pygame.quit()
                 os._exit(0)
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 :
+            elif event.type == pygame.MOUSEBUTTONDOWN  :
                 press_coordonaits = event.pos 
-                if press_coordonaits[1] <= 75  and press_coordonaits[0] >= WIDTH -75 :
-                    if Chat_window == False :
-                        Chat_window = True
-                    else :
-                        Chat_window = False
-                        writing_in_chat = False
-                        message = ""
-                if Chat_window == True :
-                    if press_coordonaits[0] < (WIDTH-260)/2 + 265 :
-                        Chat_window = False
-                        writing_in_chat = False
-                        message = ""
-                    elif press_coordonaits[1] >= HEIGHT - 50 and press_coordonaits[0] >= (WIDTH-260)/2 + 265 :
-                        writing_in_chat = True
-                    else :
-                        writing_in_chat = False
+                #daca apesi click stanga
+                if event.button == 1 :
+                    #Se verifica daca apasa butonul de caht
+                    if press_coordonaits[1] <= 75  and press_coordonaits[0] >= WIDTH -75 :
+                        if Chat_window == False :
+                            Chat_window = True
+                        else :
+                            Chat_window = False
+                            writing_in_chat = False
+                            message = ""
+                            chat_scroll = 0
+                    #se verifica daca interactioneaza cu chat boxul
+                    if Chat_window == True :
+                        if press_coordonaits[0] < (WIDTH-260)/2 + 265 :
+                            Chat_window = False
+                            writing_in_chat = False
+                            message = ""
+                            chat_scroll = 0
+                        elif press_coordonaits[1] >= HEIGHT - 50 and press_coordonaits[0] >= (WIDTH-260)/2 + 265 :
+                            writing_in_chat = True
+                        else :
+                            writing_in_chat = False
+                #daca dai scrol in sus
+                if event.button == 4 :
+                    if Chat_window == True and press_coordonaits[0] >= (WIDTH-260)/2 + 265 and len(chat_archive) > 30 :
+                        chat_scroll = chat_scroll +1
+                        if chat_scroll > len(chat_archive) - 31:
+                            chat_scroll = len(chat_archive) - 31
+                        
+                #daca dai scrol in jos
+                elif event.button == 5 :
+                    if Chat_window == True and press_coordonaits[0] >= (WIDTH-260)/2 + 265 :
+                        chat_scroll = chat_scroll - 1
+                        if chat_scroll < 0 :
+                            chat_scroll = 0
             elif event.type == pygame.KEYDOWN :
+                #Daca scrie in chat
                 if writing_in_chat == True and event.key != pygame.K_TAB :
                     if event.key == pygame.K_ESCAPE :
                         writing_in_chat = False
-                    elif event.key == pygame.K_RETURN :
-                        if Role == "host" :
-                            archive_message(message,playeri[Pozitie][0],Player_Colors[playeri[Pozitie][1]])
-                            Transmit_to_all.append((("new_message",message,playeri[Pozitie][0],Player_Colors[playeri[Pozitie][1]]),None))
-                        else :
-                            data_send = pickle.dumps(("new_message",message,playeri[Pozitie][0],Player_Colors[playeri[Pozitie][1]]))
-                            data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
-                            Connection.send(data_send)
-                        message = ""
+                    elif event.key == pygame.K_RETURN  :
+                        test = message.split()
+                        if len(test) > 0:
+                            if Role == "host" :
+                                archive_message(message,playeri[Pozitie][0],Player_Colors[playeri[Pozitie][1]])
+                                Transmit_to_all.append((("new_message",message,playeri[Pozitie][0],Player_Colors[playeri[Pozitie][1]]),None))
+                            else :
+                                data_send = pickle.dumps(("new_message",message,playeri[Pozitie][0],Player_Colors[playeri[Pozitie][1]]))
+                                data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
+                                Connection.send(data_send)
+                            message = ""
                     elif event.key == pygame.K_BACKSPACE  :
                         message = message[:-1]
                     elif event.key == pygame.K_v and event.mod & pygame.KMOD_CTRL :
