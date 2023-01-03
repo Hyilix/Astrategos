@@ -7,6 +7,8 @@ from button import Button
 
 pygame.init()
 
+DEBUG_DARK_MODE = True
+
 #Numele jocului
 gamename = "NUMELE"
 FontR = pygame.font.Font(None, 60)
@@ -44,7 +46,9 @@ def menu_screen(WIN,WIDTH,HEIGHT,FPS) :
 
 
     def draw_window() :
-        WIN.fill((255,255,255))
+        if DEBUG_DARK_MODE == True:
+            WIN.fill((128,128,128))
+        else: WIN.fill(255,255,255)
         WIN.blit(Titlu,Titlu_rect)
         for i in range(len(Rect_draw)) :
             pygame.draw.rect(WIN,(0,0,0),Rect_draw[i])

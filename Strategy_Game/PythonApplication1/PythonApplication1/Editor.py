@@ -21,12 +21,22 @@ WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 rows = 100
 tiles_per_row = 100
 
+colorTable = {  #Table for assigning each controller with a color. In editor it's set, but in game it will get from lobby.
+    0 : (64,64,64),
+    1 : (204,0,0),
+    2 : (0,0,204),
+    3 : (0,204,0),
+    4 : (204,204,0)
+    }
+
 def editor(WIN,WIDTH,HEIGHT,FPS) :
     tiles = []
     #Editor specific variables:
     Brush_size = 1
     Brush_min = 1
     Brush_max = 35
+
+    TileClass.colorTable = colorTable
 
     current_index = 0
 
@@ -332,13 +342,6 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
         tiles.append(newLine)
         del newTile
 
-    #For testing purposes, 2 tiles have been modified. Each modification has to be updated.
-    tiles[1][2].structure = Structures.Structure("Core", (2, 1), None)
-    tiles[1][2].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
-
-    tiles[3][3].unit = Units.Unit("Marine", (3, 3), None)
-    tiles[3][3].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
-
     mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
 
     ToolsSelectedPositions = []
@@ -363,10 +366,10 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
         if GUI.current_texture_screen == "Tiles":
             tiles[y][x].image_name = TileClass.avalible_textures[current_index]
         elif GUI.current_texture_screen == "Structures":
-            struct = Structures.Structure(Structures.texture_names[current_index][:-4], (x,y), None)
+            struct = Structures.Structure(Structures.texture_names[current_index][:-4], (x,y), GUI.controller_selection)
             tiles[y][x].structure = struct
         elif GUI.current_texture_screen == "Units":
-            unit = Units.Unit(Units.texture_names[current_index][:-4], (x,y), None)
+            unit = Units.Unit(Units.texture_names[current_index][:-4], (x,y), GUI.controller_selection)
             tiles[y][x].unit = unit
         elif GUI.current_texture_screen == "Ores":
             result = 1
@@ -659,7 +662,10 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                 for i in GUI_BUTTONS:
                     i.check_event(event)
                 if GUI.current_texture_screen == "Ores":
-                    for i in GUI.PlacableButtons:
+                    for i in GUI.OreButtons:
+                        i.check_event(event)
+                if GUI.current_texture_screen == "Units" or GUI.current_texture_screen == "Structures":
+                    for i in GUI.ControllerButtons:
                         i.check_event(event)
 
         #Check if user wants to change the camera's position
@@ -687,14 +693,18 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
 
             for i in GUI_BUTTONS:
                 i.update(ButtonSurface)
-            for i in GUI.PlacableButtons:
-                i.update(GUI.PlacableSurface)
+            if GUI.current_texture_screen == "Units" or GUI.current_texture_screen == "Structures":
+                for i in GUI.ControllerButtons:
+                    i.update(GUI.PlacableSurface)
+            if GUI.current_texture_screen == "Ores":
+                for i in GUI.OreButtons:
+                    i.update(GUI.PlacableSurface)
 
             WIN.blit(GUI.TextureSurface, (WIDTH - GUI.Texture_x_size, 0))
             WIN.blit(GUI.ToolsSurface, (WIDTH - GUI.Texture_x_size - GUI.Tool_x_size, 0))
             WIN.blit(ButtonSurface, (0,0))
 
-            if GUI.current_texture_screen == "Ores":
+            if GUI.current_texture_screen == "Ores" or GUI.current_texture_screen == "Units" or GUI.current_texture_screen == "Structures":
                 WIN.blit(GUI.PlacableSurface, (0,0))
 
         pygame.display.update()

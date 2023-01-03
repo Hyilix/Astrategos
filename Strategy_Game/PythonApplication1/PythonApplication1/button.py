@@ -37,6 +37,7 @@ class Button(object):
             "border_color" : pg.Color("black"),
             "enable_render" : True,
             "alternate_text" : None,
+            "alternate_color" : None,
             "func_arg" : None,
         }
         for kwarg in kwargs:
@@ -105,6 +106,7 @@ class Button(object):
         color = self.color
         text = self.text
         alternate_text = self.alternate_text
+        alternate_color = self.alternate_color
         self.check_hover()
         if self.clicked and self.clicked_color:
             color = self.clicked_color
@@ -116,7 +118,10 @@ class Button(object):
                 text = self.hover_text
         if self.enable_render == True:
             surface.fill(self.border_color, self.rect)
-            surface.fill(color, self.rect.inflate(-4, -4))
+            if self.alternate_color and self.has_been_activated == True:
+                surface.fill(alternate_color, self.rect.inflate(-4, -4))
+            else:
+                surface.fill(color, self.rect.inflate(-4, -4))
 
         if self.alternate_text and self.has_been_activated == True:
             text_rect = alternate_text.get_rect(center=self.rect.center)

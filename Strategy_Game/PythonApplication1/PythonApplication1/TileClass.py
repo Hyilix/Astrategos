@@ -6,6 +6,14 @@ screen = pygame.display.Info()
 WIDTH = screen.current_w
 HEIGHT = screen.current_h
 
+colorTable = {  #Table for assigning each controller with a color. In editor it's set, but in game it will get from lobby.
+    0 : (64,64,64),
+    1 : (204,0,0),
+    2 : (0,0,204),
+    3 : (0,204,0),
+    4 : (204,204,0)
+    }
+
 #load all textures.
 default_path = 'Assets/Tiles/'
 texture_names = []
@@ -84,8 +92,8 @@ class Tile:
             screen.blit(textures[texture_names.index(key + ".png")], (self.position[0] * size[0], self.position[1]  * size[1]))
             
         if self.structure != None:
-            self.structure.DrawImage(screen, size)
+            self.structure.DrawImage(screen, size, colorTable)
         if self.unit != None:
-            self.unit.DrawImage(screen, size)
+            self.unit.DrawImage(screen, size, colorTable)
         if self.ore != None and simple_textures_enabled == True:
             self.ore.DrawImage(screen, size)

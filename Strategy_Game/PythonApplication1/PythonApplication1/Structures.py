@@ -6,16 +6,6 @@ texture_names = []
 textures = []
 base_textures = []
 
-structure_prices_dict = {   #Prices for all structures: first and second ore
-    "Mine_1" : (4,0),
-    "Mine_2" : (10,0),
-    "Mine_3" : (21,1),
-    "Bunker_1" : (20,0),
-    "Bunker_2" : (42,2),
-    "Radar_1" : (11,0),
-    "Radar_2" : (28,1),
-    "Pylon" : (15,0)
-}
 
 for img in os.listdir(default_path):    #Load all images.
     texture_names.append(img)
@@ -32,7 +22,7 @@ def resize_textures(size):
 last_index = len(texture_names)
 
 predefined_structures = {   #HP, MaxHp, attack, defence, canShareSpace, fog_range
-    "Core" : [100, 5, 2, 3, False, (2,2)],
+    "Kernel" : [100, 5, 2, 3, False, (2,2)],
     }
 
 class Structure():
@@ -51,5 +41,10 @@ class Structure():
         self.canShareSpace = vec[4]
         self.fog_range = vec[5]      #How much can the structure see
 
-    def DrawImage(self, screen, size):
-        screen.blit(textures[texture_names.index(self.texture)], (self.position[0] * size[0], self.position[1]  * size[1]))
+    def DrawImage(self, screen, size, colorTable):
+        image = textures[texture_names.index(self.texture)].copy()
+        for i in range(image.get_width()):
+            for j in range(image.get_height()):
+                if image.get_at((i,j)) == (1,1,1):
+                    image.set_at((i,j), colorTable[self.owner])
+        screen.blit(image, (self.position[0] * size[0], self.position[1]  * size[1]))

@@ -35,15 +35,31 @@ brush_names = []
 ore_icons = []
 ore_names = []
 
+OreButtons = []
+ControllerButtons = []
+
 plus_brush = (0,0)
 minus_brush = (0,0)
 
 ore_tier_selection = True   #True -> tier 1    /    False -> tier 2
+controller_selection = 0
 
 def toggle_selection():
     global ore_tier_selection
     ore_tier_selection = not ore_tier_selection
-    print("CLICK")
+
+def toggle_selection_controller(arg):
+    global controller_selection
+    if ControllerButtons[arg - 1].has_been_activated == False:
+        controller_selection = 0
+
+    else:
+        for i in ControllerButtons:
+            i.has_been_activated = False
+        controller_selection = arg
+        ControllerButtons[arg - 1].has_been_activated = True
+
+    print(controller_selection)
 
 for img in os.listdir('Assets/EditorToolBrushIcons/'):  #Load all brush icons
     image = pygame.image.load('Assets/EditorToolBrushIcons/' + img)
@@ -77,7 +93,6 @@ Tool_x_size = (Tools_icon_size + Tools_icon_distance) * (Tools_max_x_pos + 1) + 
 TextureSurface = pygame.Surface((Texture_x_size, texture_size * 2 * max_y_pos * texture_distance), pygame.SRCALPHA)
 ToolsSurface = pygame.Surface((Tool_x_size, HEIGHT), pygame.SRCALPHA)
 PlacableSurface = pygame.Surface((WIDTH,HEIGHT), pygame.SRCALPHA)
-PlacableButtons = []
 
 last_tool_position = None
 
@@ -221,14 +236,68 @@ def Draw_Tools_GUI(positions, brush_size):
         #Draw button
 
         current_y += 1
-
-        if len(PlacableButtons) == 0:
-            new_button = button.Button( (WIDTH - Texture_x_size - Tools_icon_size - (current_x * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance),
+            
+        if len(OreButtons) == 0:
+            OreButtons.append(
+                button.Button( (WIDTH - Texture_x_size - Tools_icon_size - (current_x * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance),
                             current_y * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance,
                             Tools_icon_size, Tools_icon_size),
                             (64,64,64,0),
                             toggle_selection,
                             **{"text": "1", "alternate_text": "2", "font": pygame.font.Font(None, 60),"font_color": (230,230,230), "border_color" : (64,64,64,0), "hover_color" : (160,160,160,255)}
                             )
+                )
 
-            PlacableButtons.append(new_button)
+    elif current_texture_screen == "Units" or current_texture_screen == "Structures":
+        current_y += 1
+        current_x = 1
+
+        #Draw Text
+        
+        text1 = font_string.render("Ownership", True, (230,230,230))
+        textRect = text1.get_rect()
+        textRect.center = (WIDTH - Texture_x_size - (current_x * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance + Tools_icon_size / 2),
+                        current_y * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance + int(Tools_icon_size / 1.3))
+        PlacableSurface.blit(text1, textRect)
+
+        #Draw button
+
+        current_y += 1
+
+        if len(ControllerButtons) < 4:
+            ControllerButtons.append(
+                button.Button( (WIDTH - Texture_x_size - Tool_x_size + 3 * Tools_icon_distance,
+                            current_y * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance,
+                            Tools_icon_size, Tools_icon_size),
+                            (204,0,0,50),
+                            toggle_selection_controller,
+                            **{"text": "1", "alternate_color": (204,0,0,200), "func_arg" : 1, "font": pygame.font.Font(None, 60),"font_color": (230,230,230), "border_color" : (204,0,0,50)}
+                            )
+                )
+            ControllerButtons.append(
+                button.Button( (WIDTH - Texture_x_size - Tools_icon_size - 3 * Tools_icon_distance,
+                            current_y * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance,
+                            Tools_icon_size, Tools_icon_size),
+                            (0,0,204,50),
+                            toggle_selection_controller,
+                            **{"text": "2", "alternate_color": (0,0,204,200), "func_arg" : 2, "font": pygame.font.Font(None, 60),"font_color": (230,230,230), "border_color" : (0,0,204,50)}
+                            )
+                )
+            ControllerButtons.append(
+                button.Button( (WIDTH - Texture_x_size - Tool_x_size + 3 * Tools_icon_distance,
+                            current_y * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance + Tools_icon_size + Tools_icon_distance,
+                            Tools_icon_size, Tools_icon_size),
+                            (0,204,0,50),
+                            toggle_selection_controller,
+                            **{"text": "3", "alternate_color": (0,204,0,200), "func_arg" : 3, "font": pygame.font.Font(None, 60),"font_color": (230,230,230), "border_color" : (0,204,0,50)}
+                            )
+                )
+            ControllerButtons.append(
+                button.Button( (WIDTH - Texture_x_size - Tools_icon_size - 3 * Tools_icon_distance,
+                            current_y * (Tools_icon_size + Tools_icon_distance) + Tools_icon_distance + Tools_icon_size + Tools_icon_distance,
+                            Tools_icon_size, Tools_icon_size),
+                            (204,204,0,50),
+                            toggle_selection_controller,
+                            **{"text": "4", "alternate_color": (204,204,0,200), "func_arg" : 4, "font": pygame.font.Font(None, 60),"font_color": (230,230,230), "border_color" : (204,204,0,50)}
+                            )
+                )

@@ -6,6 +6,8 @@ import threading
 
 pygame.init()
 
+DEBUG_DARK_MODE = True
+
 #Culori
 White = (255,255,255)
 Gri = (225, 223, 240)
@@ -37,7 +39,10 @@ nr_harti = 100
 
 def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client) :
     global run
-    WIN.fill((255,255,255))
+    if DEBUG_DARK_MODE == True:
+        WIN.fill((128,128,128))
+    else:
+        WIN.fill((255,255,255))
     pygame.display.update()
 
     diametru = (HEIGHT - 5*50 - HEIGHT/25)/4
