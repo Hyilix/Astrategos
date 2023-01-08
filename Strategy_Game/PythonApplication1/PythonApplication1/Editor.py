@@ -13,13 +13,7 @@ import pygame
 
 pygame.init()
 screen = pygame.display.Info()
-WIDTH = screen.current_w
-HEIGHT = screen.current_h
 FPS = 60
-WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-
-rows = 100
-tiles_per_row = 100
 
 colorTable = {  #Table for assigning each controller with a color. In editor it's set, but in game it will get from lobby.
     0 : (64,64,64),
@@ -30,6 +24,9 @@ colorTable = {  #Table for assigning each controller with a color. In editor it'
     }
 
 def editor(WIN,WIDTH,HEIGHT,FPS) :
+    rows = 100
+    tiles_per_row = 100
+
     tiles = []
     #Editor specific variables:
     Brush_size = 1
@@ -103,6 +100,12 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
             with open("Maps/info/" + map_name + ".txt", "rb") as infile:
                 print("STARTED")
                 tiles.clear()
+                nonlocal rows
+                nonlocal tiles_per_row
+                rows = pickle.load(infile)
+                tiles_per_row = pickle.load(infile)
+                nonlocal mapSurfaceNormal 
+                mapSurfaceNormal = pygame.Surface((int(tiles_per_row * normal_tile_length), int(rows * normal_tile_length)))
                 for x in range(rows):
                     new_vec = []
                     for y in range(tiles_per_row):        
@@ -137,7 +140,14 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                     tiles[x][y].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
                 #tiles.append(newLine)
 
+            nonlocal mapSurface
             mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
+
+            GUI_BUTTONS[-1].text = "Collumns: " + str(tiles_per_row)
+            GUI_BUTTONS[-1].render_text()
+            GUI_BUTTONS[-2].text = "Rows: " + str(rows)
+            GUI_BUTTONS[-2].render_text()
+
 
         except:
             print("No such file exists")
@@ -153,6 +163,8 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
         pygame.image.save(mapSurfaceNormal, "Maps/images/" + map_name + ".jpg")
         used_textures = []
         with open("Maps/info/" + map_name + ".txt", "wb") as outfile:   #Saves the map into the file.
+            pickle.dump(rows, outfile)
+            pickle.dump(tiles_per_row, outfile)
             for x in range(rows):
                 for y in range(tiles_per_row):
                     rawUnitData = {}
@@ -191,6 +203,10 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
         map_text = ''
         max_str_length = 24
         font = pygame.font.Font('freesansbold.ttf', 32)
+
+        nonlocal hasLeftClickPressed
+        hasLeftClickPressed = False
+
         while not done:
             pygame.draw.rect(WIN, (148,148,148), pygame.Rect(WIDTH // 2 - WIDTH // 8, HEIGHT // 2 - HEIGHT // 8, WIDTH // 4, HEIGHT // 4))
 
@@ -225,6 +241,10 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
         max_str_length = 24
         font = pygame.font.Font('freesansbold.ttf', 32)
         esc_font = pygame.font.Font('freesansbold.ttf', 64)
+
+        nonlocal hasLeftClickPressed
+        hasLeftClickPressed = False
+
         while not done:
             pygame.draw.rect(WIN, (148,148,148), pygame.Rect(WIDTH // 2 - WIDTH // 8, HEIGHT // 2 - HEIGHT // 8, WIDTH // 4, HEIGHT // 4))
 
@@ -260,6 +280,106 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
         current_index = 0
         GUI.Draw_Textures_GUI((0,0))
         GUI.Draw_Tools_GUI(GUI.last_tool_position, Brush_size)
+
+    def change_dimension(dimension):
+        nonlocal rows
+        nonlocal tiles_per_row
+
+        old_rows = rows
+        old_tiles_per_row = tiles_per_row
+
+        nonlocal hasLeftClickPressed
+        hasLeftClickPressed = False
+
+        done = False
+        dim_text = ''
+        max_str_length = 3
+        font = pygame.font.Font('freesansbold.ttf', 32)
+        while not done:
+            pygame.draw.rect(WIN, (148,148,148), pygame.Rect(WIDTH // 2 - WIDTH // 8, HEIGHT // 2 - HEIGHT // 8, WIDTH // 4, HEIGHT // 4))
+
+            text1 = font.render(dim_text, True, (32,32,32))
+            textRect = text1.get_rect()
+            textRect.center = (WIDTH // 2, HEIGHT // 2)
+            WIN.blit(text1, textRect)
+
+            pygame.display.update()
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    os._exit(0)
+
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        done = True
+                    elif event.key == pygame.K_BACKSPACE:
+                        dim_text = dim_text[:-1]
+                    elif event.key == pygame.K_ESCAPE:
+                        return
+                    else:
+                        if len(dim_text) < max_str_length and event.key <= 57 and event.key >= 48:
+                            if not (len(dim_text) == 0 and event.key == 48):
+                                dim_text += event.unicode
+
+        if dimension == "rows":
+            rows = int(dim_text)
+        else:
+            tiles_per_row = int(dim_text)
+
+        nonlocal mapSurfaceNormal
+        mapSurfaceNormal = pygame.Surface((int(tiles_per_row * normal_tile_length), int(rows * normal_tile_length)))
+
+        nonlocal tiles
+
+        #Shrink the map
+        if rows < old_rows or tiles_per_row < old_tiles_per_row:
+            temp_tile_map = []
+            for x in range(rows):
+                new_vec = []
+                for y in range(tiles_per_row):
+                    new_vec.append(tiles[x][y])
+                temp_tile_map.append(new_vec)
+            tiles = temp_tile_map
+            del temp_tile_map
+
+        #Grow the map. Save the old map in a temp array and then assemble the pieces.
+        if rows > old_rows or tiles_per_row > old_tiles_per_row:
+            temp_tile_map = []
+
+            for x in range(old_rows):
+                newLine = []
+                for y in range(old_tiles_per_row):
+                    newLine.append(tiles[x][y])
+                temp_tile_map.append(newLine)
+
+            tiles.clear()
+            for x in range(rows):  #Create the map with empty tiles
+                newLine = []
+                for y in range(tiles_per_row):
+                    newTile = TileClass.Tile((y, x), False, None, TileClass.empty_image_name, None, None, None)
+                    newLine.append(newTile)
+                    newTile.DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+                tiles.append(newLine)
+                del newTile
+
+            for x in range(old_rows):
+                for y in range(old_tiles_per_row):
+                    tiles[x][y] = temp_tile_map[x][y]
+
+            del temp_tile_map
+
+        for x in range(rows):  #Redraw the whole map
+            for y in range(tiles_per_row):
+                tiles[x][y].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+
+        nonlocal mapSurface
+        mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
+
+        GUI_BUTTONS[-1].text = "Collumns: " + str(tiles_per_row)
+        GUI_BUTTONS[-1].render_text()
+        GUI_BUTTONS[-2].text = "Rows: " + str(rows)
+        GUI_BUTTONS[-2].render_text()
 
     #Buttons
     ButtonSurface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
@@ -330,6 +450,24 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                         (64,64,64,180),
                         change_texture_screen,
                         **{"text": "Ores","func_arg" : "Ores","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (192,192,192,180)}
+                        )
+    )
+
+    GUI_BUTTONS.append( #Rows button
+        button.Button(  (WIDTH - GUI.Tool_x_size - GUI.Texture_x_size,
+                        HEIGHT // 2 + 4.3 * (texture_size), GUI.Tool_x_size, texture_size),
+                        (64,64,64,0),
+                        change_dimension,
+                        **{"text": "Rows: " + str(rows), "func_arg":"rows", "font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,0), "hover_color" : (192,192,192,80)}
+                        )
+    )
+
+    GUI_BUTTONS.append( #Rows button
+        button.Button(  (WIDTH - GUI.Tool_x_size - GUI.Texture_x_size,
+                        HEIGHT // 2 + 5.3 * (texture_size), GUI.Tool_x_size, texture_size),
+                        (64,64,64,0),
+                        change_dimension,
+                        **{"text": "Collumns: " + str(tiles_per_row), "func_arg":"collumn", "font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,0), "hover_color" : (192,192,192,80)}
                         )
     )
 
@@ -419,7 +557,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                     y = myTile[1]
 
                     if (x, y) not in visited_vec:
-                        if x >= 0 and y >= 0 and x < rows and y < tiles_per_row and tiles[y][x].image_name[:-4] == target_img:
+                        if x >= 0 and y >= 0 and x < rows and y < tiles_per_row and tiles[x][y].image_name[:-4] == target_img:
                             checks += 1
                             visited_vec.append((x, y))
                             image_modifier(x, y)
@@ -440,13 +578,13 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
             queued_tiles.clear()
 
         elif Editor_var_dict["FillAll"] == True:
-            for x in range(rows):
-                for y in range(tiles_per_row):
+            for y in range(rows):
+                for x in range(tiles_per_row):
                     image_modifier(x,y)
 
         elif Editor_var_dict["FillSame"] == True:
-            for x in range(rows):
-                for y in range(tiles_per_row):
+            for y in range(rows):
+                for x in range(tiles_per_row):
                     if tiles[y][x].image_name[:-4] == target_img:
                         image_modifier(x,y)
 

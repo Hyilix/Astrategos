@@ -21,7 +21,7 @@ textures = []
 base_textures = []
 avalible_textures = []
 
-base_texture_length = 16
+base_texture_length = 32
 
 image_class_familly = {}
 
