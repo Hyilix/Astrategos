@@ -11,11 +11,6 @@ import button
 import pygame
 
 pygame.init()
-screen = pygame.display.Info()
-WIDTH = screen.current_w
-HEIGHT = screen.current_h
-FPS = 60
-WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 
 rows = 100
 tiles_per_row = 100
