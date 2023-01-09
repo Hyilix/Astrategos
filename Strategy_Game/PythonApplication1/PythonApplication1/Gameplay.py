@@ -371,9 +371,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             elif event.type == pygame.KEYDOWN :
                 #Daca scrie in chat
                 if writing_in_chat == True and event.key != pygame.K_TAB :
+                    print(event.key)
                     if event.key == pygame.K_ESCAPE :
                         writing_in_chat = False
-                    elif event.key == pygame.K_RETURN  :
+                    elif event.key == pygame.K_DELETE :
+                        message = ""
+                    elif event.key == pygame.K_RETURN or event.key == pygame.K_KP_ENTER :
                         test = message.split()
                         if len(test) > 0:
                             if Role == "host" :
