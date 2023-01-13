@@ -3,6 +3,8 @@ import os
 import Connection_Screen
 import Editor
 
+import Gameplay
+
 from button import Button
 
 pygame.init()
@@ -73,7 +75,8 @@ def menu_screen(WIN,WIDTH,HEIGHT,FPS) :
                         if i == 0 :
                             Connection_Screen.connection_screen(WIN,WIDTH,HEIGHT,FPS,"host")
                         elif i == 1 :
-                            Connection_Screen.connection_screen(WIN,WIDTH,HEIGHT,FPS,"client")
+                            Gameplay.gameplay(WIN, WIDTH, HEIGHT, FPS, "Test_10x10")
+                            #Connection_Screen.connection_screen(WIN,WIDTH,HEIGHT,FPS,"client")
                         elif i == 2 :
                             Editor.editor(WIN,WIDTH,HEIGHT,FPS)
                         elif i == 3:

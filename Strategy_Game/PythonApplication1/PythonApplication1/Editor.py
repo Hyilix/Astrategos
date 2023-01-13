@@ -24,8 +24,8 @@ colorTable = {  #Table for assigning each controller with a color. In editor it'
     }
 
 def editor(WIN,WIDTH,HEIGHT,FPS) :
-    rows = 100
-    tiles_per_row = 100
+    rows = 40
+    tiles_per_row = 40
 
     tiles = []
     #Editor specific variables:
