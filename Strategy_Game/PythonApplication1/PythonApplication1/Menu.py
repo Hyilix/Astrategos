@@ -3,9 +3,13 @@ import os
 import Connection_Screen
 import Editor
 
+import Gameplay
+
 from button import Button
 
 pygame.init()
+
+DEBUG_DARK_MODE = True
 
 #Numele jocului
 gamename = "NUMELE"
@@ -40,11 +44,15 @@ def menu_screen(WIN,WIDTH,HEIGHT,FPS) :
     Buton = Button(((WIDTH-260)/2,(HEIGHT-90*4-50*4-60)/2 + 50*4 + 60  + 90*3,250,80),(255,255,255),None,**{"text": "QUIT","font": FontR})
     Buttons.append(Buton)
 
-   
+    Rect_draw.append(((WIDTH-260)/2-5,(HEIGHT-90*4-50*4-60)/2 + 50*5 +60 + 90*4 -5,260,90))
+    Buton = Button(((WIDTH-260)/2,(HEIGHT-90*4-50*4-60)/2 + 50*5 + 60  + 90*4,250,80),(255,255,255),None,**{"text": "Test_gameplay","font": FontR})
+    Buttons.append(Buton)
 
 
     def draw_window() :
-        WIN.fill((255,255,255))
+        if DEBUG_DARK_MODE == True:
+            WIN.fill((128,128,128))
+        else: WIN.fill(255,255,255)
         WIN.blit(Titlu,Titlu_rect)
         for i in range(len(Rect_draw)) :
             pygame.draw.rect(WIN,(0,0,0),Rect_draw[i])
@@ -76,3 +84,6 @@ def menu_screen(WIN,WIDTH,HEIGHT,FPS) :
                             run = False
                             pygame.quit()
                             os._exit(0)
+
+                        elif i == 4:
+                            Gameplay.gameplay(WIN, WIDTH, HEIGHT, FPS, "Test_10x10")
