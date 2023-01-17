@@ -1,7 +1,6 @@
 import TileClass
 import Structures
 import Units
-import Ores
 import Editor_GUI as GUI
 import math
 import os
@@ -12,31 +11,13 @@ import button
 import pygame
 
 pygame.init()
-screen = pygame.display.Info()
-FPS = 60
 
-colorTable = {  #Table for assigning each controller with a color. In editor it's set, but in game it will get from lobby.
-    0 : (64,64,64),
-    1 : (204,0,0),
-    2 : (0,0,204),
-    3 : (0,204,0),
-    4 : (204,204,0)
-    }
+rows = 100
+tiles_per_row = 100
+
+tiles = []
 
 def editor(WIN,WIDTH,HEIGHT,FPS) :
-    rows = 40
-    tiles_per_row = 40
-
-    tiles = []
-    #Editor specific variables:
-    Brush_size = 1
-    Brush_min = 1
-    Brush_max = 35
-
-    TileClass.colorTable = colorTable
-
-    current_index = 0
-
     global Running
     Running = True
 
@@ -89,7 +70,6 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
     TileClass.resize_textures(current_tile_length)
     Structures.resize_textures(current_tile_length)
     Units.resize_textures(current_tile_length)
-    Ores.resize_textures(current_tile_length)
 
     #The base surface of the map. Zooming in/out will use this surface.
     mapSurfaceNormal = pygame.Surface((int(tiles_per_row * normal_tile_length), int(rows * normal_tile_length)))
@@ -100,12 +80,6 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
             with open("Maps/info/" + map_name + ".txt", "rb") as infile:
                 print("STARTED")
                 tiles.clear()
-                nonlocal rows
-                nonlocal tiles_per_row
-                rows = pickle.load(infile)
-                tiles_per_row = pickle.load(infile)
-                nonlocal mapSurfaceNormal 
-                mapSurfaceNormal = pygame.Surface((int(tiles_per_row * normal_tile_length), int(rows * normal_tile_length)))
                 for x in range(rows):
                     new_vec = []
                     for y in range(tiles_per_row):        
@@ -140,14 +114,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                     tiles[x][y].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
                 #tiles.append(newLine)
 
-            nonlocal mapSurface
             mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
-
-            GUI_BUTTONS[-1].text = "Collumns: " + str(tiles_per_row)
-            GUI_BUTTONS[-1].render_text()
-            GUI_BUTTONS[-2].text = "Rows: " + str(rows)
-            GUI_BUTTONS[-2].render_text()
-
 
         except:
             print("No such file exists")
@@ -163,8 +130,6 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
         pygame.image.save(mapSurfaceNormal, "Maps/images/" + map_name + ".jpg")
         used_textures = []
         with open("Maps/info/" + map_name + ".txt", "wb") as outfile:   #Saves the map into the file.
-            pickle.dump(rows, outfile)
-            pickle.dump(tiles_per_row, outfile)
             for x in range(rows):
                 for y in range(tiles_per_row):
                     rawUnitData = {}
@@ -196,6 +161,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
             pickle.dump(used_textures, outfile)
         outfile.close()
 
+
     #Button functions
 
     def save_screen():
@@ -203,10 +169,6 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
         map_text = ''
         max_str_length = 24
         font = pygame.font.Font('freesansbold.ttf', 32)
-
-        nonlocal hasLeftClickPressed
-        hasLeftClickPressed = False
-
         while not done:
             pygame.draw.rect(WIN, (148,148,148), pygame.Rect(WIDTH // 2 - WIDTH // 8, HEIGHT // 2 - HEIGHT // 8, WIDTH // 4, HEIGHT // 4))
 
@@ -241,10 +203,6 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
         max_str_length = 24
         font = pygame.font.Font('freesansbold.ttf', 32)
         esc_font = pygame.font.Font('freesansbold.ttf', 64)
-
-        nonlocal hasLeftClickPressed
-        hasLeftClickPressed = False
-
         while not done:
             pygame.draw.rect(WIN, (148,148,148), pygame.Rect(WIDTH // 2 - WIDTH // 8, HEIGHT // 2 - HEIGHT // 8, WIDTH // 4, HEIGHT // 4))
 
@@ -273,114 +231,6 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
         global Running
         Running = False
 
-    def change_texture_screen(screen):
-        print(screen)
-        GUI.current_texture_screen = screen
-        nonlocal current_index
-        current_index = 0
-        GUI.Draw_Textures_GUI((0,0))
-        GUI.Draw_Tools_GUI(GUI.last_tool_position, Brush_size)
-
-    def change_dimension(dimension):
-        nonlocal rows
-        nonlocal tiles_per_row
-
-        old_rows = rows
-        old_tiles_per_row = tiles_per_row
-
-        nonlocal hasLeftClickPressed
-        hasLeftClickPressed = False
-
-        done = False
-        dim_text = ''
-        max_str_length = 3
-        font = pygame.font.Font('freesansbold.ttf', 32)
-        while not done:
-            pygame.draw.rect(WIN, (148,148,148), pygame.Rect(WIDTH // 2 - WIDTH // 8, HEIGHT // 2 - HEIGHT // 8, WIDTH // 4, HEIGHT // 4))
-
-            text1 = font.render(dim_text, True, (32,32,32))
-            textRect = text1.get_rect()
-            textRect.center = (WIDTH // 2, HEIGHT // 2)
-            WIN.blit(text1, textRect)
-
-            pygame.display.update()
-
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    os._exit(0)
-
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RETURN:
-                        done = True
-                    elif event.key == pygame.K_BACKSPACE:
-                        dim_text = dim_text[:-1]
-                    elif event.key == pygame.K_ESCAPE:
-                        return
-                    else:
-                        if len(dim_text) < max_str_length and event.key <= 57 and event.key >= 48:
-                            if not (len(dim_text) == 0 and event.key == 48):
-                                dim_text += event.unicode
-
-        if dimension == "rows":
-            rows = int(dim_text)
-        else:
-            tiles_per_row = int(dim_text)
-
-        nonlocal mapSurfaceNormal
-        mapSurfaceNormal = pygame.Surface((int(tiles_per_row * normal_tile_length), int(rows * normal_tile_length)))
-
-        nonlocal tiles
-
-        #Shrink the map
-        if rows < old_rows or tiles_per_row < old_tiles_per_row:
-            temp_tile_map = []
-            for x in range(rows):
-                new_vec = []
-                for y in range(tiles_per_row):
-                    new_vec.append(tiles[x][y])
-                temp_tile_map.append(new_vec)
-            tiles = temp_tile_map
-            del temp_tile_map
-
-        #Grow the map. Save the old map in a temp array and then assemble the pieces.
-        if rows > old_rows or tiles_per_row > old_tiles_per_row:
-            temp_tile_map = []
-
-            for x in range(old_rows):
-                newLine = []
-                for y in range(old_tiles_per_row):
-                    newLine.append(tiles[x][y])
-                temp_tile_map.append(newLine)
-
-            tiles.clear()
-            for x in range(rows):  #Create the map with empty tiles
-                newLine = []
-                for y in range(tiles_per_row):
-                    newTile = TileClass.Tile((y, x), False, None, TileClass.empty_image_name, None, None, None)
-                    newLine.append(newTile)
-                    newTile.DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
-                tiles.append(newLine)
-                del newTile
-
-            for x in range(old_rows):
-                for y in range(old_tiles_per_row):
-                    tiles[x][y] = temp_tile_map[x][y]
-
-            del temp_tile_map
-
-        for x in range(rows):  #Redraw the whole map
-            for y in range(tiles_per_row):
-                tiles[x][y].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
-
-        nonlocal mapSurface
-        mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
-
-        GUI_BUTTONS[-1].text = "Collumns: " + str(tiles_per_row)
-        GUI_BUTTONS[-1].render_text()
-        GUI_BUTTONS[-2].text = "Rows: " + str(rows)
-        GUI_BUTTONS[-2].render_text()
-
     #Buttons
     ButtonSurface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
 
@@ -395,7 +245,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                         HEIGHT * 9 // 10, texture_size * 1.5, texture_size * 0.85),
                         (64,64,64,180),
                         Menu,
-                        **{"text": "Menu","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (192,192,192,180)}
+                        **{"text": "Menu","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (255,255,255,255)}
                         )
     )
 
@@ -404,7 +254,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                         HEIGHT * 9 // 10, texture_size * 1.5, texture_size * 0.85),
                         (64,64,64,180),
                         load_screen,
-                        **{"text": "Load","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (192,192,192,180)}
+                        **{"text": "Load","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (255,255,255,255)}
                         )
     )
 
@@ -413,61 +263,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                         HEIGHT * 9 // 10, texture_size * 1.5, texture_size * 0.85),
                         (64,64,64,180),
                         save_screen,
-                        **{"text": "Save","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (192,192,192,180)}
-                        )
-    )
-
-    GUI_BUTTONS.append( #Tiles button
-        button.Button(  (WIDTH - GUI.Tool_x_size - GUI.Texture_x_size,
-                        HEIGHT // 2, GUI.Tool_x_size, texture_size),
-                        (64,64,64,180),
-                        change_texture_screen,
-                        **{"text": "Tiles","func_arg" : "Tiles","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (192,192,192,180)}
-                        )
-    )
-
-    GUI_BUTTONS.append( #Structures button
-        button.Button(  (WIDTH - GUI.Tool_x_size - GUI.Texture_x_size,
-                        HEIGHT // 2 + 1 * (texture_size), GUI.Tool_x_size, texture_size),
-                        (64,64,64,180),
-                        change_texture_screen,
-                        **{"text": "Structures","func_arg" : "Structures","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (192,192,192,180)}
-                        )
-    )
-
-    GUI_BUTTONS.append( #Units button
-        button.Button(  (WIDTH - GUI.Tool_x_size - GUI.Texture_x_size,
-                        HEIGHT // 2 + 2 * (texture_size), GUI.Tool_x_size, texture_size),
-                        (64,64,64,180),
-                        change_texture_screen,
-                        **{"text": "Units","func_arg" : "Units","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (192,192,192,180)}
-                        )
-    )
-
-    GUI_BUTTONS.append( #Ores button
-        button.Button(  (WIDTH - GUI.Tool_x_size - GUI.Texture_x_size,
-                        HEIGHT // 2 + 3 * (texture_size), GUI.Tool_x_size, texture_size),
-                        (64,64,64,180),
-                        change_texture_screen,
-                        **{"text": "Ores","func_arg" : "Ores","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (192,192,192,180)}
-                        )
-    )
-
-    GUI_BUTTONS.append( #Rows button
-        button.Button(  (WIDTH - GUI.Tool_x_size - GUI.Texture_x_size,
-                        HEIGHT // 2 + 4.3 * (texture_size), GUI.Tool_x_size, texture_size),
-                        (64,64,64,0),
-                        change_dimension,
-                        **{"text": "Rows: " + str(rows), "func_arg":"rows", "font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,0), "hover_color" : (192,192,192,80)}
-                        )
-    )
-
-    GUI_BUTTONS.append( #Rows button
-        button.Button(  (WIDTH - GUI.Tool_x_size - GUI.Texture_x_size,
-                        HEIGHT // 2 + 5.3 * (texture_size), GUI.Tool_x_size, texture_size),
-                        (64,64,64,0),
-                        change_dimension,
-                        **{"text": "Collumns: " + str(tiles_per_row), "func_arg":"collumn", "font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,0), "hover_color" : (192,192,192,80)}
+                        **{"text": "Save","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (255,255,255,255)}
                         )
     )
 
@@ -480,9 +276,21 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
         tiles.append(newLine)
         del newTile
 
+    #For testing purposes, 2 tiles have been modified. Each modification has to be updated.
+    tiles[1][2].structure = Structures.Structure("Core", (2, 1), None)
+    tiles[1][2].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+
+    tiles[3][3].unit = Units.Unit("Marine", (3, 3), None)
+    tiles[3][3].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+
     mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
 
     ToolsSelectedPositions = []
+
+    #Editor specific variables:
+    Brush_size = 1
+    Brush_min = 1
+    Brush_max = 35
 
     GUI.Draw_Tools_GUI(None, Brush_size)
 
@@ -504,17 +312,11 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
         if GUI.current_texture_screen == "Tiles":
             tiles[y][x].image_name = TileClass.avalible_textures[current_index]
         elif GUI.current_texture_screen == "Structures":
-            struct = Structures.Structure(Structures.texture_names[current_index][:-4], (x,y), GUI.controller_selection)
+            struct = Structures.Structure(Structures.texture_names[current_index][:-4], (x,y), None)
             tiles[y][x].structure = struct
         elif GUI.current_texture_screen == "Units":
-            unit = Units.Unit(Units.texture_names[current_index][:-4], (x,y), GUI.controller_selection)
-            tiles[y][x].unit = unit
-        elif GUI.current_texture_screen == "Ores":
-            result = 1
-            if GUI.ore_tier_selection == False:
-                result = 2
-            ore = Ores.Ore((x,y), Ores.texture_names[current_index][:-4], result)
-            tiles[y][x].ore = ore
+            unit = Units.Unit(Units.texture_names[current_index][:-4], (x,y), None)
+            tiles[y][x].structure = unit
 
         if Editor_var_dict["Eraser"] == True:
             tiles[y][x].structure = None
@@ -557,7 +359,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                     y = myTile[1]
 
                     if (x, y) not in visited_vec:
-                        if x >= 0 and y >= 0 and x < rows and y < tiles_per_row and tiles[x][y].image_name[:-4] == target_img:
+                        if x >= 0 and y >= 0 and x < rows and y < tiles_per_row and tiles[y][x].image_name[:-4] == target_img:
                             checks += 1
                             visited_vec.append((x, y))
                             image_modifier(x, y)
@@ -578,13 +380,13 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
             queued_tiles.clear()
 
         elif Editor_var_dict["FillAll"] == True:
-            for y in range(rows):
-                for x in range(tiles_per_row):
+            for x in range(rows):
+                for y in range(tiles_per_row):
                     image_modifier(x,y)
 
         elif Editor_var_dict["FillSame"] == True:
-            for y in range(rows):
-                for x in range(tiles_per_row):
+            for x in range(rows):
+                for y in range(tiles_per_row):
                     if tiles[y][x].image_name[:-4] == target_img:
                         image_modifier(x,y)
 
@@ -609,14 +411,28 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                             if Y >= 0 and Y < rows:
                                 image_modifier(X,Y)
 
+                     
+    current_index = 0
+    max_index = TileClass.last_index
+
     clock = pygame.time.Clock()
 
     hasLeftClickPressed = False    #Determine if left mouse is pressed down.
 
     WIN.fill((0,0,0))
 
+    #variabila pusa de Sorin
+    #este folosita ca sa determine daca iesi sau nu o data ce apesi Escape
+    exit_cooldown = -1
+    
     while Running:
         clock.tick(FPS)
+
+        #Pus de Sorin
+        #are rol in iesirea din Map_Editor
+        if exit_cooldown >= 0 :
+            exit_cooldown -= 1
+
         #print(clock.get_fps())
         for event in pygame.event.get():
                 
@@ -625,7 +441,10 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                 os._exit(0)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE : #Intoarcerea in meniu
-                    Running = False
+                    if exit_cooldown == -1 :
+                        exit_cooldown = 120
+                    elif exit_cooldown > 0 :
+                        Running = False
                 elif event.unicode.lower() == 'p':    #Enable/Disable simple textures
                     TileClass.simple_textures_enabled = not TileClass.simple_textures_enabled
 
@@ -657,8 +476,6 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                             index_to_use = Structures.last_index
                         elif GUI.current_texture_screen == "Units":
                             index_to_use = Units.last_index
-                        elif GUI.current_texture_screen == "Ores":
-                            index_to_use = Ores.last_index
 
                         if (mouse_pos[0] - (WIDTH - GUI.Texture_x_size)) % (GUI.texture_size + GUI.texture_distance) < GUI.texture_distance:
                             break
@@ -799,12 +616,6 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
             if GUI.GUIs_enabled == True: 
                 for i in GUI_BUTTONS:
                     i.check_event(event)
-                if GUI.current_texture_screen == "Ores":
-                    for i in GUI.OreButtons:
-                        i.check_event(event)
-                if GUI.current_texture_screen == "Units" or GUI.current_texture_screen == "Structures":
-                    for i in GUI.ControllerButtons:
-                        i.check_event(event)
 
         #Check if user wants to change the camera's position
         x_pos = pygame.mouse.get_pos()[0]
@@ -831,19 +642,10 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
 
             for i in GUI_BUTTONS:
                 i.update(ButtonSurface)
-            if GUI.current_texture_screen == "Units" or GUI.current_texture_screen == "Structures":
-                for i in GUI.ControllerButtons:
-                    i.update(GUI.PlacableSurface)
-            if GUI.current_texture_screen == "Ores":
-                for i in GUI.OreButtons:
-                    i.update(GUI.PlacableSurface)
 
             WIN.blit(GUI.TextureSurface, (WIDTH - GUI.Texture_x_size, 0))
             WIN.blit(GUI.ToolsSurface, (WIDTH - GUI.Texture_x_size - GUI.Tool_x_size, 0))
             WIN.blit(ButtonSurface, (0,0))
-
-            if GUI.current_texture_screen == "Ores" or GUI.current_texture_screen == "Units" or GUI.current_texture_screen == "Structures":
-                WIN.blit(GUI.PlacableSurface, (0,0))
 
         pygame.display.update()
 

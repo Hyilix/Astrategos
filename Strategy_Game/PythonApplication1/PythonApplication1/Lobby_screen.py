@@ -8,8 +8,6 @@ import time
 
 from Map_select_screen import Map_select
 
-DEBUG_DARK_MODE = True
-
 pygame.init()
 #Culori
 White = (255,255,255)
@@ -247,10 +245,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
 
     def draw_window () :
         global Selected_Colors
-        if DEBUG_DARK_MODE == True:
-            WIN.fill((128,128,128))
-        else:
-            WIN.fill((255,255,255))
+        WIN.fill((255,255,255))
         WIN.blit(Port_text,(25,25))
         WIN.blit(Exit_text,Exit_rect)
         WIN.blit(FPS_text,(25,25+40))
