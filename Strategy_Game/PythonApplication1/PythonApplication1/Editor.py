@@ -12,6 +12,23 @@ import pygame
 
 pygame.init()
 
+screen = pygame.display.Info()
+FPS = 60
+
+#This is a color table
+
+colorTable = {  #Table for assigning each controller with a color. In editor it's set, but in game it will get from lobby.
+    0 : (64,64,64),
+    1 : (204,0,0),
+    2 : (0,0,204),
+    3 : (0,204,0),
+    4 : (204,204,0)
+    }
+
+def editor(WIN,WIDTH,HEIGHT,FPS) :
+    rows = 40
+    tiles_per_row = 40
+
 rows = 100
 tiles_per_row = 100
 
