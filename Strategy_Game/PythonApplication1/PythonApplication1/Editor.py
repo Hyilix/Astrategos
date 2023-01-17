@@ -15,6 +15,8 @@ pygame.init()
 screen = pygame.display.Info()
 FPS = 60
 
+#This is a color table
+
 colorTable = {  #Table for assigning each controller with a color. In editor it's set, but in game it will get from lobby.
     0 : (64,64,64),
     1 : (204,0,0),
