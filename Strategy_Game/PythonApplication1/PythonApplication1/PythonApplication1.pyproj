@@ -25,7 +25,6 @@
     <Compile Include="Camera.py" />
     <Compile Include="Editor_GUI.py" />
     <Compile Include="button.py" />
-    <Compile Include="Gameplay.py" />
     <Compile Include="Main.py" />
     <Compile Include="Connection_Screen.py">
       <SubType>Code</SubType>
@@ -42,7 +41,9 @@
     <Compile Include="Editor.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Ores.py" />
+    <Compile Include="Gameplay.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Structures.py" />
     <Compile Include="TileClass.py" />
     <Compile Include="Units.py" />
