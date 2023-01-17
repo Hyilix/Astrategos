@@ -168,7 +168,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         chat_archive.append((Font.render("<"+ name + ">",True,color),1))
         if Chat_window == False :
             chat_notification = True
-            print(101)
         cuvinte = mesaj.split()
         rand = ""
 
@@ -371,7 +370,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             elif event.type == pygame.KEYDOWN :
                 #Daca scrie in chat
                 if writing_in_chat == True and event.key != pygame.K_TAB :
-                    print(event.key)
                     if event.key == pygame.K_ESCAPE :
                         writing_in_chat = False
                     elif event.key == pygame.K_DELETE :
