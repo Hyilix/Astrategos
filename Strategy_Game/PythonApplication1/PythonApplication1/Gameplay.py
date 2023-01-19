@@ -559,19 +559,19 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     else : 
                         message += event.unicode
 
-            x_pos = pygame.mouse.get_pos()[0]
-            y_pos = pygame.mouse.get_pos()[1]
+        x_pos = pygame.mouse.get_pos()[0]
+        y_pos = pygame.mouse.get_pos()[1]
 
-            if x_pos == 0:
-                CurrentCamera.x -= CurrentCamera.camera_movement
-            if y_pos == 0:
-                CurrentCamera.y -= CurrentCamera.camera_movement
-            if x_pos == WIDTH - 1:
-                CurrentCamera.x += CurrentCamera.camera_movement
-            if y_pos == HEIGHT - 1:
-                CurrentCamera.y += CurrentCamera.camera_movement
+        if x_pos == 0:
+            CurrentCamera.x -= CurrentCamera.camera_movement
+        if y_pos == 0:
+            CurrentCamera.y -= CurrentCamera.camera_movement
+        if x_pos == WIDTH - 1:
+            CurrentCamera.x += CurrentCamera.camera_movement
+        if y_pos == HEIGHT - 1:
+            CurrentCamera.y += CurrentCamera.camera_movement
 
-            CurrentCamera.Check_Camera_Boundaries()
+        CurrentCamera.Check_Camera_Boundaries()
 
 
     #finalul functiei si returnarea variabilelor necesare care s-ar fi putut schimba
