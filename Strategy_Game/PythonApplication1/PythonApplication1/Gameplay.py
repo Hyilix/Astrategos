@@ -58,6 +58,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
     chat_icon = pygame.transform.scale(pygame.image.load('Assets/Gameplay_UI/chatbox-icon.png'),(60,60))
 
+
     def draw_window () :
         WIN.fill((255,255,255))
 
@@ -70,11 +71,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         #desenarea Ui - ului 
         #chat windowul daca este deschis
         if Chat_window :
-            pygame.draw.rect(WIN,(0, 0, 0),((WIDTH-260)/2 + 260,0,5,HEIGHT))
+            pygame.draw.rect(WIN,(25,25,25),((WIDTH-260)/2 + 260,0,5,HEIGHT))
             pygame.draw.rect(WIN,(225, 223, 240),((WIDTH-260)/2 + 260 + 5,0,(WIDTH-260)/2-5,HEIGHT))
             #writing box
             if writing_in_chat == False :
-                pygame.draw.rect(WIN,(0, 0, 0),((WIDTH-260)/2 + 265,HEIGHT -55,(WIDTH-260)/2 - 5,5))
+                pygame.draw.rect(WIN,(25,25,25),((WIDTH-260)/2 + 265,HEIGHT -55,(WIDTH-260)/2 - 5,5))
             else :
                 pygame.draw.rect(WIN,Light_Green,((WIDTH-260)/2 + 265,HEIGHT -55,(WIDTH-260)/2 - 5,5))
                 pygame.draw.rect(WIN,Light_Green,((WIDTH-260)/2 + 260,HEIGHT-55,5,55))
@@ -102,7 +103,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 
         #Partea de sus
         pygame.draw.rect(WIN,(225, 223, 240),(0,0,WIDTH,HEIGHT/25))
-        pygame.draw.rect(WIN,(0, 0, 0),(0,HEIGHT/25,WIDTH,5))
+        pygame.draw.rect(WIN,(25,25,25),(0,HEIGHT/25,WIDTH,5))
         #turn part
         pygame.draw.rect(WIN,Player_Colors[playeri[Whos_turn][1]],((WIDTH-260)/2,0,260,HEIGHT*2/25 + 5))
         pygame.draw.rect(WIN,(225, 223, 240),((WIDTH-250)/2,0,250,HEIGHT*2/25 ))
@@ -115,11 +116,14 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         text_rect.center = (WIDTH/2,60)
         WIN.blit(text,text_rect)
         #butonul de chat din dreapta sus
-        pygame.draw.rect(WIN,(0, 0, 0),(WIDTH-80,0,80,80))
+        pygame.draw.rect(WIN,(25,25,25),(WIDTH-80,0,80,80))
         pygame.draw.rect(WIN,(225, 223, 240),(WIDTH-75,0,75,75))
         WIN.blit(chat_icon,(WIDTH - 68,8))
         if chat_notification == True :
             pygame.draw.circle(WIN,Red,(WIDTH-10,20),8)
+        #Partea de jos a UI-ului
+        # draw mini_map part
+        pygame.draw.rect(WIN,(25,25,25),(0,HEIGHT-300,300,300))
         
         pygame.display.update()
 
@@ -457,7 +461,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 press_coordonaits = event.pos 
                 #daca apesi click stanga
                 if event.button == 1 :
-                    #Se verifica daca apasa butonul de caht
+                    #Se verifica daca apasa butonul de chat
                     if press_coordonaits[1] <= 75  and press_coordonaits[0] >= WIDTH -75 :
                         if Chat_window == False :
                             Chat_window = True
