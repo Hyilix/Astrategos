@@ -68,6 +68,14 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
         WIN.blit(tempSurface, (0, 0)) 
 
+        #draw selected tile outline
+        if selected_tile[0] != None : 
+            x_tile=selected_tile[0]* current_tile_length - CurrentCamera.x
+            y_tile = selected_tile[1]* current_tile_length - CurrentCamera.y
+            pygame.draw.rect(WIN,Light_Green,(x_tile,y_tile,current_tile_length,5))
+            pygame.draw.rect(WIN,Light_Green,(x_tile,y_tile,5,current_tile_length))
+            pygame.draw.rect(WIN,Light_Green,(x_tile,y_tile+current_tile_length-5,current_tile_length,5))
+            pygame.draw.rect(WIN,Light_Green,(x_tile+current_tile_length-5,y_tile,5,current_tile_length))
         #desenarea Ui - ului 
         #chat windowul daca este deschis
         if Chat_window :
@@ -123,8 +131,23 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             pygame.draw.circle(WIN,Red,(WIDTH-10,20),8)
         #Partea de jos a UI-ului
         # draw mini_map part
-        pygame.draw.rect(WIN,(25,25,25),(0,HEIGHT-300,300,300))
-        
+        pygame.draw.rect(WIN,(25,25,25),(0,HEIGHT-HEIGHT/3,HEIGHT/3,HEIGHT/3))
+        #desenarea chenarului su informatiile despre ce este selectat
+        if selected_tile[0] !=None :
+            if tile_empty == True :
+                pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3,HEIGHT*2/3 + 25 , WIDTH - HEIGHT*2/3,5))
+                pygame.draw.rect(WIN,(225, 223, 240),(HEIGHT/3,HEIGHT - HEIGHT/3 + 30 , WIDTH - HEIGHT*2/3,HEIGHT/3 -30))
+                #se afiseaza meniul de constructie daca tile-ul este empty
+                pygame.draw.rect(WIN,(25,25,25),(WIDTH- HEIGHT/3, HEIGHT - HEIGHT/3 -55,5,HEIGHT/3 + 55))
+                pygame.draw.rect(WIN,(25,25,25),(WIDTH- HEIGHT/3, HEIGHT - HEIGHT/3 -5,HEIGHT/3,5))
+                pygame.draw.rect(WIN,(25,25,25),(WIDTH- HEIGHT/3, HEIGHT - HEIGHT/3 -60,HEIGHT/3,5))
+                pygame.draw.rect(WIN,(225, 223, 240),(WIDTH- HEIGHT/3 +5, HEIGHT - HEIGHT/3,HEIGHT/3-5,HEIGHT/3))
+                pygame.draw.rect(WIN,(225, 223, 240),(WIDTH- HEIGHT/3 +5, HEIGHT - HEIGHT/3-55,HEIGHT/3-5,50))
+
+            else :
+                pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3,HEIGHT - HEIGHT/3 + 25 , WIDTH - HEIGHT/3,5))
+                pygame.draw.rect(WIN,(225, 223, 240),(HEIGHT/3,HEIGHT - HEIGHT/3 + 30 , WIDTH - HEIGHT/3,HEIGHT/3 -30))
+
         pygame.display.update()
 
     #Functia cu care serverul asculta pentru mesajele unui client
@@ -233,6 +256,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     chat_notification = False
     #in acest vector vor fi pastrate randurile de pe chat
     chat_archive = []
+    #tile_ul care este examinat de player
+    selected_tile = [None,None]
+    tile_empty = True
     # Incarcarea variabilelor necesare rolurilor de host si client
     if Role == "host" :
         Confirmatii_timer = 0
@@ -466,6 +492,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         if Chat_window == False :
                             Chat_window = True
                             chat_notification = False
+                            selected_tile = [None,None]
                         else :
                             Chat_window = False
                             writing_in_chat = False
@@ -482,6 +509,18 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             writing_in_chat = True
                         else :
                             writing_in_chat = False
+                    #detecteaza daca playeru apasa un tile vizibil
+                    if (press_coordonaits[1] > HEIGHT/25 and (press_coordonaits[1] > HEIGHT*2/3 and press_coordonaits[0] < HEIGHT/3)==0) and ((press_coordonaits[0]<(WIDTH-260)/2 + 260 and Chat_window == True) or Chat_window == False) and( selected_tile[0]==None or (press_coordonaits[1] < HEIGHT*2/3+25 and (tile_empty==False or (press_coordonaits[0]>WIDTH-HEIGHT/3 and press_coordonaits[1]>HEIGHT*2/3-60)==0 ) )) :
+                        x_layer = (press_coordonaits[0] + CurrentCamera.x) // current_tile_length 
+                        y_layer = (press_coordonaits[1] + CurrentCamera.y) // current_tile_length
+                        if x_layer >= 0 and x_layer < tiles_per_row:
+                            if y_layer >= 0 and y_layer < rows:
+                                selected_tile = [x_layer,y_layer]
+                                if tiles[y_layer][x_layer].structure == None and tiles[y_layer][x_layer].ore == None and tiles[y_layer][x_layer].unit == None :
+                                    tile_empty = True
+                                else : 
+                                    tile_empty=False
+                                
                 #daca dai scrol in sus
                 if event.button == 4 :
                     if Chat_window == True and press_coordonaits[0] >= (WIDTH-260)/2 + 265 and len(chat_archive) > 30 :
