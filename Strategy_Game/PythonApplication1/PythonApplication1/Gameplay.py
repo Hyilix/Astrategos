@@ -135,8 +135,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         #desenarea chenarului su informatiile despre ce este selectat
         if selected_tile[0] !=None :
             if tile_empty == True :
-                pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3,HEIGHT*2/3 + 25 , WIDTH - HEIGHT*2/3,5))
-                pygame.draw.rect(WIN,(225, 223, 240),(HEIGHT/3,HEIGHT - HEIGHT/3 + 30 , WIDTH - HEIGHT*2/3,HEIGHT/3 -30))
+                pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3,HEIGHT*4/5-5 , WIDTH - HEIGHT*2/3,5))
+                pygame.draw.rect(WIN,(225, 223, 240),(HEIGHT/3,HEIGHT*4/5 , WIDTH - HEIGHT*2/3,HEIGHT/5))
                 #se afiseaza meniul de constructie daca tile-ul este empty
                 pygame.draw.rect(WIN,(25,25,25),(WIDTH- HEIGHT/3, HEIGHT - HEIGHT/3 -55,5,HEIGHT/3 + 55))
                 pygame.draw.rect(WIN,(25,25,25),(WIDTH- HEIGHT/3, HEIGHT - HEIGHT/3 -5,HEIGHT/3,5))
@@ -145,8 +145,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 pygame.draw.rect(WIN,(225, 223, 240),(WIDTH- HEIGHT/3 +5, HEIGHT - HEIGHT/3-55,HEIGHT/3-5,50))
 
             else :
-                pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3,HEIGHT - HEIGHT/3 + 25 , WIDTH - HEIGHT/3,5))
-                pygame.draw.rect(WIN,(225, 223, 240),(HEIGHT/3,HEIGHT - HEIGHT/3 + 30 , WIDTH - HEIGHT/3,HEIGHT/3 -30))
+                pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3,HEIGHT*4/5-5 , WIDTH - HEIGHT/3,5))
+                pygame.draw.rect(WIN,(225, 223, 240),(HEIGHT/3,HEIGHT*4/5, WIDTH - HEIGHT/3,HEIGHT/5))
 
         pygame.display.update()
 
@@ -510,7 +510,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         else :
                             writing_in_chat = False
                     #detecteaza daca playeru apasa un tile vizibil
-                    if (press_coordonaits[1] > HEIGHT/25 and (press_coordonaits[1] > HEIGHT*2/3 and press_coordonaits[0] < HEIGHT/3)==0) and ((press_coordonaits[0]<(WIDTH-260)/2 + 260 and Chat_window == True) or Chat_window == False) and( selected_tile[0]==None or (press_coordonaits[1] < HEIGHT*2/3+25 and (tile_empty==False or (press_coordonaits[0]>WIDTH-HEIGHT/3 and press_coordonaits[1]>HEIGHT*2/3-60)==0 ) )) :
+                    if (press_coordonaits[1] > HEIGHT/25 and (press_coordonaits[1] > HEIGHT*2/3 and press_coordonaits[0] < HEIGHT/3)==0) and ((press_coordonaits[0]<(WIDTH-260)/2 + 260 and Chat_window == True) or Chat_window == False) and( selected_tile[0]==None or (press_coordonaits[1] < HEIGHT*4/5-5 and (tile_empty==False or (press_coordonaits[0]>WIDTH-HEIGHT/3 and press_coordonaits[1]>HEIGHT*2/3-60)==0 ) )) :
                         x_layer = (press_coordonaits[0] + CurrentCamera.x) // current_tile_length 
                         y_layer = (press_coordonaits[1] + CurrentCamera.y) // current_tile_length
                         if x_layer >= 0 and x_layer < tiles_per_row:
