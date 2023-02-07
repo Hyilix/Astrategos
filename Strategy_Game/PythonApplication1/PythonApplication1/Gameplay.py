@@ -28,6 +28,7 @@ Player_Colors = [White,Blue,Red,Green,Yellow,Orange,Purple,Pink,Cyan]
 HEADERSIZE = 10
 SPACE = "          "
 Font = pygame.font.Font(None, 30)
+FontT = pygame.font.Font(None, 50)
 
 run = True
 timer = 120
@@ -143,6 +144,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 pygame.draw.rect(WIN,(25,25,25),(WIDTH- HEIGHT/3, HEIGHT - HEIGHT/3 -60,HEIGHT/3,5))
                 pygame.draw.rect(WIN,(225, 223, 240),(WIDTH- HEIGHT/3 +5, HEIGHT - HEIGHT/3,HEIGHT/3-5,HEIGHT/3))
                 pygame.draw.rect(WIN,(225, 223, 240),(WIDTH- HEIGHT/3 +5, HEIGHT - HEIGHT/3-55,HEIGHT/3-5,50))
+                #draw the name of the menu
+                text = FontT.render(construction_tab,True,(0,0,0))
+                text_rect = text.get_rect()
+                text_rect.center = (WIDTH - (HEIGHT/3 -5)/2,HEIGHT*2/3 - 30)
+                WIN.blit(text,text_rect)
+                # afisarea lucrurilor din meniul de constructii
 
             else :
                 pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3,HEIGHT*4/5-5 , WIDTH - HEIGHT/3,5))
@@ -259,6 +266,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     #tile_ul care este examinat de player
     selected_tile = [None,None]
     tile_empty = True
+    construction_tab = "Structures"
     # Incarcarea variabilelor necesare rolurilor de host si client
     if Role == "host" :
         Confirmatii_timer = 0
@@ -510,7 +518,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         else :
                             writing_in_chat = False
                     #detecteaza daca playeru apasa un tile vizibil
-                    if (press_coordonaits[1] > HEIGHT/25 and (press_coordonaits[1] > HEIGHT*2/3 and press_coordonaits[0] < HEIGHT/3)==0) and ((press_coordonaits[0]<(WIDTH-260)/2 + 260 and Chat_window == True) or Chat_window == False) and( selected_tile[0]==None or (press_coordonaits[1] < HEIGHT*4/5-5 and (tile_empty==False or (press_coordonaits[0]>WIDTH-HEIGHT/3 and press_coordonaits[1]>HEIGHT*2/3-60)==0 ) )) :
+                    if (press_coordonaits[1] > HEIGHT/25 and (press_coordonaits[1] > HEIGHT*2/3 and press_coordonaits[0] < HEIGHT/3)==0) and ((press_coordonaits[0]<(WIDTH-260)/2 + 260 and Chat_window == True) or Chat_window == False) and( selected_tile[0]==None or (press_coordonaits[1] < HEIGHT*4/5-5 and (tile_empty==False or (press_coordonaits[0]>WIDTH-HEIGHT/3 and press_coordonaits[1]>HEIGHT*2/3-60)==0 ))) :
                         x_layer = (press_coordonaits[0] + CurrentCamera.x) // current_tile_length 
                         y_layer = (press_coordonaits[1] + CurrentCamera.y) // current_tile_length
                         if x_layer >= 0 and x_layer < tiles_per_row:
@@ -520,6 +528,13 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                     tile_empty = True
                                 else : 
                                     tile_empty=False
+                    #detecteaza daca playeru a schimbat coinstruction tabul
+                    elif press_coordonaits[0]> WIDTH-HEIGHT/3 and press_coordonaits[1] <= HEIGHT*2/3 -5 and press_coordonaits[1] >= HEIGHT*2/3 -55 :
+                        if construction_tab == "Structures" :
+                            construction_tab = "Units"
+                        elif construction_tab == "Units" :
+                            construction_tab = "Structures"
+
                                 
                 #daca dai scrol in sus
                 if event.button == 4 :
