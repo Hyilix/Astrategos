@@ -59,6 +59,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     # incaracarea imaginilor structurilor si unitatilor care le poate produce playeru, cu culoarea specifica.
     spatiu_intre = (HEIGHT/3 - 10 - 70*3)/2
     C_menu_scroll = 0
+    Element_selectat = None
     structures = []
     directory = "Assets\Structures"
     for filename in os.listdir(directory):
@@ -164,24 +165,22 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 # afisarea lucrurilor din meniul de constructii
                 if construction_tab == "Structures" :
                     elements = len(structures)
-                    for i in range(math.ceil(elements/3)) :
-                        y_rand = HEIGHT*2/3 +5 + i*70 + i*10 - C_menu_scroll
-                        if y_rand+35 > HEIGHT*2/3 and y_rand < HEIGHT  :
-                            for j in range(min(elements-i*3,3)) :
-                                x_coloana = WIDTH-HEIGHT/3+10 + j*70 + j*spatiu_intre
-                                pygame.draw.rect(WIN,(57, 56, 57),(x_coloana,y_rand,70,70))
-                                pygame.draw.rect(WIN,Gri,(x_coloana+2,y_rand+2,66,66))
-                                WIN.blit(structures[i*3+j],(x_coloana+3,y_rand+3))
                 else :
                     elements = len(units)
-                    for i in range(math.ceil(elements/3)) :
-                        y_rand = HEIGHT*2/3 +5 + i*70 + i*10 - C_menu_scroll
-                        if y_rand+35 > HEIGHT*2/3 and y_rand < HEIGHT  :
-                            for j in range(min(elements-i*3,3)) :
-                                x_coloana = WIDTH-HEIGHT/3+10 + j*70 + j*spatiu_intre
+                for i in range(math.ceil(elements/3)) :
+                    y_rand = HEIGHT*2/3 +5 + i*70 + i*10 - C_menu_scroll
+                    if y_rand+35 > HEIGHT*2/3 and y_rand < HEIGHT  :
+                        for j in range(min(elements-i*3,3)) :
+                            x_coloana = WIDTH-HEIGHT/3+10 + j*70 + j*spatiu_intre
+                            if  Element_selectat != i*3 + j :
                                 pygame.draw.rect(WIN,(57, 56, 57),(x_coloana,y_rand,70,70))
-                                pygame.draw.rect(WIN,Gri,(x_coloana+2,y_rand+2,66,66))
-                                WIN.blit(units[i*3+j],(x_coloana+3,y_rand+3))
+                            else :
+                                pygame.draw.rect(WIN,Light_Green,(x_coloana,y_rand,70,70))
+                            pygame.draw.rect(WIN,Gri,(x_coloana+2,y_rand+2,66,66))
+                if construction_tab == "Structures" :
+                    WIN.blit(structures[i*3+j],(x_coloana+3,y_rand+3))
+                else :
+                    WIN.blit(units[i*3+j],(x_coloana+3,y_rand+3))
             else :
                 pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3,HEIGHT*4/5-5 , WIDTH - HEIGHT/3,5))
                 pygame.draw.rect(WIN,(225, 223, 240),(HEIGHT/3,HEIGHT*4/5, WIDTH - HEIGHT/3,HEIGHT/5))
@@ -557,15 +556,33 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                 selected_tile = [x_layer,y_layer]
                                 if tiles[y_layer][x_layer].structure == None and tiles[y_layer][x_layer].ore == None and tiles[y_layer][x_layer].unit == None :
                                     tile_empty = True
+                                    Element_selectat = None
                                 else : 
                                     tile_empty=False
                     #detecteaza daca playeru a schimbat coinstruction tabul
                     elif press_coordonaits[0]> WIDTH-HEIGHT/3 and press_coordonaits[1] <= HEIGHT*2/3 -5 and press_coordonaits[1] >= HEIGHT*2/3 -55 :
+                        Element_selectat = None
                         if construction_tab == "Structures" :
                             construction_tab = "Units"
                         elif construction_tab == "Units" :
                             construction_tab = "Structures"
-
+                    #detecteaza daca playerul a apasat un element din construction_tab
+                    elif press_coordonaits[0]> WIDTH-HEIGHT/3 and press_coordonaits[1] >= HEIGHT*2/3 :
+                        if construction_tab == "Structures" :
+                            elements = len(structures)
+                        else :
+                            elements = len(units)
+                        for i in range(math.ceil(elements/3)) :
+                             y_rand = HEIGHT*2/3 +5 + i*70 + i*10 - C_menu_scroll
+                             if y_rand + 70 > HEIGHT*2/3 :
+                                 if press_coordonaits[1] >= y_rand and press_coordonaits[1] <= y_rand+70 :
+                                     for j in range(min(3,elements-i*3)) :
+                                         x_coloana = WIDTH-HEIGHT/3+10 + j*70 + j*spatiu_intre
+                                         if press_coordonaits[0] >= x_coloana and press_coordonaits[0] <= x_coloana + 70 :
+                                             Element_selectat = i*3 + j
+                                             print(Element_selectat)
+                                             break
+                                     break
                                 
                 #daca dai scrol in sus
                 if event.button == 4 :
