@@ -4,6 +4,7 @@ import socket
 import pickle
 import threading
 import time
+import math
 
 import TileClass
 import Structures
@@ -53,11 +54,22 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     WIN.fill((255,255,255))
     pygame.display.update()
 
-    #adresa pentru txt-ul hartii pe care se afla playeri
-    map_adres = "Maps\info" + map_name + ".txt"
-
-
     chat_icon = pygame.transform.scale(pygame.image.load('Assets/Gameplay_UI/chatbox-icon.png'),(60,60))
+
+    # incaracarea imaginilor structurilor si unitatilor care le poate produce playeru, cu culoarea specifica.
+    spatiu_intre = (HEIGHT/3 - 10 - 70*3)/2
+    C_menu_scroll = 0
+    structures = []
+    directory = "Assets\Structures"
+    for filename in os.listdir(directory):
+        adres=os.path.join(directory, filename)
+        structures.append(pygame.transform.scale(pygame.image.load(adres),(64,64)))
+    units = []
+    directory = "Assets" + '\\' + "Units"
+    print(directory)
+    for filename in os.listdir(directory):
+        adres=os.path.join(directory, filename)
+        units.append(pygame.transform.scale(pygame.image.load(adres),(64,64)))
 
 
     def draw_window () :
@@ -150,7 +162,26 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 text_rect.center = (WIDTH - (HEIGHT/3 -5)/2,HEIGHT*2/3 - 30)
                 WIN.blit(text,text_rect)
                 # afisarea lucrurilor din meniul de constructii
-
+                if construction_tab == "Structures" :
+                    elements = len(structures)
+                    for i in range(math.ceil(elements/3)) :
+                        y_rand = HEIGHT*2/3 +5 + i*70 + i*10 - C_menu_scroll
+                        if y_rand+35 > HEIGHT*2/3 and y_rand < HEIGHT  :
+                            for j in range(min(elements-i*3,3)) :
+                                x_coloana = WIDTH-HEIGHT/3+10 + j*70 + j*spatiu_intre
+                                pygame.draw.rect(WIN,(57, 56, 57),(x_coloana,y_rand,70,70))
+                                pygame.draw.rect(WIN,Gri,(x_coloana+2,y_rand+2,66,66))
+                                WIN.blit(structures[i*3+j],(x_coloana+3,y_rand+3))
+                else :
+                    elements = len(units)
+                    for i in range(math.ceil(elements/3)) :
+                        y_rand = HEIGHT*2/3 +5 + i*70 + i*10 - C_menu_scroll
+                        if y_rand+35 > HEIGHT*2/3 and y_rand < HEIGHT  :
+                            for j in range(min(elements-i*3,3)) :
+                                x_coloana = WIDTH-HEIGHT/3+10 + j*70 + j*spatiu_intre
+                                pygame.draw.rect(WIN,(57, 56, 57),(x_coloana,y_rand,70,70))
+                                pygame.draw.rect(WIN,Gri,(x_coloana+2,y_rand+2,66,66))
+                                WIN.blit(units[i*3+j],(x_coloana+3,y_rand+3))
             else :
                 pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3,HEIGHT*4/5-5 , WIDTH - HEIGHT/3,5))
                 pygame.draw.rect(WIN,(225, 223, 240),(HEIGHT/3,HEIGHT*4/5, WIDTH - HEIGHT/3,HEIGHT/5))
