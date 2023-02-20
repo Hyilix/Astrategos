@@ -60,14 +60,15 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     spatiu_intre = (HEIGHT/3 - 10 - 70*3)/2
     C_menu_scroll = 0
     Element_selectat = None
+    large_img_element_afisat = None
     structures = []
+
     directory = "Assets\Structures"
     for filename in os.listdir(directory):
         adres=os.path.join(directory, filename)
         structures.append(pygame.transform.scale(pygame.image.load(adres),(64,64)))
     units = []
     directory = "Assets" + '\\' + "Units"
-    print(directory)
     for filename in os.listdir(directory):
         adres=os.path.join(directory, filename)
         units.append(pygame.transform.scale(pygame.image.load(adres),(64,64)))
@@ -181,6 +182,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     WIN.blit(structures[i*3+j],(x_coloana+3,y_rand+3))
                 else :
                     WIN.blit(units[i*3+j],(x_coloana+3,y_rand+3))
+                #Afisarea imaginii si informatiilor elementului selectat din meniul de structuri
+                if Element_selectat != None :
+                    #desenare chenarul in care sa se incadreze imaginea
+                    pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3+20,HEIGHT*4/5+20,large_img_element_afisat.get_width()+10,large_img_element_afisat.get_width()+10))
+                    pygame.draw.rect(WIN,Gri,(HEIGHT/3+25,HEIGHT*4/5+25,large_img_element_afisat.get_width(),large_img_element_afisat.get_width()))
+                    WIN.blit(large_img_element_afisat,(HEIGHT/3+25,HEIGHT*4/5+25))
             else :
                 pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3,HEIGHT*4/5-5 , WIDTH - HEIGHT/3,5))
                 pygame.draw.rect(WIN,(225, 223, 240),(HEIGHT/3,HEIGHT*4/5, WIDTH - HEIGHT/3,HEIGHT/5))
@@ -531,6 +538,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             Chat_window = True
                             chat_notification = False
                             selected_tile = [None,None]
+                            tile_empty = False
                         else :
                             Chat_window = False
                             writing_in_chat = False
@@ -555,8 +563,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             if y_layer >= 0 and y_layer < rows:
                                 selected_tile = [x_layer,y_layer]
                                 if tiles[y_layer][x_layer].structure == None and tiles[y_layer][x_layer].ore == None and tiles[y_layer][x_layer].unit == None :
-                                    tile_empty = True
-                                    Element_selectat = None
+                                    if tile_empty != True :
+                                        tile_empty = True
+                                        Element_selectat = None
                                 else : 
                                     tile_empty=False
                     #detecteaza daca playeru a schimbat coinstruction tabul
@@ -580,7 +589,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                          x_coloana = WIDTH-HEIGHT/3+10 + j*70 + j*spatiu_intre
                                          if press_coordonaits[0] >= x_coloana and press_coordonaits[0] <= x_coloana + 70 :
                                              Element_selectat = i*3 + j
-                                             print(Element_selectat)
+                                             if construction_tab == "Structures" :
+                                                large_img_element_afisat = pygame.transform.scale(structures[Element_selectat],(HEIGHT/5 -50,HEIGHT/5 -50))
+                                             else :
+                                                large_img_element_afisat = pygame.transform.scale(units[Element_selectat],(HEIGHT/5 -50,HEIGHT/5 -50))
                                              break
                                      break
                                 
