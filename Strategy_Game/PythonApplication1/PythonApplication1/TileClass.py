@@ -75,9 +75,14 @@ class Tile:
         self.unit = unit                    #store what unit is occupying this tile
         self.structure = structure          #store what structure is placed on this tile
 
-    def DrawImage(self, screen, size):
+    def DrawImage(self, screen, size, special_blit = False):
         if simple_textures_enabled == True:
-            screen.blit(textures[texture_names.index(self.image_name)], (self.position[0] * size[0], self.position[1]  * size[1]))
+            if special_blit == False:
+                screen.blit(textures[texture_names.index(self.image_name)], (self.position[0] * size[0], self.position[1]  * size[1]))
+            else:
+                img = textures[texture_names.index(self.image_name)].copy()
+                img = pygame.transform.scale(img, size)
+                screen.blit(img, (self.position[0] * size[0], self.position[1]  * size[1]))
         else:
             key = ""
             if self.ore != None:

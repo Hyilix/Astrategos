@@ -24,8 +24,8 @@ colorTable = {  #Table for assigning each controller with a color. In editor it'
     }
 
 def editor(WIN,WIDTH,HEIGHT,FPS) :
-    rows = 40
-    tiles_per_row = 40
+    rows = 100
+    tiles_per_row = 100
 
     tiles = []
     #Editor specific variables:
@@ -81,9 +81,9 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
             self.x = int((self.x + WIDTH // 2) / last_map_size_x * map_size_x) - WIDTH // 2
             self.y = int((self.y + HEIGHT // 2) / last_map_size_y * map_size_y) - HEIGHT // 2
 
-    CurrentCamera = Camera((0,0), 1, 3, 0.4)
+    CurrentCamera = Camera((0,0), 1, 1.4, 0.4)
 
-    normal_tile_length = int(TileClass.base_texture_length * (WIDTH / HEIGHT))     #the length of a tile when the zoom is 1
+    normal_tile_length = TileClass.base_texture_length    #the length of a tile when the zoom is 1
     current_tile_length = normal_tile_length * CurrentCamera.zoom
 
     TileClass.resize_textures(current_tile_length)
@@ -752,7 +752,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                         if x_layer >= 0 and x_layer < tiles_per_row:
                             if y_layer >= 0 and y_layer < rows:
                                 place_tile(tiles[y_layer][x_layer].image_name[:-4])
-                                mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
+                                tiles[y_layer][x_layer].DrawImage(mapSurface, (current_tile_length, current_tile_length), True)
 
                 modifier = 0
                 if event.button == 4:
@@ -760,25 +760,29 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                 elif event.button == 5:
                     modifier = -1
                
-                last_map_size_x = current_tile_length * tiles_per_row
-                last_map_size_y = current_tile_length * rows
+                if event.button == 4 or event.button == 5:
 
-                #Update the zoom and tile length
-                CurrentCamera.zoom += 0.1 * modifier
-                CurrentCamera.Update_Camera_Zoom_Level()
-                current_tile_length = int(normal_tile_length * CurrentCamera.zoom)
+                    #modifier = -1 * event.button + event.button
 
-                map_size_x = current_tile_length * tiles_per_row
-                map_size_y = current_tile_length * rows
+                    last_map_size_x = current_tile_length * tiles_per_row
+                    last_map_size_y = current_tile_length * rows
 
-                CurrentCamera.Check_Camera_Boundaries()
-                CurrentCamera.Calculate_After_Zoom_Position(last_map_size_x, map_size_x, last_map_size_y, map_size_y)
-                #TODO: Make a way to zoom in/out with minimal lag. This method is very bad but for now it works... kinda.
-                #Apparently it works well with low texture sizes.
-                try:
-                    mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
-                except:     #if that failed, the surface is too big.
-                    print("Can't zoom in further")
+                    #Update the zoom and tile length
+                    CurrentCamera.zoom += 0.1 * modifier
+                    CurrentCamera.Update_Camera_Zoom_Level()
+                    current_tile_length = int(normal_tile_length * CurrentCamera.zoom)
+
+                    map_size_x = current_tile_length * tiles_per_row
+                    map_size_y = current_tile_length * rows
+
+                    CurrentCamera.Check_Camera_Boundaries()
+                    #TODO: Make a way to zoom in/out with minimal lag. This method is very bad but for now it works... kinda.
+                    #Apparently it works well with low texture sizes.
+                    try:
+                        mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
+                        CurrentCamera.Calculate_After_Zoom_Position(last_map_size_x, map_size_x, last_map_size_y, map_size_y)
+                    except:     #if that failed, the surface is too big.
+                        print("Can't zoom in further")
 
             if event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:   #Left-click. Editor specific
@@ -794,7 +798,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                         if x_layer >= 0 and x_layer < tiles_per_row:
                             if y_layer >= 0 and y_layer < rows:
                                 place_tile(tiles[y_layer][x_layer].image_name[:-4])
-                                mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
+                                tiles[y_layer][x_layer].DrawImage(mapSurface, (current_tile_length, current_tile_length), True)
 
             if GUI.GUIs_enabled == True: 
                 for i in GUI_BUTTONS:
