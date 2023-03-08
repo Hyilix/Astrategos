@@ -23,7 +23,7 @@ avalible_textures = []
 
 base_texture_length = 32
 
-image_class_familly = {}
+image_class_familly = []
 
 for img in os.listdir(default_path):
     if img[-4:] == '.png':
@@ -43,7 +43,7 @@ for img in os.listdir(default_path):
             new_textures.append(myTexture)
             new_base_textures.append(myTexture)
 
-        image_class_familly[img] = [new_names, new_textures, new_base_textures]
+        image_class_familly.append([img, new_names, new_textures, new_base_textures])
 
 def resize_textures(size):
     #resize the original textures based on the zoom level. If we were to do this with 
@@ -63,7 +63,8 @@ simple_textures_dict = {
     "Ore2" : "A-simple-ore2"
     }
 
-last_index = len(avalible_textures)
+fam_last_index = len(image_class_familly)
+last_index = len(avalible_textures) + len(image_class_familly)
 
 class Tile:
     def __init__(self, position, collidable, image_class, image_name, ore, unit, structure):
@@ -97,8 +98,8 @@ class Tile:
             screen.blit(textures[texture_names.index(key + ".png")], (self.position[0] * size[0], self.position[1]  * size[1]))
             
         if self.structure != None:
-            self.structure.DrawImage(screen, size, colorTable)
+            self.structure.DrawImage(screen, size, colorTable, special_blit)
         if self.unit != None:
-            self.unit.DrawImage(screen, size, colorTable)
+            self.unit.DrawImage(screen, size, colorTable, special_blit)
         if self.ore != None and simple_textures_enabled == True:
-            self.ore.DrawImage(screen, size)
+            self.ore.DrawImage(screen, size, special_blit)

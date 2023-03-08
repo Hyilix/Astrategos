@@ -120,6 +120,18 @@ def Draw_Textures_GUI(position):
             else:
                 current_x += 1
 
+        for image in TileClass.image_class_familly:
+
+            cloned_image = pygame.transform.scale(image[3][0], (texture_size, texture_size))
+            if position != None:
+                pygame.draw.rect(TextureSurface, (255, 255, 0), (position[0] * (texture_size + texture_distance) + texture_distance - 5, position[1] * (texture_size + texture_distance) + texture_distance - 5, texture_size + 10, texture_size + 10), 5)
+            TextureSurface.blit(cloned_image, (current_x * (texture_size + texture_distance) + texture_distance, current_y * (texture_size + texture_distance) + texture_distance))
+            if current_x >= max_x_pos:
+                current_x = 0
+                current_y += 1
+            else:
+                current_x += 1
+
     elif current_texture_screen == "Structures":
 
         for image_name in Structures.texture_names:

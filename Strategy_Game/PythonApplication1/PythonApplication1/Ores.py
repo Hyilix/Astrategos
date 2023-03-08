@@ -28,5 +28,10 @@ class Ore():
 
         self.texture = self.image_name + ".png"
 
-    def DrawImage(self, screen, size):
-        screen.blit(textures[texture_names.index(self.texture)], (self.position[0] * size[0], self.position[1]  * size[1]))
+    def DrawImage(self, screen, size, special_blit = False):
+        if special_blit == False:
+            screen.blit(textures[texture_names.index(self.texture)], (self.position[0] * size[0], self.position[1]  * size[1]))
+        else:
+            img = textures[texture_names.index(self.texture)].copy()
+            img = pygame.transform.scale(img, size)
+            screen.blit(img, (self.position[0] * size[0], self.position[1]  * size[1]))

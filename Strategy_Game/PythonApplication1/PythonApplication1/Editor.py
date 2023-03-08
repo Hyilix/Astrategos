@@ -501,7 +501,9 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
     }
 
     def image_modifier(x,y, special_blit = False):
+        #if current_index < len(TileClass.avalible_textures):
         if GUI.current_texture_screen == "Tiles":
+            tiles[y][x].image_name = TileClass.avalible_textures[current_index]
             tiles[y][x].image_name = TileClass.avalible_textures[current_index]
         elif GUI.current_texture_screen == "Structures":
             struct = Structures.Structure(Structures.texture_names[current_index][:-4], (x,y), GUI.controller_selection)
@@ -515,6 +517,9 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                 result = 2
             ore = Ores.Ore((x,y), Ores.texture_names[current_index][:-4], result)
             tiles[y][x].ore = ore
+        '''else:
+            if GUI.current_texture_screen == "Tiles":
+                tiles[y][x].image_name = TileClass.avalible_textures[current_index]'''
 
         if Editor_var_dict["Eraser"] == True:
             tiles[y][x].structure = None
