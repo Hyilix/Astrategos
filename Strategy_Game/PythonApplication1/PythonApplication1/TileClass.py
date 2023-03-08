@@ -23,8 +23,6 @@ avalible_textures = []
 
 base_texture_length = 32
 
-image_class_familly = {}
-
 for img in os.listdir(default_path):
     if img[-4:] == '.png':
         if img[0:8] != "A-simple":
@@ -33,17 +31,6 @@ for img in os.listdir(default_path):
         texture_names.append(img)
         textures.append(pygame.image.load(default_path + img))
         base_textures.append(pygame.image.load(default_path + img))
-    else:
-        new_names = []
-        new_textures = []
-        new_base_textures = []
-        for sub_img in os.listdir(default_path + img + '/'):
-            new_names.append(sub_img)
-            myTexture = pygame.image.load(default_path + img + '/' + sub_img)
-            new_textures.append(myTexture)
-            new_base_textures.append(myTexture)
-
-        image_class_familly[img] = [new_names, new_textures, new_base_textures]
 
 def resize_textures(size):
     #resize the original textures based on the zoom level. If we were to do this with 
@@ -66,18 +53,22 @@ simple_textures_dict = {
 last_index = len(avalible_textures)
 
 class Tile:
-    def __init__(self, position, collidable, image_class, image_name, ore, unit, structure):
+    def __init__(self, position, collidable, image_name, ore, unit, structure):
         self.position = position            #a tuple for the position
         self.collidable = collidable        #check if a unit can be placed there (ex. a wall or water)
-        self.image_class = image_class
         self.image_name = image_name        #the name of the image. Used by texture_names.
         self.ore = ore                      #The ore oject.
         self.unit = unit                    #store what unit is occupying this tile
         self.structure = structure          #store what structure is placed on this tile
 
-    def DrawImage(self, screen, size):
+    def DrawImage(self, screen, size, special_blit = False):
         if simple_textures_enabled == True:
-            screen.blit(textures[texture_names.index(self.image_name)], (self.position[0] * size[0], self.position[1]  * size[1]))
+            if special_blit == False:
+                screen.blit(textures[texture_names.index(self.image_name)], (self.position[0] * size[0], self.position[1]  * size[1]))
+            else:
+                img = textures[texture_names.index(self.image_name)].copy()
+                img = pygame.transform.scale(img, size)
+                screen.blit(img, (self.position[0] * size[0], self.position[1]  * size[1]))
         else:
             key = ""
             if self.ore != None:
@@ -92,8 +83,8 @@ class Tile:
             screen.blit(textures[texture_names.index(key + ".png")], (self.position[0] * size[0], self.position[1]  * size[1]))
             
         if self.structure != None:
-            self.structure.DrawImage(screen, size, colorTable)
+            self.structure.DrawImage(screen, size, colorTable, special_blit)
         if self.unit != None:
-            self.unit.DrawImage(screen, size, colorTable)
+            self.unit.DrawImage(screen, size, colorTable, special_blit)
         if self.ore != None and simple_textures_enabled == True:
-            self.ore.DrawImage(screen, size)
+            self.ore.DrawImage(screen, size, special_blit)
