@@ -21,8 +21,8 @@ def resize_textures(size):
 
 last_index = len(texture_names)
 
-predefined_structures = {   #HP, MaxHp, attack, defence, canShareSpace, fog_range
-    "Kernel" : [100, 5, 2, 3, False, (2,2)],
+predefined_structures = {   #HP, MaxHp, attack, defence, canShareSpace, fog_range, Price
+    "Kernel" : [100, 5, 2, 3, False, (2,2), (None,None)],
     }
 
 class Structure():
@@ -40,6 +40,8 @@ class Structure():
         self.defence = vec[3]
         self.canShareSpace = vec[4]
         self.fog_range = vec[5]      #How much can the structure see
+
+        self.price = vec[6]
 
     def DrawImage(self, screen, size, colorTable, special_blit = False):
         image = textures[texture_names.index(self.texture)].copy()
