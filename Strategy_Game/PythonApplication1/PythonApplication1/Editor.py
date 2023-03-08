@@ -280,6 +280,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
         current_index = 0
         GUI.Draw_Textures_GUI((0,0))
         GUI.Draw_Tools_GUI(GUI.last_tool_position, Brush_size)
+        GUI.current_tab = 1
 
     def change_dimension(dimension):
         nonlocal rows

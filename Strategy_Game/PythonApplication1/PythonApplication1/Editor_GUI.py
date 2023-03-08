@@ -117,7 +117,6 @@ def Draw_Textures_GUI(position):
     current_y = 0
 
     comparison = 0
-    print(current_tab)
     if current_tab != tabs:
         comparison = texture_cap
     elif current_tab == tabs:
@@ -138,9 +137,16 @@ def Draw_Textures_GUI(position):
                     current_x += 1
             else: break
 
+    comparison = 0
+    if current_tab != math.ceil(Structures.last_index / texture_cap):
+        comparison = texture_cap
+    elif current_tab == math.ceil(Structures.last_index / texture_cap):
+        comparison = Structures.last_index - (math.ceil(Structures.last_index / texture_cap) - 1) * texture_cap
+
     elif current_texture_screen == "Structures":
 
-        for image_name in Structures.texture_names:
+        for i in range((current_tab - 1) * texture_cap, (current_tab - 1) * texture_cap + comparison):
+            image_name = Structures.texture_names[i]
             cloned_image = pygame.transform.scale(Structures.base_textures[Structures.texture_names.index(image_name)], (texture_size, texture_size))
             if position != None:
                 pygame.draw.rect(TextureSurface, (255, 255, 0), (position[0] * (texture_size + texture_distance) + texture_distance - 5, position[1] * (texture_size + texture_distance) + texture_distance - 5, texture_size + 10, texture_size + 10), 5)
@@ -151,9 +157,16 @@ def Draw_Textures_GUI(position):
             else:
                 current_x += 1
 
+    comparison = 0
+    if current_tab != math.ceil(Structures.last_index / texture_cap):
+        comparison = texture_cap
+    elif current_tab == math.ceil(Units.last_index / texture_cap):
+        comparison = Units.last_index - (math.ceil(Units.last_index / texture_cap) - 1) * texture_cap
+
     elif current_texture_screen == "Units":
 
-        for image_name in Units.texture_names:
+        for i in range((current_tab - 1) * texture_cap, (current_tab - 1) * texture_cap + comparison):
+            image_name = Units.texture_names[i]
             cloned_image = pygame.transform.scale(Units.base_textures[Units.texture_names.index(image_name)], (texture_size, texture_size))
             if position != None:
                 pygame.draw.rect(TextureSurface, (255, 255, 0), (position[0] * (texture_size + texture_distance) + texture_distance - 5, position[1] * (texture_size + texture_distance) + texture_distance - 5, texture_size + 10, texture_size + 10), 5)
@@ -164,9 +177,16 @@ def Draw_Textures_GUI(position):
             else:
                 current_x += 1
 
+    comparison = 0
+    if current_tab != math.ceil(Ores.last_index / texture_cap):
+        comparison = texture_cap
+    elif current_tab == math.ceil(Ores.last_index / texture_cap):
+        comparison = Ores.last_index - (math.ceil(Ores.last_index / texture_cap) - 1) * texture_cap
+
     elif current_texture_screen == "Ores":
 
-        for image_name in Ores.texture_names:
+        for i in range((current_tab - 1) * texture_cap, (current_tab - 1) * texture_cap + comparison):
+            image_name = Ores.texture_names[i]
             cloned_image = pygame.transform.scale(Ores.base_textures[Ores.texture_names.index(image_name)], (texture_size, texture_size))
             if position != None:
                 pygame.draw.rect(TextureSurface, (255, 255, 0), (position[0] * (texture_size + texture_distance) + texture_distance - 5, position[1] * (texture_size + texture_distance) + texture_distance - 5, texture_size + 10, texture_size + 10), 5)
