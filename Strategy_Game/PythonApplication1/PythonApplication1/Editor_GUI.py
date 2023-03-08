@@ -7,6 +7,8 @@ import Ores
 import os
 import button
 
+import math
+
 font = pygame.font.Font('freesansbold.ttf', 256)
 font_string = pygame.font.Font('freesansbold.ttf', 32)
 
@@ -82,6 +84,13 @@ texture_distance = 10
 max_x_pos = 2
 max_y_pos = TileClass.last_index // max_x_pos
 
+texture_cap = (max_x_pos + 1) * int((HEIGHT * 9 / 10) / (texture_size + 2 * texture_distance))
+
+tabs = math.ceil(TileClass.last_index / texture_cap)
+current_tab = 1
+
+max_y = texture_cap / (max_x_pos + 1)
+
 Tools_icon_distance = 10
 Tools_max_x_pos = 2
 Tools_max_y_pos = last_icons_index // Tools_max_x_pos
@@ -90,7 +99,7 @@ Texture_x_size = (texture_size + texture_distance) * (max_x_pos + 1) + texture_d
 Tool_x_size = (Tools_icon_size + Tools_icon_distance) * (Tools_max_x_pos + 1) + Tools_icon_distance
 
 #Surfaces for Editor GUI
-TextureSurface = pygame.Surface((Texture_x_size, texture_size * 2 * max_y_pos * texture_distance), pygame.SRCALPHA)
+TextureSurface = pygame.Surface((Texture_x_size, HEIGHT), pygame.SRCALPHA)
 ToolsSurface = pygame.Surface((Tool_x_size, HEIGHT), pygame.SRCALPHA)
 PlacableSurface = pygame.Surface((WIDTH,HEIGHT), pygame.SRCALPHA)
 
@@ -101,36 +110,33 @@ def Initialize_Editor_GUIs():
     ToolsSurface.convert_alpha()
     PlacableSurface.convert_alpha()
 
-def Draw_Textures_GUI(position):
+def Draw_Textures_GUI(position): 
     TextureSurface.fill((32, 32, 32, 150))
 
     current_x = 0
     current_y = 0
 
+    comparison = 0
+    print(current_tab)
+    if current_tab != tabs:
+        comparison = texture_cap
+    elif current_tab == tabs:
+        comparison = TileClass.last_index - (tabs - 1) * texture_cap
+
     if current_texture_screen == "Tiles":
-
-        for image_name in TileClass.avalible_textures:
-            cloned_image = pygame.transform.scale(TileClass.base_textures[TileClass.texture_names.index(image_name)], (texture_size, texture_size))
-            if position != None:
-                pygame.draw.rect(TextureSurface, (255, 255, 0), (position[0] * (texture_size + texture_distance) + texture_distance - 5, position[1] * (texture_size + texture_distance) + texture_distance - 5, texture_size + 10, texture_size + 10), 5)
-            TextureSurface.blit(cloned_image, (current_x * (texture_size + texture_distance) + texture_distance, current_y * (texture_size + texture_distance) + texture_distance))
-            if current_x >= max_x_pos:
-                current_x = 0
-                current_y += 1
-            else:
-                current_x += 1
-
-        for image in TileClass.image_class_familly:
-
-            cloned_image = pygame.transform.scale(image[3][0], (texture_size, texture_size))
-            if position != None:
-                pygame.draw.rect(TextureSurface, (255, 255, 0), (position[0] * (texture_size + texture_distance) + texture_distance - 5, position[1] * (texture_size + texture_distance) + texture_distance - 5, texture_size + 10, texture_size + 10), 5)
-            TextureSurface.blit(cloned_image, (current_x * (texture_size + texture_distance) + texture_distance, current_y * (texture_size + texture_distance) + texture_distance))
-            if current_x >= max_x_pos:
-                current_x = 0
-                current_y += 1
-            else:
-                current_x += 1
+        for i in range((current_tab - 1) * texture_cap, (current_tab - 1) * texture_cap + comparison):
+            image_name = TileClass.avalible_textures[i]
+            if current_y < max_y:
+                cloned_image = pygame.transform.scale(TileClass.base_textures[TileClass.texture_names.index(image_name)], (texture_size, texture_size))
+                if position != None:
+                    pygame.draw.rect(TextureSurface, (255, 255, 0), (position[0] * (texture_size + texture_distance) + texture_distance - 5, position[1] * (texture_size + texture_distance) + texture_distance - 5, texture_size + 10, texture_size + 10), 5)
+                TextureSurface.blit(cloned_image, (current_x * (texture_size + texture_distance) + texture_distance, current_y * (texture_size + texture_distance) + texture_distance))
+                if current_x >= max_x_pos:
+                    current_x = 0
+                    current_y += 1
+                else:
+                    current_x += 1
+            else: break
 
     elif current_texture_screen == "Structures":
 

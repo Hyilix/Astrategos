@@ -23,8 +23,6 @@ avalible_textures = []
 
 base_texture_length = 32
 
-image_class_familly = []
-
 for img in os.listdir(default_path):
     if img[-4:] == '.png':
         if img[0:8] != "A-simple":
@@ -33,17 +31,6 @@ for img in os.listdir(default_path):
         texture_names.append(img)
         textures.append(pygame.image.load(default_path + img))
         base_textures.append(pygame.image.load(default_path + img))
-    else:
-        new_names = []
-        new_textures = []
-        new_base_textures = []
-        for sub_img in os.listdir(default_path + img + '/'):
-            new_names.append(sub_img)
-            myTexture = pygame.image.load(default_path + img + '/' + sub_img)
-            new_textures.append(myTexture)
-            new_base_textures.append(myTexture)
-
-        image_class_familly.append([img, new_names, new_textures, new_base_textures])
 
 def resize_textures(size):
     #resize the original textures based on the zoom level. If we were to do this with 
@@ -63,14 +50,12 @@ simple_textures_dict = {
     "Ore2" : "A-simple-ore2"
     }
 
-fam_last_index = len(image_class_familly)
-last_index = len(avalible_textures) + len(image_class_familly)
+last_index = len(avalible_textures)
 
 class Tile:
-    def __init__(self, position, collidable, image_class, image_name, ore, unit, structure):
+    def __init__(self, position, collidable, image_name, ore, unit, structure):
         self.position = position            #a tuple for the position
         self.collidable = collidable        #check if a unit can be placed there (ex. a wall or water)
-        self.image_class = image_class
         self.image_name = image_name        #the name of the image. Used by texture_names.
         self.ore = ore                      #The ore oject.
         self.unit = unit                    #store what unit is occupying this tile

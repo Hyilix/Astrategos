@@ -474,7 +474,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
     for x in range(rows):  #Create the map with empty tiles
         newLine = []
         for y in range(tiles_per_row):
-            newTile = TileClass.Tile((y, x), False, None, TileClass.empty_image_name, None, None, None)
+            newTile = TileClass.Tile((y, x), False, TileClass.empty_image_name, None, None, None)
             newLine.append(newTile)
             newTile.DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
         tiles.append(newLine)
@@ -501,9 +501,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
     }
 
     def image_modifier(x,y, special_blit = False):
-        #if current_index < len(TileClass.avalible_textures):
         if GUI.current_texture_screen == "Tiles":
-            tiles[y][x].image_name = TileClass.avalible_textures[current_index]
             tiles[y][x].image_name = TileClass.avalible_textures[current_index]
         elif GUI.current_texture_screen == "Structures":
             struct = Structures.Structure(Structures.texture_names[current_index][:-4], (x,y), GUI.controller_selection)
@@ -517,9 +515,6 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                 result = 2
             ore = Ores.Ore((x,y), Ores.texture_names[current_index][:-4], result)
             tiles[y][x].ore = ore
-        '''else:
-            if GUI.current_texture_screen == "Tiles":
-                tiles[y][x].image_name = TileClass.avalible_textures[current_index]'''
 
         if Editor_var_dict["Eraser"] == True:
             tiles[y][x].structure = None
@@ -672,11 +667,12 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                         elif mouse_pos[1] % (GUI.texture_size + GUI.texture_distance) < GUI.texture_distance:
                             break
                         else:
-                            index = GUI.max_x_pos * y_layer + x_layer
+                            index = (GUI.max_x_pos * y_layer + x_layer) + (GUI.current_tab - 1) * GUI.texture_cap
                             if GUI.max_x_pos * y_layer > 0: index += y_layer
                             if index < index_to_use:
                                 current_index = index
                                 GUI.Draw_Textures_GUI((x_layer, y_layer))
+                                print(GUI.texture_cap)
 
                     elif GUI.GUIs_enabled == True and mouse_pos[0] >= WIDTH - GUI.Texture_x_size - GUI.Tool_x_size:
                         #Check if the mouse is inside the ToolsGUI
@@ -760,35 +756,50 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                             if y_layer >= 0 and y_layer < rows:
                                 place_tile(tiles[y_layer][x_layer].image_name[:-4], True)
 
-                modifier = 0
-                if event.button == 4:
-                    modifier = 1
-                elif event.button == 5:
-                    modifier = -1
-               
                 if event.button == 4 or event.button == 5:
 
-                    #modifier = -1 * event.button + event.button
+                    if GUI.GUIs_enabled == True and mouse_pos[0] >= WIDTH - GUI.Texture_x_size - GUI.Tool_x_size:
+                        dmodifier = 0
+                        if event.button == 4:
+                            dmodifier = -1
+                        elif event.button == 5:
+                            dmodifier = 1
 
-                    last_map_size_x = current_tile_length * tiles_per_row
-                    last_map_size_y = current_tile_length * rows
+                        if GUI.current_tab + dmodifier >= 1 and GUI.current_tab + dmodifier <= GUI.tabs:
+                            GUI.current_tab = GUI.current_tab + dmodifier
+                            index = (GUI.current_tab - 1) * GUI.texture_cap
+                            current_index = index
+                            GUI.Draw_Textures_GUI((0,0))
 
-                    #Update the zoom and tile length
-                    CurrentCamera.zoom += 0.1 * modifier
-                    CurrentCamera.Update_Camera_Zoom_Level()
-                    current_tile_length = int(normal_tile_length * CurrentCamera.zoom)
+                    if not (GUI.GUIs_enabled == True and mouse_pos[0] >= WIDTH - GUI.Texture_x_size - GUI.Tool_x_size):
 
-                    map_size_x = current_tile_length * tiles_per_row
-                    map_size_y = current_tile_length * rows
+                        modifier = 0
+                        if event.button == 4:
+                            modifier = 1
+                        elif event.button == 5:
+                            modifier = -1
 
-                    CurrentCamera.Check_Camera_Boundaries()
-                    #TODO: Make a way to zoom in/out with minimal lag. This method is very bad but for now it works... kinda.
-                    #Apparently it works well with low texture sizes.
-                    try:
-                        mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
-                        CurrentCamera.Calculate_After_Zoom_Position(last_map_size_x, map_size_x, last_map_size_y, map_size_y)
-                    except:     #if that failed, the surface is too big.
-                        print("Can't zoom in further")
+                        #modifier = -1 * event.button + event.button
+
+                        last_map_size_x = current_tile_length * tiles_per_row
+                        last_map_size_y = current_tile_length * rows
+
+                        #Update the zoom and tile length
+                        CurrentCamera.zoom += 0.1 * modifier
+                        CurrentCamera.Update_Camera_Zoom_Level()
+                        current_tile_length = int(normal_tile_length * CurrentCamera.zoom)
+
+                        map_size_x = current_tile_length * tiles_per_row
+                        map_size_y = current_tile_length * rows
+
+                        CurrentCamera.Check_Camera_Boundaries()
+                        #TODO: Make a way to zoom in/out with minimal lag. This method is very bad but for now it works... kinda.
+                        #Apparently it works well with low texture sizes.
+                        try:
+                            mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
+                            CurrentCamera.Calculate_After_Zoom_Position(last_map_size_x, map_size_x, last_map_size_y, map_size_y)
+                        except:     #if that failed, the surface is too big.
+                            print("Can't zoom in further")
 
             if event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:   #Left-click. Editor specific
