@@ -670,7 +670,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                         else:
                             index = (GUI.max_x_pos * y_layer + x_layer) + (GUI.current_tab - 1) * GUI.texture_cap
                             if GUI.max_x_pos * y_layer > 0: index += y_layer
-                            if index < index_to_use:
+                            if index < index_to_use and index <= GUI.texture_cap:
                                 current_index = index
                                 GUI.Draw_Textures_GUI((x_layer, y_layer))
                                 print(GUI.texture_cap)
