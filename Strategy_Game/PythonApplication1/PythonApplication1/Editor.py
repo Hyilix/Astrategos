@@ -274,13 +274,13 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
         Running = False
 
     def change_texture_screen(screen):
+        GUI.current_tab = 1
         print(screen)
         GUI.current_texture_screen = screen
         nonlocal current_index
         current_index = 0
         GUI.Draw_Textures_GUI((0,0))
         GUI.Draw_Tools_GUI(GUI.last_tool_position, Brush_size)
-        GUI.current_tab = 1
 
     def change_dimension(dimension):
         nonlocal rows
