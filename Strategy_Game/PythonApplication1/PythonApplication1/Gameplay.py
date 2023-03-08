@@ -127,6 +127,13 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         #Partea de sus
         pygame.draw.rect(WIN,(225, 223, 240),(0,0,WIDTH,HEIGHT/25))
         pygame.draw.rect(WIN,(25,25,25),(0,HEIGHT/25,WIDTH,5))
+        #Afisarea resurselor detinute
+        mit_count = Font.render(str(Mithril),True,(0,0,0))
+        mit_rect = mit_count.get_rect()
+        WIN.blit(mit_count,(5,(HEIGHT/25-mit_rect[3])/2))
+        fle_count = Font.render(str(Flerovium),True,(0,0,0))
+        fle_rect = fle_count.get_rect()
+        WIN.blit(fle_count,(15 + mit_rect[2],(HEIGHT/25-fle_rect[3])/2))
         #turn part
         pygame.draw.rect(WIN,Player_Colors[playeri[Whos_turn][1]],((WIDTH-260)/2,0,260,HEIGHT*2/25 + 5))
         pygame.draw.rect(WIN,(225, 223, 240),((WIDTH-250)/2,0,250,HEIGHT*2/25 ))
@@ -168,7 +175,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     elements = len(structures)
                 else :
                     elements = len(units)
-                for i in range(math.ceil(elements/3)) :
+                for i in range(construction_tab_scroll,math.ceil(elements/3)) :
                     y_rand = HEIGHT*2/3 +5 + i*70 + i*10 - C_menu_scroll
                     if y_rand+35 > HEIGHT*2/3 and y_rand < HEIGHT  :
                         for j in range(min(elements-i*3,3)) :
@@ -304,6 +311,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     selected_tile = [None,None]
     tile_empty = True
     construction_tab = "Structures"
+    construction_tab_scroll = 0
+    #Resursele playerului 
+    Mithril = 0
+    Flerovium = 0
     # Incarcarea variabilelor necesare rolurilor de host si client
     if Role == "host" :
         Confirmatii_timer = 0
@@ -571,6 +582,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     #detecteaza daca playeru a schimbat coinstruction tabul
                     elif press_coordonaits[0]> WIDTH-HEIGHT/3 and press_coordonaits[1] <= HEIGHT*2/3 -5 and press_coordonaits[1] >= HEIGHT*2/3 -55 :
                         Element_selectat = None
+                        construction_tab_scroll = 0
                         if construction_tab == "Structures" :
                             construction_tab = "Units"
                         elif construction_tab == "Units" :
@@ -602,6 +614,14 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         chat_scroll = chat_scroll +1
                         if chat_scroll > len(chat_archive) - 31:
                             chat_scroll = len(chat_archive) - 31
+                    elif press_coordonaits[0]> WIDTH-HEIGHT/3 and press_coordonaits[1] >= HEIGHT*2/3  :
+                        construction_tab_scroll = construction_tab_scroll + 1
+                        if construction_tab == "Structures" and construction_tab_scroll > math.ceil(len(structures)/3) -3 :
+                            construction_tab_scroll = math.ceil(len(structures)/3) -3
+                        elif construction_tab == "Units" and construction_tab_scroll > math.ceil(len(units)/3) -3 :
+                            construction_tab_scroll = math.ceil(len(units)/3) -3
+                        if construction_tab_scroll < 0:
+                            construction_tab_scroll = 0
                         
                 #daca dai scrol in jos
                 elif event.button == 5 :
@@ -609,13 +629,18 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         chat_scroll = chat_scroll - 1
                         if chat_scroll < 0 :
                             chat_scroll = 0
+                    elif press_coordonaits[0]> WIDTH-HEIGHT/3 and press_coordonaits[1] >= HEIGHT*2/3  :
+                        construction_tab_scroll = construction_tab_scroll - 1
+                        if construction_tab_scroll < 0 :
+                            construction_tab_scroll = 0
 
                 #Zoom si check_boundary pentru camera.
                 modifier = 0
-                if event.button == 4:
-                    modifier = 1
-                elif event.button == 5:
-                    modifier = -1
+                if (Chat_window == True and press_coordonaits[0] >= (WIDTH-260)/2 + 265) == 0 and (press_coordonaits[0]> WIDTH-HEIGHT/3 and press_coordonaits[1] >= HEIGHT*2/3 and selected_tile[0] !=None and tile_empty == True) == 0 :
+                    if event.button == 4:
+                        modifier = 1
+                    elif event.button == 5:
+                        modifier = -1
                
                 last_map_size_x = current_tile_length * tiles_per_row
                 last_map_size_y = current_tile_length * rows
