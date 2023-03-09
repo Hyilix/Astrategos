@@ -22,7 +22,6 @@ def resize_textures(size):
 last_index = len(texture_names)
 
 predefined_Units = {   #HP, MaxHp, attack, defence, Range, fog_range, Price
-    "Scout" : [5, 5, 2, 3, 1, (1,1), (3,0)],
     "Marine" : [5, 5, 2, 3, 1, (1,1), (6,0)],
     "Phantom" : [5, 5, 2, 3, 1, (1,1), (10,0)],
     }
