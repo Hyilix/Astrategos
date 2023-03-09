@@ -333,7 +333,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     Mithril = 5555
     Flerovium = 5555
     #Vectorul care detine actiunile playerului din tura lui
-    Turn_Acion = []
+    Turn_Actions = []
     # Incarcarea variabilelor necesare rolurilor de host si client
     if Role == "host" :
         Confirmatii_timer = 0
