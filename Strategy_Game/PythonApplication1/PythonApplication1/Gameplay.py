@@ -318,7 +318,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     new_vec = []
                     for y in range(tiles_per_row):        
                         loaded_object = pickle.load(infile)
-                        new_unit, new_structure = None, None
+                        new_unit, new_structure, new_ore = None, None, None
                         if loaded_object["Unit"]:  
                             new_unit = Units.Unit(loaded_object["Unit"]["Name"],
                                                     loaded_object["Unit"]["Position"],
@@ -331,11 +331,16 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                                     loaded_object["Structure"]["Owner"]
                                                     )
 
+                        if loaded_object["Ore"]:
+                            new_ore = Ores.Ore(loaded_object["Ore"]["Position"],
+                                                    loaded_object["Ore"]["Name"],
+                                                    loaded_object["Ore"]["Tier"]
+                                                    )
+
                         new_tile = TileClass.Tile(loaded_object["Position"],
                                                     loaded_object["Collidable"],
-                                                    None,     #Image Class
                                                     loaded_object["Image_name"],
-                                                    None,     #Special
+                                                    new_ore,
                                                     new_unit,
                                                     new_structure
                                                     )
@@ -353,7 +358,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
         except:
             print("No such file exists")
-
     load_map(map_name)
 
     mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
