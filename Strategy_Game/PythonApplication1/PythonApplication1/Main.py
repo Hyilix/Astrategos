@@ -10,6 +10,6 @@ HEIGHT = screen.current_h
 FPS = 60
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 
-
+print(HEIGHT/25)
 #Aici se intra in meniu
 Menu.menu_screen(WIN,WIDTH,HEIGHT,FPS)
