@@ -55,6 +55,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     pygame.display.update()
 
     chat_icon = pygame.transform.scale(pygame.image.load('Assets/Gameplay_UI/chatbox-icon.png'),(60,60))
+    mithril_icon = pygame.transform.scale(pygame.image.load('Assets/Gameplay_UI/mars-mithril-bar-1.png'),(32,32))
+    flerovium_icon = pygame.transform.scale(pygame.image.load('Assets/Gameplay_UI/mars-flerovium-crystal-1.png'),(32,32))
 
     # incaracarea imaginilor structurilor si unitatilor care le poate produce playeru, cu culoarea specifica.
     spatiu_intre = (HEIGHT/3 - 10 - 70*3)/2
@@ -128,12 +130,14 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         pygame.draw.rect(WIN,(225, 223, 240),(0,0,WIDTH,HEIGHT/25))
         pygame.draw.rect(WIN,(25,25,25),(0,HEIGHT/25,WIDTH,5))
         #Afisarea resurselor detinute
-        mit_count = Font.render(str(Mithril),True,(0,0,0))
+        WIN.blit(mithril_icon,(5,(HEIGHT/25-32)/2))
+        mit_count = Font.render(str(Mithril),True,(75, 91, 248))
         mit_rect = mit_count.get_rect()
-        WIN.blit(mit_count,(5,(HEIGHT/25-mit_rect[3])/2))
-        fle_count = Font.render(str(Flerovium),True,(0,0,0))
+        WIN.blit(mit_count,(15 + 32,(HEIGHT/25-mit_rect[3])/2))
+        fle_count = Font.render(str(Flerovium),True,(152, 65, 182))
         fle_rect = fle_count.get_rect()
-        WIN.blit(fle_count,(15 + mit_rect[2],(HEIGHT/25-fle_rect[3])/2))
+        WIN.blit(flerovium_icon,(15+32+60+10,(HEIGHT/25-32)/2))
+        WIN.blit(fle_count,(15+64+60+20,(HEIGHT/25-fle_rect[3])/2))
         #turn part
         pygame.draw.rect(WIN,Player_Colors[playeri[Whos_turn][1]],((WIDTH-260)/2,0,260,HEIGHT*2/25 + 5))
         pygame.draw.rect(WIN,(225, 223, 240),((WIDTH-250)/2,0,250,HEIGHT*2/25 ))
@@ -313,8 +317,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     construction_tab = "Structures"
     construction_tab_scroll = 0
     #Resursele playerului 
-    Mithril = 0
-    Flerovium = 0
+    Mithril = 5555
+    Flerovium = 5555
+    #Vectorul care detine actiunile playerului din tura lui
+    Turn_Acion = []
     # Incarcarea variabilelor necesare rolurilor de host si client
     if Role == "host" :
         Confirmatii_timer = 0
@@ -573,7 +579,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         if x_layer >= 0 and x_layer < tiles_per_row:
                             if y_layer >= 0 and y_layer < rows:
                                 selected_tile = [x_layer,y_layer]
-                                if tiles[y_layer][x_layer].structure == None and tiles[y_layer][x_layer].ore == None and tiles[y_layer][x_layer].unit == None :
+                                if tiles[y_layer][x_layer].structure == None and tiles[y_layer][x_layer].ore == None and tiles[y_layer][x_layer].unit == None and tiles[y_layer][x_layer].collidable == False :
                                     if tile_empty != True :
                                         tile_empty = True
                                         Element_selectat = None
