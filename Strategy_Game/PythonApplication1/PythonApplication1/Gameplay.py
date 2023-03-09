@@ -69,11 +69,24 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     for filename in os.listdir(directory):
         adres=os.path.join(directory, filename)
         structures.append(pygame.transform.scale(pygame.image.load(adres),(64,64)))
+    #colorarea structurilor cu culoarea playerului
+    for structure in structures :
+        for i in range(structure.get_width()):
+            for j in range(structure.get_height()):
+                if structure.get_at((i,j)) == (1,1,1):
+                    structure.set_at((i,j), Player_Colors[playeri[Pozitie][1]])
+
     units = []
     directory = "Assets" + '\\' + "Units"
     for filename in os.listdir(directory):
         adres=os.path.join(directory, filename)
         units.append(pygame.transform.scale(pygame.image.load(adres),(64,64)))
+    #colorarea unitatilor cu culoarea playerului
+    for unit in units :
+        for i in range(unit.get_width()):
+            for j in range(unit.get_height()):
+                if unit.get_at((i,j)) == (1,1,1):
+                    unit.set_at((i,j), Player_Colors[playeri[Pozitie][1]])
 
 
     def draw_window () :
@@ -189,10 +202,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             else :
                                 pygame.draw.rect(WIN,Light_Green,(x_coloana,y_rand,70,70))
                             pygame.draw.rect(WIN,Gri,(x_coloana+2,y_rand+2,66,66))
-                if construction_tab == "Structures" :
-                    WIN.blit(structures[i*3+j],(x_coloana+3,y_rand+3))
-                else :
-                    WIN.blit(units[i*3+j],(x_coloana+3,y_rand+3))
+                            if construction_tab == "Structures" :
+                                WIN.blit(structures[i*3+j],(x_coloana+3,y_rand+3))
+                            else :
+                                WIN.blit(units[i*3+j],(x_coloana+3,y_rand+3))
                 #Afisarea imaginii si informatiilor elementului selectat din meniul de structuri
                 if Element_selectat != None :
                     #desenare chenarul in care sa se incadreze imaginea
