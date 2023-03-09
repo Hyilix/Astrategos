@@ -110,7 +110,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                     new_vec = []
                     for y in range(tiles_per_row):        
                         loaded_object = pickle.load(infile)
-                        new_unit, new_structure = None, None
+                        new_unit, new_structure, new_ore = None, None, None
                         if loaded_object["Unit"]:  
                             new_unit = Units.Unit(loaded_object["Unit"]["Name"],
                                                     loaded_object["Unit"]["Position"],
@@ -123,11 +123,16 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                                                     loaded_object["Structure"]["Owner"]
                                                     )
 
+                        if loaded_object["Ore"]:
+                            new_ore = Ores.Ore(loaded_object["Ore"]["Position"],
+                                                    loaded_object["Ore"]["Name"],
+                                                    loaded_object["Ore"]["Tier"]
+                                                    )
+
                         new_tile = TileClass.Tile(loaded_object["Position"],
                                                     loaded_object["Collidable"],
-                                                    None,     #Image Class
                                                     loaded_object["Image_name"],
-                                                    None,     #Special
+                                                    new_ore,
                                                     new_unit,
                                                     new_structure
                                                     )
@@ -147,7 +152,6 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
             GUI_BUTTONS[-1].render_text()
             GUI_BUTTONS[-2].text = "Rows: " + str(rows)
             GUI_BUTTONS[-2].render_text()
-
 
         except:
             print("No such file exists")
@@ -169,6 +173,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                 for y in range(tiles_per_row):
                     rawUnitData = {}
                     rawStructureData = {}
+                    rawOreData = {}
                     if tiles[x][y].structure != None:
                         rawStructureData = {
                             "Position" : tiles[x][y].structure.position,
@@ -183,12 +188,20 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                             "Name" : tiles[x][y].unit.name,
                             }
 
+                    if tiles[x][y].ore != None:
+                        rawOreData = {
+                            "Position" : tiles[x][y].ore.position,
+                            "Name" : tiles[x][y].ore.image_name,
+                            "Tier" : tiles[x][y].ore.tier,
+                            }
+
                     rawTileData = {
                         "Position" : tiles[x][y].position,
                         "Collidable" : tiles[x][y].collidable,
                         "Image_name" : tiles[x][y].image_name,
                         "Unit" : rawUnitData,
                         "Structure" : rawStructureData,
+                        "Ore" : rawOreData,
                         }
 
                     pickle.dump(rawTileData, outfile)
@@ -521,6 +534,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
             tiles[y][x].structure = None
             tiles[y][x].special = None
             tiles[y][x].unit = None
+            tiles[y][x].ore = None
         tiles[y][x].collidable = Editor_var_dict["ZCollision"]
         tiles[y][x].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
         if special_blit == True:
@@ -670,7 +684,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                         else:
                             index = (GUI.max_x_pos * y_layer + x_layer) + (GUI.current_tab - 1) * GUI.texture_cap
                             if GUI.max_x_pos * y_layer > 0: index += y_layer
-                            if index < index_to_use and index <= GUI.texture_cap:
+                            if index < index_to_use and index <= GUI.texture_cap * GUI.current_tab:
                                 current_index = index
                                 GUI.Draw_Textures_GUI((x_layer, y_layer))
                                 print(GUI.texture_cap)
