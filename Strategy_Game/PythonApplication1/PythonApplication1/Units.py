@@ -21,10 +21,9 @@ def resize_textures(size):
 
 last_index = len(texture_names)
 
-predefined_Units = {   #HP, MaxHp, attack, defence, Range, fog_range
-    "Scout" : [5, 5, 2, 3, 1, (1,1)],
-    "Marine" : [5, 5, 2, 3, 1, (1,1)],
-    "Phantom" : [5, 5, 2, 3, 1, (1,1)],
+predefined_Units = {   #HP, MaxHp, attack, defence, Range, fog_range, Price
+    "Marine" : [5, 5, 2, 3, 1, (1,1), (6,0)],
+    "Phantom" : [5, 5, 2, 3, 1, (1,1), (10,0)],
     }
 
 class Unit():
@@ -42,6 +41,8 @@ class Unit():
         self.defence = vec[3]
         self.Range = vec[4]
         self.fog_range = vec[5]      #How much can the unit see
+
+        self.price = vec[6]
 
     def DrawImage(self, screen, size, colorTable, special_blit = False):
         image = textures[texture_names.index(self.texture)].copy()
