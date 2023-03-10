@@ -336,6 +336,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     Turn_Actions = []
     # Incarcarea variabilelor necesare rolurilor de host si client
     if Role == "host" :
+        entity_catalog = [[],[],[],[]]
         Confirmatii_timer = 0
         Client_THREADS = []
         Killed_Clients = []
@@ -534,6 +535,13 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         if timer == 0 :
             if Role == "host" :
                 if Confirmatii_timer == len(CLIENTS) :
+                    #daca e tura hostului,trimite toate schimbarile facute.
+                    if Whos_turn == Pozitie :
+                        if Whos_turn == Pozitie :
+                            for i in range(len(Turn_Actions)) :
+                                Transmit_to_all.append(Turn_Actions[i],None)
+                            Turn_Actions = []
+                    #transmite la toti ca se schimba tura
                     Transmit_to_all.append((("next_turn",None),None))
                     #se schimba cel care joaca
                     Whos_turn += 1 
@@ -543,6 +551,14 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     Confirmatii_timer = 0
             else :
                 if timer_notification_sent == False :
+                    #Daca era tura clientului se trimit schimbarile
+                    if Whos_turn == Pozitie :
+                        for i in range(len(Turn_Actions)) :
+                            data_send = pickle.dumps(Turn_Actions[i])
+                            data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
+                            Connection.send(data_send)
+                        Turn_Actions = []
+                    #Se trimite confirmarea ca a ajuns timerul la zero
                     data_send = pickle.dumps(("timer is zero",None))
                     data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                     Connection.send(data_send)
