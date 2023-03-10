@@ -81,10 +81,18 @@ class Tile:
             elif self.collidable == False:
                 key = simple_textures_dict["Land"]
             screen.blit(textures[texture_names.index(key + ".png")], (self.position[0] * size[0], self.position[1]  * size[1]))
-            
+
         if self.structure != None:
-            self.structure.DrawImage(screen, size, colorTable, special_blit)
+            if colorTable[self.structure.owner] == None:
+                del self.structure
+                self.structure = None
+            else:
+                self.structure.DrawImage(screen, size, colorTable, special_blit)
         if self.unit != None:
-            self.unit.DrawImage(screen, size, colorTable, special_blit)
+            if colorTable[self.unit.owner] == None:
+                del self.unit
+                self.unit = None
+            else:
+                self.unit.DrawImage(screen, size, colorTable, special_blit)
         if self.ore != None and simple_textures_enabled == True:
             self.ore.DrawImage(screen, size, special_blit)

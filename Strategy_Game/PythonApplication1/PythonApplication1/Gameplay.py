@@ -26,6 +26,14 @@ Cyan = (60, 160, 255)
 Light_Green = (0, 255, 0)
 Player_Colors = [White,Blue,Red,Green,Yellow,Orange,Purple,Pink,Cyan]
 
+colorTable = {  #Table for assigning each controller with a color. If "None", then don't draw
+    0 : (64,64,64),
+    1 : None,
+    2 : None,
+    3 : None,
+    4 : None
+    }
+
 HEADERSIZE = 10
 SPACE = "          "
 Font = pygame.font.Font(None, 30)
@@ -50,6 +58,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     global timer 
     global Confirmatii_timer
     global chat_notification
+    global colorTable
+
+    for player in playeri:
+        colorTable[map_position] = Player_Colors[player[1]]
+    TileClass.colorTable = colorTable
 
     WIN.fill((255,255,255))
     pygame.display.update()
@@ -382,7 +395,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             self.x = int((self.x + WIDTH // 2) / last_map_size_x * map_size_x) - WIDTH // 2
             self.y = int((self.y + HEIGHT // 2) / last_map_size_y * map_size_y) - HEIGHT // 2
 
-    CurrentCamera = Camera((0,0), 1, 3, 0.4)
+    CurrentCamera = Camera((0,0), 1, 1.4, 0.4)
 
     normal_tile_length = int(TileClass.base_texture_length * (WIDTH / HEIGHT))     #the length of a tile when the zoom is 1
     current_tile_length = normal_tile_length * CurrentCamera.zoom
