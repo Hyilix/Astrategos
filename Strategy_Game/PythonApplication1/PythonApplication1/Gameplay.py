@@ -334,6 +334,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     Flerovium = 5555
     #Vectorul care detine actiunile playerului din tura lui
     Turn_Actions = []
+    Ctrl_zeed = False
     # Incarcarea variabilelor necesare rolurilor de host si client
     if Role == "host" :
         entity_catalog = [[],[],[],[]]
@@ -705,6 +706,13 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 #Daca scrie in chat
 
                 if writing_in_chat == False:
+                    if event.key == pygame.K_z and event.mod & pygame.KMOD_CTRL :
+                        if Ctrl_zeed == False and Whos_turn == Pozitie and timer >0 :
+                            Ctrl_zeed = True 
+                            #Se da reverse la ultima actiune luata in Tura playerului
+                    elif Ctrl_zeed == True :
+                        Ctrl_zeed = False
+
                     if event.unicode.lower() == 'p':    #Enable/Disable simple textures
                         TileClass.simple_textures_enabled = not TileClass.simple_textures_enabled
 
