@@ -311,7 +311,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         if len(rand) > 0 :
             chat_archive.append((Font.render(rand,True,color),0))
 
-
+    def reverse_action (Action) :
+        x=10
 
     #variabilele necesare indiferent de rol
     Whos_turn = 0
@@ -710,6 +711,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         if Ctrl_zeed == False and Whos_turn == Pozitie and timer >0 :
                             Ctrl_zeed = True 
                             #Se da reverse la ultima actiune luata in Tura playerului
+                            if len(Turn_Actions) > 0 :
+                                reverse_action(Turn_Actions[-1])
+                                Turn_Actions.pop(-1)
                     elif Ctrl_zeed == True :
                         Ctrl_zeed = False
 
