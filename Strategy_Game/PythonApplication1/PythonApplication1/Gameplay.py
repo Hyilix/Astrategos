@@ -26,6 +26,14 @@ Cyan = (60, 160, 255)
 Light_Green = (0, 255, 0)
 Player_Colors = [White,Blue,Red,Green,Yellow,Orange,Purple,Pink,Cyan]
 
+colorTable = {  #Table for assigning each controller with a color. If "None", then don't draw
+    0 : (64,64,64),
+    1 : None,
+    2 : None,
+    3 : None,
+    4 : None
+    }
+
 HEADERSIZE = 10
 SPACE = "          "
 Font = pygame.font.Font(None, 30)
@@ -44,12 +52,23 @@ tiles_per_row = 40
 
 tiles = []
 
+visible_tiles = []  #When Sorin will implement a vector for each player's units and structures, implement fog of war into game.
+partially_visible_tiles = []
+
 #De stiut map_position este un nr de la 1 la 4 care reprezinta ce pozitie ii apartine acestei instante pe harta
 def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client,map_name,map_position) :
     global run
     global timer 
     global Confirmatii_timer
     global chat_notification
+    global colorTable
+
+    TileClass.full_bright = False   #if full_bright == True, player can see the whole map at any time, like in editor.
+
+    #!!!!! TODO: Let the host assign the colors to each player, and send the colorTable to each client, so said client can utilise it in TileClass!!!!
+    for player in playeri:  #assign colors to structures and units. Any structure/unit with 
+        colorTable[map_position] = Player_Colors[player[1]]
+    TileClass.colorTable = colorTable
 
     WIN.fill((255,255,255))
     pygame.display.update()
@@ -395,7 +414,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             self.x = int((self.x + WIDTH // 2) / last_map_size_x * map_size_x) - WIDTH // 2
             self.y = int((self.y + HEIGHT // 2) / last_map_size_y * map_size_y) - HEIGHT // 2
 
-    CurrentCamera = Camera((0,0), 1, 3, 0.4)
+    CurrentCamera = Camera((0,0), 1, 1.4, 0.4)
 
     normal_tile_length = int(TileClass.base_texture_length * (WIDTH / HEIGHT))     #the length of a tile when the zoom is 1
     current_tile_length = normal_tile_length * CurrentCamera.zoom
@@ -449,6 +468,13 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                                     new_unit,
                                                     new_structure
                                                     )
+
+                        if new_tile.structure != None:  #Center camera to player's Kernel at the start of the game.
+                            if new_tile.structure.name == "Kernel" and new_tile.structure.owner == map_position:
+                                CurrentCamera.x = new_tile.structure.position[0] * current_tile_length - WIDTH // 2
+                                CurrentCamera.y = new_tile.structure.position[1] * current_tile_length - HEIGHT // 2
+                                CurrentCamera.Check_Camera_Boundaries()
+                                print("POS", map_position)
 
                         new_vec.append(new_tile)
                     tiles.append(new_vec)
