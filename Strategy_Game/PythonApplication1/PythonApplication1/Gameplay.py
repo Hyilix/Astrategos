@@ -56,7 +56,7 @@ visible_tiles = []  #When Sorin will implement a vector for each player's units 
 partially_visible_tiles = []
 
 #De stiut map_position este un nr de la 1 la 4 care reprezinta ce pozitie ii apartine acestei instante pe harta
-def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client,map_name,map_position) :
+def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client,map_name,map_locations) :
     global run
     global timer 
     global Confirmatii_timer
@@ -330,7 +330,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         if len(rand) > 0 :
             chat_archive.append((Font.render(rand,True,color),0))
 
-
+    def reverse_action (Action) :
+        x=10
 
     #variabilele necesare indiferent de rol
     Whos_turn = 0
@@ -352,7 +353,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     Mithril = 5555
     Flerovium = 5555
     #Vectorul care detine actiunile playerului din tura lui
-    Turn_Acion = []
+    Turn_Actions = []
+    Ctrl_zeed = False
     # Incarcarea variabilelor necesare rolurilor de host si client
     if Role == "host" :
         Confirmatii_timer = 0
@@ -560,6 +562,13 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         if timer == 0 :
             if Role == "host" :
                 if Confirmatii_timer == len(CLIENTS) :
+                    #daca e tura hostului,trimite toate schimbarile facute.
+                    if Whos_turn == Pozitie :
+                        if Whos_turn == Pozitie :
+                            for i in range(len(Turn_Actions)) :
+                                Transmit_to_all.append(Turn_Actions[i],None)
+                            Turn_Actions = []
+                    #transmite la toti ca se schimba tura
                     Transmit_to_all.append((("next_turn",None),None))
                     #se schimba cel care joaca
                     Whos_turn += 1 
@@ -569,6 +578,14 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     Confirmatii_timer = 0
             else :
                 if timer_notification_sent == False :
+                    #Daca era tura clientului se trimit schimbarile
+                    if Whos_turn == Pozitie :
+                        for i in range(len(Turn_Actions)) :
+                            data_send = pickle.dumps(Turn_Actions[i])
+                            data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
+                            Connection.send(data_send)
+                        Turn_Actions = []
+                    #Se trimite confirmarea ca a ajuns timerul la zero
                     data_send = pickle.dumps(("timer is zero",None))
                     data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                     Connection.send(data_send)
@@ -715,6 +732,16 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 #Daca scrie in chat
 
                 if writing_in_chat == False:
+                    if event.key == pygame.K_z and event.mod & pygame.KMOD_CTRL :
+                        if Ctrl_zeed == False and Whos_turn == Pozitie and timer >0 :
+                            Ctrl_zeed = True 
+                            #Se da reverse la ultima actiune luata in Tura playerului
+                            if len(Turn_Actions) > 0 :
+                                reverse_action(Turn_Actions[-1])
+                                Turn_Actions.pop(-1)
+                    elif Ctrl_zeed == True :
+                        Ctrl_zeed = False
+
                     if event.unicode.lower() == 'p':    #Enable/Disable simple textures
                         TileClass.simple_textures_enabled = not TileClass.simple_textures_enabled
 
