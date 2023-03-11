@@ -338,7 +338,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     Ctrl_zeed = False
     # Incarcarea variabilelor necesare rolurilor de host si client
     if Role == "host" :
-        entity_catalog = [[],[],[],[]]
         Confirmatii_timer = 0
         Client_THREADS = []
         Killed_Clients = []
