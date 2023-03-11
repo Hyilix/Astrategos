@@ -23,6 +23,9 @@ avalible_textures = []
 
 base_texture_length = 32
 
+full_bright = False
+
+
 for img in os.listdir(default_path):
     if img[-4:] == '.png':
         if img[0:8] != "A-simple":

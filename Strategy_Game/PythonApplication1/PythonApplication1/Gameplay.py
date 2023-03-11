@@ -60,7 +60,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     global chat_notification
     global colorTable
 
-    for player in playeri:
+    TileClass.full_bright = False   #!!!!! TODO: Let the host assign the colors to each player, and send the colorTable to each client, so said client can utilise it in TileClass!!!!
+
+    for player in playeri:  #assign colors to structures and units. Any structure/unit with 
         colorTable[map_position] = Player_Colors[player[1]]
     TileClass.colorTable = colorTable
 
@@ -449,6 +451,13 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                                     new_unit,
                                                     new_structure
                                                     )
+
+                        if new_tile.structure != None:  #Center camera to player's Kernel at the start of the game.
+                            if new_tile.structure.name == "Kernel" and new_tile.structure.owner == map_position:
+                                CurrentCamera.x = new_tile.structure.position[0] * current_tile_length - WIDTH // 2
+                                CurrentCamera.y = new_tile.structure.position[1] * current_tile_length - HEIGHT // 2
+                                CurrentCamera.Check_Camera_Boundaries()
+                                print("POS", map_position)
 
                         new_vec.append(new_tile)
                     tiles.append(new_vec)
