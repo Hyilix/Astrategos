@@ -55,7 +55,7 @@ tiles = []
 visible_tiles = []  #When Sorin will implement a vector for each player's units and structures, implement fog of war into game.
 partially_visible_tiles = []
 
-#De stiut map_position este un nr de la 1 la 4 care reprezinta ce pozitie ii apartine acestei instante pe harta
+#De stiut map_locations este un vector de aceasi lungime cu vectorul de playeri care contine locatia de pe hart a fiecaruia reprezentata printr-un nr de la 1 la 4
 def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client,map_name,map_locations) :
     global run
     global timer 
