@@ -1,5 +1,6 @@
 import pygame
 import os
+import TileClass
 
 default_path = 'Assets/Units/'
 texture_names = []
@@ -21,9 +22,9 @@ def resize_textures(size):
 
 last_index = len(texture_names)
 
-predefined_Units = {   #HP, MaxHp, attack, defence, Range, fog_range, Price
-    "Marine" : [5, 5, 2, 3, 1, (1,1), (6,0)],
-    "Phantom" : [5, 5, 2, 3, 1, (1,1), (10,0)],
+predefined_Units = {   #HP, MaxHp, attack, defence, Range, fog_range, Price (Mithril, Flerovium)
+    "Marine" : [5, 5, 2, 3, 1, 5, (6,0)],
+    "Phantom" : [5, 5, 2, 3, 1, 7, (10,0)],
     }
 
 class Unit():
@@ -44,14 +45,27 @@ class Unit():
 
         self.price = vec[6]
 
-    def DrawImage(self, screen, size, colorTable, special_blit = False):
+    def DrawImage(self, screen, size, colorTable, special_blit = False, visible_tuple = None):
+
         image = textures[texture_names.index(self.texture)].copy()
+        dark = pygame.Surface(image.get_size()).convert_alpha()
+        dark.fill((0, 0, 0, 0))
         for i in range(image.get_width()):
             for j in range(image.get_height()):
                 if image.get_at((i,j)) == (1,1,1):
                     image.set_at((i,j), colorTable[self.owner])
+                if image.get_at((i,j)) != (0,0,0,0):
+                    dark.set_at((i,j), (0, 0, 0, TileClass.darken_percent * 255))
+
         if special_blit == False:
+            if TileClass.full_bright == False and not (self.position in visible_tuple[0]) and not (self.position in visible_tuple[1]):
+                image.fill(TileClass.darkness)
+            elif TileClass.full_bright == False and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
+                image.blit(dark,(0,0))
             screen.blit(image, (self.position[0] * size[0], self.position[1]  * size[1]))
         else:
             image = pygame.transform.scale(image, size)
+            dark = pygame.transform.scale(dark, size)
+            if TileClass.full_bright == False:
+                image.blit(dark, (0,0))
             screen.blit(image, (self.position[0] * size[0], self.position[1]  * size[1]))

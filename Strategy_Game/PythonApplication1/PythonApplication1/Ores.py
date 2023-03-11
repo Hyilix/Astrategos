@@ -1,5 +1,6 @@
 import pygame
 import os
+import TileClass
 
 default_path = 'Assets/Ores/'
 texture_names = []
@@ -28,10 +29,29 @@ class Ore():
 
         self.texture = self.image_name + ".png"
 
-    def DrawImage(self, screen, size, special_blit = False):
+    def DrawImage(self, screen, size, special_blit = False, visible_tuple = None):
+        image = textures[texture_names.index(self.texture)].copy()
+        dark = pygame.Surface(image.get_size()).convert_alpha()
+        dark.fill((0, 0, 0, 0))
+
+        for i in range(image.get_width()):
+            for j in range(image.get_height()):
+                if image.get_at((i,j)) != (0,0,0,0):
+                    dark.set_at((i,j), (0, 0, 0, TileClass.darken_percent * 255))
+
         if special_blit == False:
-            screen.blit(textures[texture_names.index(self.texture)], (self.position[0] * size[0], self.position[1]  * size[1]))
+            #img = textures[texture_names.index(self.texture)]
+            if TileClass.full_bright == False and not (self.position in visible_tuple[0]) and not (self.position in visible_tuple[1]):
+                image.fill(TileClass.darkness)
+            elif TileClass.full_bright == False and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
+                image.blit(dark,(0,0))
+            screen.blit(image, (self.position[0] * size[0], self.position[1]  * size[1]))
         else:
-            img = textures[texture_names.index(self.texture)].copy()
-            img = pygame.transform.scale(img, size)
-            screen.blit(img, (self.position[0] * size[0], self.position[1]  * size[1]))
+
+            image = pygame.transform.scale(image, size)
+            dark = pygame.transform.scale(dark, size)
+            if TileClass.full_bright == False and not (self.position in visible_tuple[0]) and not (self.position in visible_tuple[1]):
+                image.fill((0,0,0))
+            elif TileClass.full_bright == False and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
+                image.blit(dark,(0,0))
+            screen.blit(image, (self.position[0] * size[0], self.position[1]  * size[1]))

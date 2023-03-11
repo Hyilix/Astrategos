@@ -52,8 +52,69 @@ tiles_per_row = 40
 
 tiles = []
 
+controllables_vec = []  #Vector containing units and tiles.
+
 visible_tiles = []  #When Sorin will implement a vector for each player's units and structures, implement fog of war into game.
 partially_visible_tiles = []
+
+def draw_star(length, y, x):
+    visited_vec = []
+    queued_tiles = [(y,x)]
+
+    directions = [
+        (-1,0),
+        (1,0),
+        (0,1),
+        (0,-1)
+    ]
+
+    checks = 0
+    tries = 0
+
+    isDone = False
+
+    while not isDone:
+        if length < 0: break
+        new_tiles = []
+
+        for myTile in queued_tiles:
+            tries += 1
+
+            x = myTile[1]
+            y = myTile[0]
+
+            if (y, x) not in visited_vec:
+                if x >= 0 and y >= 0 and y < rows and x < tiles_per_row:
+                    checks += 1
+                    visited_vec.append((y, x))
+                    if (x, y) not in visible_tiles: visible_tiles.append((x, y))
+                    if (x, y) not in partially_visible_tiles: partially_visible_tiles.append((x, y))
+                    for direction in directions:
+                        in_x = direction[0]
+                        in_y = direction[1]
+                        if (y + in_y, x + in_x) not in visited_vec:
+                            if tiles[y][x].collidable == False:
+                                new_tiles.append((y + in_y, x + in_x))
+                            elif tiles[y][x].collidable == True and tiles[y + in_y][x + in_x].collidable == False:
+                                new_tiles.append((y + in_y, x + in_x))
+
+
+        queued_tiles.clear()
+
+        if len(new_tiles) == 0: isDone = True
+
+        queued_tiles += new_tiles
+        length -= 1
+
+    visited_vec.clear()
+    queued_tiles.clear()
+
+def determine_visible_tiles():
+    visible_tiles.clear()
+    for obj in controllables_vec:
+        draw_star(obj.fog_range, obj.position[1], obj.position[0])
+
+    print(visible_tiles)
 
 #De stiut map_locations este un vector de aceasi lungime cu vectorul de playeri care contine locatia de pe hart a fiecaruia reprezentata printr-un nr de la 1 la 4
 def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client,map_name,map_locations) :
@@ -63,13 +124,21 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     global chat_notification
     global colorTable
 
+    colorTable = {  #Remake the dictionary
+    0 : (64,64,64),
+    1 : None,
+    2 : None,
+    3 : None,
+    4 : None
+    }
+
     TileClass.full_bright = False   #if full_bright == True, player can see the whole map at any time, like in editor.
-
-
-    #!!!!! TODO: Let the host assign the colors to each player, and send the colorTable to each client, so said client can utilise it in TileClass!!!!
+    index = 0
     for player in playeri:  #assign colors to structures and units. Any structure/unit with 
-        colorTable[map_position] = Player_Colors[player[1]]
+        colorTable[map_locations[index]] = Player_Colors[player[1]]
+        index += 1
     TileClass.colorTable = colorTable
+    del index
 
     WIN.fill((255,255,255))
     pygame.display.update()
@@ -419,7 +488,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
     CurrentCamera = Camera((0,0), 1, 1.4, 0.4)
 
-    normal_tile_length = int(TileClass.base_texture_length * (WIDTH / HEIGHT))     #the length of a tile when the zoom is 1
+    normal_tile_length = TileClass.base_texture_length    #the length of a tile when the zoom is 1
     current_tile_length = normal_tile_length * CurrentCamera.zoom
 
     TileClass.resize_textures(current_tile_length)
@@ -472,19 +541,29 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                                     new_structure
                                                     )
 
-                        if new_tile.structure != None:  #Center camera to player's Kernel at the start of the game.
-                            if new_tile.structure.name == "Kernel" and new_tile.structure.owner == map_position:
+                        #Save controlling units and structures
+                        if new_tile.structure != None: 
+                            #Center camera to player's Kernel at the start of the game.
+                            if new_tile.structure.name == "Kernel" and new_tile.structure.owner == map_locations[Pozitie]:
                                 CurrentCamera.x = new_tile.structure.position[0] * current_tile_length - WIDTH // 2
                                 CurrentCamera.y = new_tile.structure.position[1] * current_tile_length - HEIGHT // 2
                                 CurrentCamera.Check_Camera_Boundaries()
-                                print("POS", map_position)
+
+                            if new_tile.structure.owner == map_locations[Pozitie]:
+                                controllables_vec.append(new_tile.structure)
+
+                        if new_tile.unit != None:
+                            if new_tile.unit.owner == map_locations[Pozitie]:
+                                controllables_vec.append(new_tile.unit)
 
                         new_vec.append(new_tile)
                     tiles.append(new_vec)
 
+            determine_visible_tiles()
+
             for x in range(rows):  #Redraw the whole map
                 for y in range(tiles_per_row):
-                    tiles[x][y].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+                    tiles[x][y].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles))
                 #tiles.append(newLine)
 
             nonlocal mapSurface

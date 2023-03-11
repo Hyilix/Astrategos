@@ -1,11 +1,11 @@
 import pygame
 import os
+import TileClass
 
 default_path = 'Assets/Structures/'
 texture_names = []
 textures = []
 base_textures = []
-
 
 for img in os.listdir(default_path):    #Load all images.
     texture_names.append(img)
@@ -21,8 +21,8 @@ def resize_textures(size):
 
 last_index = len(texture_names)
 
-predefined_structures = {   #HP, MaxHp, attack, defence, canShareSpace, fog_range, Price
-    "Kernel" : [100, 5, 2, 3, False, (2,2), (None,None)],
+predefined_structures = {   #HP, MaxHp, attack, defence, canShareSpace, fog_range, Price (Mithril, Flerovium)
+    "Kernel" : [100, 5, 2, 3, False, 7, (None,None)],
     }
 
 class Structure():
@@ -43,14 +43,27 @@ class Structure():
 
         self.price = vec[6]
 
-    def DrawImage(self, screen, size, colorTable, special_blit = False):
+    def DrawImage(self, screen, size, colorTable, special_blit = False, visible_tuple = None):
         image = textures[texture_names.index(self.texture)].copy()
+        dark = pygame.Surface(image.get_size()).convert_alpha()
+        dark.fill((0, 0, 0, 0))
+
         for i in range(image.get_width()):
             for j in range(image.get_height()):
                 if image.get_at((i,j)) == (1,1,1):
                     image.set_at((i,j), colorTable[self.owner])
+                if image.get_at((i,j)) != (0,0,0,0):
+                    dark.set_at((i,j), (0, 0, 0, TileClass.darken_percent * 255))
+
         if special_blit == False:
+            if TileClass.full_bright == False and not (self.position in visible_tuple[0]) and not (self.position in visible_tuple[1]):
+                image.fill(TileClass.darkness)
+            elif TileClass.full_bright == False and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
+                image.blit(dark,(0,0))
             screen.blit(image, (self.position[0] * size[0], self.position[1]  * size[1]))
         else:
             image = pygame.transform.scale(image, size)
+            dark = pygame.transform.scale(dark, size)
+            if TileClass.full_bright == False:
+                image.blit(dark, (0,0))
             screen.blit(image, (self.position[0] * size[0], self.position[1]  * size[1]))

@@ -25,7 +25,10 @@ colorTable = {  #Table for assigning each controller with a color. In editor it'
     4 : (204,204,0)
     }
 
+mouse_pos = None
+
 def editor(WIN,WIDTH,HEIGHT,FPS) :
+    global mouse_pos
     rows = 100
     tiles_per_row = 100
 
@@ -773,7 +776,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                             if y_layer >= 0 and y_layer < rows:
                                 place_tile(tiles[y_layer][x_layer].image_name[:-4], True)
 
-                if event.button == 4 or event.button == 5:
+                if event.button == 4 or event.button == 5 and mouse_pos:
 
                     if GUI.GUIs_enabled == True and mouse_pos[0] >= WIDTH - GUI.Texture_x_size - GUI.Tool_x_size:
                         dmodifier = 0
