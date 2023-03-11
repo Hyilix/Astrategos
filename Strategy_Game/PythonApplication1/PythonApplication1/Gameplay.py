@@ -54,10 +54,12 @@ tiles = []
 
 controllables_vec = []  #Vector containing units and tiles.
 
-visible_tiles = []  #When Sorin will implement a vector for each player's units and structures, implement fog of war into game.
+visible_tiles = []
 partially_visible_tiles = []
+path_tiles = [] #Tiles that a selected unit can move to
 
-def draw_star(length, y, x):
+def draw_star(length, y, x):    #Determine what tiles the player currently sees.
+    visible_tiles.clear()
     visited_vec = []
     queued_tiles = [(y,x)]
 
@@ -98,6 +100,54 @@ def draw_star(length, y, x):
                             elif tiles[y][x].collidable == True and tiles[y + in_y][x + in_x].collidable == False:
                                 new_tiles.append((y + in_y, x + in_x))
 
+        queued_tiles.clear()
+
+        if len(new_tiles) == 0: isDone = True
+
+        queued_tiles += new_tiles
+        length -= 1
+
+    visited_vec.clear()
+    queued_tiles.clear()
+
+def draw_path_star(length, y, x):
+    path_tiles.clear()
+    visited_vec = []
+    queued_tiles = [(y,x)]
+
+    directions = [
+        (-1,0),
+        (1,0),
+        (0,1),
+        (0,-1)
+    ]
+
+    checks = 0
+    tries = 0
+
+    isDone = False
+
+    while not isDone:
+        if length < 0: break
+        new_tiles = []
+
+        for myTile in queued_tiles:
+            tries += 1
+
+            x = myTile[1]
+            y = myTile[0]
+
+            if (y, x) not in visited_vec and (x, y) in visible_tiles and (x, y) in partially_visible_tiles:
+                if x >= 0 and y >= 0 and y < rows and x < tiles_per_row:
+                    checks += 1
+                    visited_vec.append((y, x))
+                    if (x, y) not in path_tiles: path_tiles.append((x, y))
+                    for direction in directions:
+                        in_x = direction[0]
+                        in_y = direction[1]
+                        if (y + in_y, x + in_x) not in visited_vec:
+                            if tiles[y][x].collidable == False and tiles[y][x].unit == None and tiles[y][x].structure == None and tiles[y][x].ore == None:
+                                new_tiles.append((y + in_y, x + in_x))
 
         queued_tiles.clear()
 
@@ -114,7 +164,6 @@ def determine_visible_tiles():
     for obj in controllables_vec:
         draw_star(obj.fog_range, obj.position[1], obj.position[0])
 
-    print(visible_tiles)
 
 #De stiut map_locations este un vector de aceasi lungime cu vectorul de playeri care contine locatia de pe hart a fiecaruia reprezentata printr-un nr de la 1 la 4
 def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client,map_name,map_locations) :
