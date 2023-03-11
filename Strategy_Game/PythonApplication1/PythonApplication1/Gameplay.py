@@ -52,6 +52,9 @@ tiles_per_row = 40
 
 tiles = []
 
+visible_tiles = []  #When Sorin will implement a vector for each player's units and structures, implement fog of war into game.
+partially_visible_tiles = []
+
 #De stiut map_position este un nr de la 1 la 4 care reprezinta ce pozitie ii apartine acestei instante pe harta
 def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client,map_name,map_position) :
     global run
@@ -60,8 +63,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     global chat_notification
     global colorTable
 
-    TileClass.full_bright = False   #!!!!! TODO: Let the host assign the colors to each player, and send the colorTable to each client, so said client can utilise it in TileClass!!!!
+    TileClass.full_bright = False   #if full_bright == True, player can see the whole map at any time, like in editor.
 
+    #!!!!! TODO: Let the host assign the colors to each player, and send the colorTable to each client, so said client can utilise it in TileClass!!!!
     for player in playeri:  #assign colors to structures and units. Any structure/unit with 
         colorTable[map_position] = Player_Colors[player[1]]
     TileClass.colorTable = colorTable
