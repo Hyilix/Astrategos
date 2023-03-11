@@ -57,7 +57,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
     global resized
     global THE_MAP
     THE_MAP = -1
-    Map_Location = -1
+    Map_Locations = []
 
     WIN.fill((255,255,255))
     pygame.display.update()
@@ -188,7 +188,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
         global Confirmation
         global run
         global THE_MAP
-        global Map_Location
+        global Map_Locations
         try :
             while True :
                 header = server.recv(10)
@@ -199,7 +199,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                     data_recv = pickle.loads(data_recv)
                     if data_recv[0] == "enter_next_stage" :
                         THE_MAP = data_recv[1]
-                        Map_Location = data_recv[2]
+                        Map_Locations = data_recv[2]
                         data_send = pickle.dumps(("enter_next_stage",None))
                         data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                         server.send(data_send)
@@ -304,17 +304,13 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                     THE_MAP = rezultat_voturi()
                     # De asemenea se determina pe ce pozitii vor di playeri
                     nr_pozitii = [1,2,3,4]
-                    rand_pos = random.randint(0,3)
-                    Host_position = nr_pozitii[rand_pos]
-                    nr_pozitii.pop(rand_pos)
-                    Client_positions = []
-                    for i in range(3) :
+                    for i in range(len(playeri)) :
                         rand_pos = random.randint(0,len(nr_pozitii)-1)
-                        Client_positions.append(nr_pozitii[rand_pos])
+                        Map_Locations.append(nr_pozitii[rand_pos])
                         nr_pozitii.pop(rand_pos)
                     #trimite tuturor playerilor ca am trecut la urmatoru stage dar le trimite si harta aleasa
                     for i in range(len(CLIENTS)) :
-                        data_send = pickle.dumps(("enter_next_stage",THE_MAP,Client_positions[i]))
+                        data_send = pickle.dumps(("enter_next_stage",THE_MAP,Map_Locations))
                         data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                         CLIENTS[i][0].send(data_send)
                     sent_reaquest = True
@@ -323,14 +319,14 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                         Client_THREADS[0].join()
                         Client_THREADS.pop(0)
                     #Enter next stage
-                    playeri, CLIENTS, Coduri_pozitie_client = gameplay(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client,map_names[THE_MAP],Host_position)
+                    playeri, CLIENTS, Coduri_pozitie_client = gameplay(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client,map_names[THE_MAP],Map_Locations)
                     #Se iese si din map_select
                     run = False
 
             elif Confirmation ==  True :
                 recv_from_server.join()
                 #Enter next stage
-                playeri, Pozitie = gameplay(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,None,None,map_names[THE_MAP],Map_Location)
+                playeri, Pozitie = gameplay(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,None,None,map_names[THE_MAP],Map_Locations)
                 #Se iese si din map_select
                 run = False
             
