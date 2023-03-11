@@ -183,7 +183,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
             data_send = pickle.dumps(playeri)
             data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
             client.send(data_send)
-            print(P)
             data_send = pickle.dumps(P)
             data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
             client.send(data_send)

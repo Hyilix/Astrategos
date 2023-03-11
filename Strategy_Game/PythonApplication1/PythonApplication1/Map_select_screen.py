@@ -50,12 +50,14 @@ for filename in os.listdir(directory):
 
 resized = False
 THE_MAP = -1
+Map_Locations = []
 
 def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client) :
     global run
     global MAPS
     global resized
     global THE_MAP
+    global Map_Locations 
     THE_MAP = -1
     Map_Locations = []
 

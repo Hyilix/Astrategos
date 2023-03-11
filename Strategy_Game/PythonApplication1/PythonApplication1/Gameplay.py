@@ -65,6 +65,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
     TileClass.full_bright = False   #if full_bright == True, player can see the whole map at any time, like in editor.
 
+
     #!!!!! TODO: Let the host assign the colors to each player, and send the colorTable to each client, so said client can utilise it in TileClass!!!!
     for player in playeri:  #assign colors to structures and units. Any structure/unit with 
         colorTable[map_position] = Player_Colors[player[1]]
