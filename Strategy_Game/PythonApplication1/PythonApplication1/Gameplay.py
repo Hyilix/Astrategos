@@ -613,7 +613,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     tiles.append(new_vec)
 
             determine_visible_tiles()
-            print(len(visible_tiles), len(partially_visible_tiles))
+
             for x in range(rows):  #Redraw the whole map
                 for y in range(tiles_per_row):
                     tiles[x][y].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles))
