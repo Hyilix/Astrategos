@@ -831,7 +831,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                 else : 
                                     tile_empty=False
 
-                                if tiles[y_layer][x_layer].unit != None and tiles[y_layer][x_layer].unit.owner == map_locations[Pozitie]:
+                                if tiles[y_layer][x_layer].unit != None and tiles[y_layer][x_layer].unit.owner == map_locations[Pozitie] and (x_layer, y_layer) in visible_tiles:
                                     selected_controllable = tiles[y_layer][x_layer].unit
                                     determine_enlighted_tiles()
                                     enlighted_surface = draw_enlighted_tiles(True)
@@ -862,9 +862,30 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                                 large_img_element_afisat = pygame.transform.scale(structures[Element_selectat],(HEIGHT/5 -50,HEIGHT/5 -50))
                                              else :
                                                 large_img_element_afisat = pygame.transform.scale(units[Element_selectat],(HEIGHT/5 -50,HEIGHT/5 -50))
-                                             break
+                                             #break
                                      break
-                                
+
+                #daca apesi click dreapta 
+                if event.button == 3:
+                    #daca ai o unitate selectata
+                    if selected_controllable != None:
+                        if (press_coordonaits[1] > HEIGHT/25 and (press_coordonaits[1] > HEIGHT*2/3 and press_coordonaits[0] < HEIGHT/3)==0) and ((press_coordonaits[0]<(WIDTH-260)/2 + 260 and Chat_window == True) or Chat_window == False) and( selected_tile[0]==None or (press_coordonaits[1] < HEIGHT*4/5-5 and (tile_empty==False or (press_coordonaits[0]>WIDTH-HEIGHT/3 and press_coordonaits[1]>HEIGHT*2/3-60)==0 ))) :
+                            x_layer = (press_coordonaits[0] + CurrentCamera.x) // current_tile_length 
+                            y_layer = (press_coordonaits[1] + CurrentCamera.y) // current_tile_length
+                            if x_layer >= 0 and x_layer < tiles_per_row:
+                                if y_layer >= 0 and y_layer < rows:
+                                    lastPos = selected_controllable.position
+                                    selected_controllable.MoveTo((x_layer, y_layer), path_tiles, tiles)
+                                    selected_controllable = None
+
+                                    del tiles[lastPos[1]][lastPos[0]].unit
+                                    tiles[lastPos[1]][lastPos[0]].unit = None
+
+                                    tiles[y_layer][x_layer].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles, path_tiles))
+                                    tiles[lastPos[1]][lastPos[0]].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles, path_tiles))
+
+                                    enlighted_surface = draw_enlighted_tiles()
+
                 #daca dai scrol in sus
                 if event.button == 4 :
                     if Chat_window == True and press_coordonaits[0] >= (WIDTH-260)/2 + 265 and len(chat_archive) > 30 :

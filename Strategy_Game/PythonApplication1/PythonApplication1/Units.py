@@ -46,6 +46,11 @@ class Unit():
 
         self.price = vec[7]
 
+    def MoveTo(self, position, path_vec, tiles):
+        if position in path_vec:
+            tiles[position[1]][position[0]].unit = self
+            tiles[position[1]][position[0]].unit.position = tiles[position[1]][position[0]].position
+
     def DrawImage(self, screen, size, colorTable, special_blit = False, visible_tuple = None):
 
         image = textures[texture_names.index(self.texture)].copy()
