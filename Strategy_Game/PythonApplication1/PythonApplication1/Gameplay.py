@@ -59,7 +59,6 @@ partially_visible_tiles = []
 path_tiles = [] #Tiles that a selected unit can move to
 
 def draw_star(length, y, x):    #Determine what tiles the player currently sees.
-    visible_tiles.clear()
     visited_vec = []
     queued_tiles = [(y,x)]
 
@@ -181,7 +180,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     4 : None
     }
 
-    TileClass.full_bright = False   #if full_bright == True, player can see the whole map at any time, like in editor.
+    TileClass.full_bright = True  #if full_bright == True, player can see the whole map at any time, like in editor.
     index = 0
     for player in playeri:  #assign colors to structures and units. Any structure/unit with 
         colorTable[map_locations[index]] = Player_Colors[player[1]]
@@ -620,8 +619,18 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
         except:
             print("No such file exists")
-    load_map(map_name)
 
+    #funcia asta face refresh la harta 
+    def refresh_map():
+        if TileClass.full_bright == True : 
+            for x in range(rows):  #Redraw the whole map
+                for y in range(tiles_per_row):
+                    tiles[x][y].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles))
+
+        mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
+
+
+    load_map(map_name)
     mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
 
     clock = pygame.time.Clock()
@@ -638,6 +647,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 Transmit_to_all.append((("leftplayer",Coduri_pozitie_client[Killed_Clients[0]] + 1),None))
                 CLIENTS.pop(Coduri_pozitie_client[Killed_Clients[0]])
                 playeri.pop(Coduri_pozitie_client[Killed_Clients[0]] + 1)
+                #modifecarea pozitiilor de pe harta si stergerea cladirilor
+                colorTable[map_locations[Coduri_pozitie_client[Killed_Clients[0]] + 1]] = None
+                TileClass.colorTable = colorTable
+                refresh_map()
+                map_locations.pop(Coduri_pozitie_client[Killed_Clients[0]] + 1 )
                 #modificarea turelor
                 if Whos_turn == Coduri_pozitie_client[Killed_Clients[0]] + 1 :
                     timer = turn_time
@@ -672,6 +686,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             while len(Changes_from_server) > 0 :
                 if Changes_from_server[0][0] == "leftplayer" :
                     playeri.pop(Changes_from_server[0][1])
+                    #modifecarea pozitiilor de pe harta si stergerea cladirilor
+                    colorTable[map_locations[Changes_from_server[0][1]]] = None
+                    TileClass.colorTable = colorTable
+                    refresh_map()
+                    map_locations.pop(Changes_from_server[0][1] )
+                    #modificarea turelor
                     if Whos_turn == Changes_from_server[0][1] :
                         timer = turn_time
                         if Whos_turn >= len(playeri) :
