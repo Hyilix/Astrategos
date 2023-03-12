@@ -50,6 +50,8 @@ class Unit():
         if position in path_vec:
             tiles[position[1]][position[0]].unit = self
             tiles[position[1]][position[0]].unit.position = tiles[position[1]][position[0]].position
+            return True
+        return False
 
     def DrawImage(self, screen, size, colorTable, special_blit = False, visible_tuple = None):
 

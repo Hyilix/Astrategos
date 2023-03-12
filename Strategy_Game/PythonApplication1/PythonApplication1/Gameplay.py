@@ -643,7 +643,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     tiles[x][y].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles, path_tiles))
 
         else:
-            for pos in visible_tiles:
+            for pos in partially_visible_tiles:
                 tiles[pos[1]][pos[0]].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles, path_tiles))
 
         mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
@@ -744,6 +744,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 Changes_from_server.pop(0)
 
         if timer == 0 :
+            determine_visible_tiles()
+            refresh_map()
             if Role == "host" :
                 if Confirmatii_timer == len(CLIENTS) :
                     #daca e tura hostului,trimite toate schimbarile facute.
@@ -867,7 +869,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
                 #daca apesi click dreapta 
                 if event.button == 3:
-                    #daca ai o unitate selectata
+                    #daca ai o unitate selectata, incearca sa o muti 
                     if selected_controllable != None:
                         if (press_coordonaits[1] > HEIGHT/25 and (press_coordonaits[1] > HEIGHT*2/3 and press_coordonaits[0] < HEIGHT/3)==0) and ((press_coordonaits[0]<(WIDTH-260)/2 + 260 and Chat_window == True) or Chat_window == False) and( selected_tile[0]==None or (press_coordonaits[1] < HEIGHT*4/5-5 and (tile_empty==False or (press_coordonaits[0]>WIDTH-HEIGHT/3 and press_coordonaits[1]>HEIGHT*2/3-60)==0 ))) :
                             x_layer = (press_coordonaits[0] + CurrentCamera.x) // current_tile_length 
@@ -875,16 +877,17 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             if x_layer >= 0 and x_layer < tiles_per_row:
                                 if y_layer >= 0 and y_layer < rows:
                                     lastPos = selected_controllable.position
-                                    selected_controllable.MoveTo((x_layer, y_layer), path_tiles, tiles)
-                                    selected_controllable = None
+                                    hasMoved = selected_controllable.MoveTo((x_layer, y_layer), path_tiles, tiles)
+                                    if hasMoved:
+                                        selected_controllable = None
 
-                                    del tiles[lastPos[1]][lastPos[0]].unit
-                                    tiles[lastPos[1]][lastPos[0]].unit = None
+                                        del tiles[lastPos[1]][lastPos[0]].unit
+                                        tiles[lastPos[1]][lastPos[0]].unit = None
 
-                                    tiles[y_layer][x_layer].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles, path_tiles))
-                                    tiles[lastPos[1]][lastPos[0]].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles, path_tiles))
+                                        tiles[y_layer][x_layer].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles, path_tiles))
+                                        tiles[lastPos[1]][lastPos[0]].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles, path_tiles))
 
-                                    enlighted_surface = draw_enlighted_tiles()
+                                        enlighted_surface = draw_enlighted_tiles()
 
                 #daca dai scrol in sus
                 if event.button == 4 :
