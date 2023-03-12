@@ -80,7 +80,7 @@ class Tile:
                 img = textures[texture_names.index(self.image_name)].copy()
                 if full_bright == False and not (self.position in visible_tuple[0]) and not (self.position in visible_tuple[1]):
                     img.fill(darkness)
-                elif full_bright == False and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
+                if full_bright == False and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
                     img.blit(dark,(0,0))
 
                 #if not (self.position in visible_tuple[0]) and (self.position in visible_tuple[2]):
@@ -92,7 +92,7 @@ class Tile:
                 img = pygame.transform.scale(img, size)
                 if full_bright == False and not (self.position in visible_tuple[0]) and not (self.position in visible_tuple[1]):
                     img.fill((0,0,0))
-                elif full_bright == False and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
+                if full_bright == False and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
                     img.blit(dark,(0,0))
 
                 #if not (self.position in visible_tuple[0]) and (self.position in visible_tuple[2]):

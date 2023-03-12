@@ -1,3 +1,4 @@
+from functools import partial
 import pygame 
 import os 
 import socket
@@ -59,7 +60,6 @@ partially_visible_tiles = []
 path_tiles = [] #Tiles that a selected unit can move to
 
 def draw_star(length, y, x):    #Determine what tiles the player currently sees.
-    visible_tiles.clear()
     visited_vec = []
     queued_tiles = [(y,x)]
 
@@ -89,8 +89,11 @@ def draw_star(length, y, x):    #Determine what tiles the player currently sees.
                 if x >= 0 and y >= 0 and y < rows and x < tiles_per_row:
                     checks += 1
                     visited_vec.append((y, x))
-                    if (x, y) not in visible_tiles: visible_tiles.append((x, y))
-                    if (x, y) not in partially_visible_tiles: partially_visible_tiles.append((x, y))
+                    if (x, y) not in visible_tiles: 
+                        visible_tiles.append((x, y))
+                    if (x, y) not in partially_visible_tiles: 
+                        partially_visible_tiles.append((x, y))
+
                     for direction in directions:
                         in_x = direction[0]
                         in_y = direction[1]
@@ -161,6 +164,7 @@ def draw_path_star(length, y, x):
 
 def determine_visible_tiles():
     visible_tiles.clear()
+    print(visible_tiles)
     for obj in controllables_vec:
         draw_star(obj.fog_range, obj.position[1], obj.position[0])
 
@@ -609,7 +613,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     tiles.append(new_vec)
 
             determine_visible_tiles()
-
+            print(len(visible_tiles), len(partially_visible_tiles))
             for x in range(rows):  #Redraw the whole map
                 for y in range(tiles_per_row):
                     tiles[x][y].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles))
