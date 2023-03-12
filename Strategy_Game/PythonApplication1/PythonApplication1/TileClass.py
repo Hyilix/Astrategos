@@ -26,9 +26,7 @@ base_texture_length = 32
 
 full_bright = False
 darken_percent = .60    #Percentage of full black to use on partial visibility
-darkness = (5,5,5)   #Color to use on non-visible tiles
-
-light_percent = .40 #Percentage of full white to use on movable tiles
+darkness = (10,10,10)   #Color to use on non-visible tiles
 
 for img in os.listdir(default_path):
     if img[-4:] == '.png':
@@ -72,9 +70,6 @@ class Tile:
         dark = pygame.Surface(size).convert_alpha()
         dark.fill((0,0,0, darken_percent * 255))
 
-        light = pygame.Surface(size).convert_alpha()
-        light.fill((255,255,255, light_percent * 255))
-
         if simple_textures_enabled == True:
             if special_blit == False:
                 img = textures[texture_names.index(self.image_name)].copy()
@@ -82,9 +77,6 @@ class Tile:
                     img.fill(darkness)
                 if full_bright == False and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
                     img.blit(dark,(0,0))
-
-                #if not (self.position in visible_tuple[0]) and (self.position in visible_tuple[2]):
-                #    img.blit(light, (0,0))
 
                 screen.blit(img, (self.position[0] * size[0], self.position[1]  * size[1]))
             else:
@@ -94,9 +86,6 @@ class Tile:
                     img.fill((0,0,0))
                 if full_bright == False and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
                     img.blit(dark,(0,0))
-
-                #if not (self.position in visible_tuple[0]) and (self.position in visible_tuple[2]):
-                #    img.blit(light, (0,0))
 
                 screen.blit(img, (self.position[0] * size[0], self.position[1]  * size[1]))
         else:
