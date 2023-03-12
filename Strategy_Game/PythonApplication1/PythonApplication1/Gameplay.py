@@ -192,7 +192,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     4 : None
     }
 
-    TileClass.full_bright = True  #if full_bright == True, player can see the whole map at any time, like in editor.
+    TileClass.full_bright = False  #if full_bright == True, player can see the whole map at any time, like in editor.
     index = 0
     for player in playeri:  #assign colors to structures and units. Any structure/unit with 
         colorTable[map_locations[index]] = Player_Colors[player[1]]
@@ -973,18 +973,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     elif Ctrl_zeed == True :
                         Ctrl_zeed = False
 
-                    if event.unicode.lower() == 'p':    #Enable/Disable simple textures
-                        TileClass.simple_textures_enabled = not TileClass.simple_textures_enabled
-
-                        for x in range(rows):  #Redraw the whole map
-                            for y in range(tiles_per_row):
-                                tiles[x][y].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
-
-                        mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
-
                     elif event.unicode.lower() == 'l':  #Enable/Disable GUIs
                         #GUI.GUIs_enabled = not GUI.GUIs_enabled      
-                        print("No GUIs implemented for gameplay yet") 
+                        print("GUI disable not implemented yet. Sorry") 
 
                 if writing_in_chat == True and event.key != pygame.K_TAB :
                     if event.key == pygame.K_ESCAPE :

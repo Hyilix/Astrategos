@@ -648,16 +648,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE : #Intoarcerea in meniu
                     Running = False
-                elif event.unicode.lower() == 'p':    #Enable/Disable simple textures
-                    TileClass.simple_textures_enabled = not TileClass.simple_textures_enabled
-
-                    for x in range(rows):  #Redraw the whole map
-                        for y in range(tiles_per_row):
-                            tiles[x][y].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
-                        #tiles.append(newLine)
-
-                    mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
-
+                
                 elif event.unicode.lower() == 'l':  #Enable/Disable GUIs
                     GUI.GUIs_enabled = not GUI.GUIs_enabled                
 
