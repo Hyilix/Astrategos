@@ -83,8 +83,8 @@ class Tile:
                 elif full_bright == False and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
                     img.blit(dark,(0,0))
 
-                if not (self.position in visible_tuple[0]) and (self.position in visible_tuple[2]):
-                    img.blit(light, (0,0))
+                #if not (self.position in visible_tuple[0]) and (self.position in visible_tuple[2]):
+                #    img.blit(light, (0,0))
 
                 screen.blit(img, (self.position[0] * size[0], self.position[1]  * size[1]))
             else:
@@ -95,8 +95,8 @@ class Tile:
                 elif full_bright == False and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
                     img.blit(dark,(0,0))
 
-                if not (self.position in visible_tuple[0]) and (self.position in visible_tuple[2]):
-                    img.blit(light, (0,0))
+                #if not (self.position in visible_tuple[0]) and (self.position in visible_tuple[2]):
+                #    img.blit(light, (0,0))
 
                 screen.blit(img, (self.position[0] * size[0], self.position[1]  * size[1]))
         else:
