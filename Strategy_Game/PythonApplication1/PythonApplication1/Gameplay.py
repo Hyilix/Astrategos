@@ -96,7 +96,8 @@ def draw_star(length, y, x):    #Determine what tiles the player currently sees.
                         if (y + in_y, x + in_x) not in visited_vec:
                             if tiles[y][x].collidable == False:
                                 new_tiles.append((y + in_y, x + in_x))
-                            elif tiles[y][x].collidable == True and tiles[y + in_y][x + in_x].collidable == False:
+                            
+                            elif tiles[y][x].collidable == True and y + in_y >= 0 and x + in_x >= 0 and y + in_y < rows and x + in_x < tiles_per_row and tiles[y + in_y][x + in_x].collidable == False:
                                 new_tiles.append((y + in_y, x + in_x))
 
         queued_tiles.clear()
@@ -110,9 +111,10 @@ def draw_star(length, y, x):    #Determine what tiles the player currently sees.
     queued_tiles.clear()
 
 def determine_visible_tiles():
-    visible_tiles.clear()
-    for obj in controllables_vec:
-        draw_star(obj.fog_range, obj.position[1], obj.position[0])
+    if TileClass.full_bright == False:
+        visible_tiles.clear()
+        for obj in controllables_vec:
+            draw_star(obj.fog_range, obj.position[1], obj.position[0])
 
 selected_controllable = None
 enlighted_surface = None
@@ -190,7 +192,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     4 : None
     }
 
-    TileClass.full_bright = False  #if full_bright == True, player can see the whole map at any time, like in editor.
+    TileClass.full_bright = True  #if full_bright == True, player can see the whole map at any time, like in editor.
     index = 0
     for player in playeri:  #assign colors to structures and units. Any structure/unit with 
         colorTable[map_locations[index]] = Player_Colors[player[1]]
@@ -200,6 +202,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
     WIN.fill((255,255,255))
     pygame.display.update()
+
+    if TileClass.full_bright == True:
+        for y in range(rows):
+            for x in range(tiles_per_row):
+                visible_tiles.append((x,y))
+                partially_visible_tiles.append((x,y))
 
     chat_icon = pygame.transform.scale(pygame.image.load('Assets/Gameplay_UI/chatbox-icon.png'),(60,60))
     mithril_icon = pygame.transform.scale(pygame.image.load('Assets/Gameplay_UI/mars-mithril-bar-1.png'),(32,32))
@@ -746,6 +754,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         if timer == 0 :
             determine_visible_tiles()
             refresh_map()
+
+            for unit in controllables_vec:  #Allow each unit to make an action
+                if tiles[unit.position[1]][unit.position[0]].unit == unit:
+                    unit.canAction = True
+
             if Role == "host" :
                 if Confirmatii_timer == len(CLIENTS) :
                     #daca e tura hostului,trimite toate schimbarile facute.
@@ -835,8 +848,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
                                 if tiles[y_layer][x_layer].unit != None and tiles[y_layer][x_layer].unit.owner == map_locations[Pozitie] and (x_layer, y_layer) in visible_tiles:
                                     selected_controllable = tiles[y_layer][x_layer].unit
-                                    determine_enlighted_tiles()
-                                    enlighted_surface = draw_enlighted_tiles(True)
+                                    if selected_controllable.canAction == True:
+                                        determine_enlighted_tiles()
+                                        enlighted_surface = draw_enlighted_tiles(True)
 
                     #detecteaza daca playeru a schimbat coinstruction tabul
                     elif press_coordonaits[0]> WIDTH-HEIGHT/3 and press_coordonaits[1] <= HEIGHT*2/3 -5 and press_coordonaits[1] >= HEIGHT*2/3 -55 :
@@ -888,6 +902,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                         tiles[lastPos[1]][lastPos[0]].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles, path_tiles))
 
                                         enlighted_surface = draw_enlighted_tiles()
+                                        tiles[y_layer][x_layer].unit.canAction = False
 
                 #daca dai scrol in sus
                 if event.button == 4 :

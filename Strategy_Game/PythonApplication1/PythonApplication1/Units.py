@@ -23,8 +23,8 @@ def resize_textures(size):
 last_index = len(texture_names)
 
 predefined_Units = {   #HP, MaxHp, attack, defence, range, move_range, fog_range, price (Mithril, Flerovium)
-    "Marine" : [5, 5, 2, 3, 1, 3, 5, (6,0)],
-    "Phantom" : [5, 5, 2, 3, 1, 4, 7, (10,0)],
+    "Marine" : [5, 5, 2, 3, 1, 4, 5, (6,0)],
+    "Phantom" : [5, 5, 2, 3, 1, 5, 7, (10,0)],
     }
 
 class Unit():
@@ -34,6 +34,8 @@ class Unit():
         self.name = name            #The unit
 
         vec = predefined_Units[name]
+
+        self.canAction = True
 
         self.texture = name + ".png"
         self.HP = vec[0]
