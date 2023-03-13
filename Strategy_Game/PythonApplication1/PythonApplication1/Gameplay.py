@@ -215,7 +215,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     flerovium_icon = pygame.transform.scale(pygame.image.load('Assets/Gameplay_UI/mars-flerovium-crystal-1.png'),(32,32))
 
     # incaracarea imaginilor structurilor si unitatilor care le poate produce playeru, cu culoarea specifica.
-    spatiu_intre = (HEIGHT/3 - 10 - 70*3)/2
+    grosime_outline = 5
+    spatiu_intre = (HEIGHT/3 - 5 - 70*3)/3
     C_menu_scroll = 0
     Element_selectat = None
     large_img_element_afisat = None
@@ -261,10 +262,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         if selected_tile[0] != None : 
             x_tile=selected_tile[0]* current_tile_length - CurrentCamera.x
             y_tile = selected_tile[1]* current_tile_length - CurrentCamera.y
-            pygame.draw.rect(WIN,Light_Green,(x_tile,y_tile,current_tile_length,5))
-            pygame.draw.rect(WIN,Light_Green,(x_tile,y_tile,5,current_tile_length))
-            pygame.draw.rect(WIN,Light_Green,(x_tile,y_tile+current_tile_length-5,current_tile_length,5))
-            pygame.draw.rect(WIN,Light_Green,(x_tile+current_tile_length-5,y_tile,5,current_tile_length))
+            pygame.draw.rect(WIN,Light_Green,(x_tile,y_tile,current_tile_length,math.ceil(grosime_outline*CurrentCamera.zoom)))
+            pygame.draw.rect(WIN,Light_Green,(x_tile,y_tile,math.ceil(grosime_outline*CurrentCamera.zoom),current_tile_length))
+            pygame.draw.rect(WIN,Light_Green,(x_tile,y_tile+current_tile_length-math.ceil(grosime_outline*CurrentCamera.zoom),current_tile_length,math.ceil(grosime_outline*CurrentCamera.zoom)))
+            pygame.draw.rect(WIN,Light_Green,(x_tile+current_tile_length-math.ceil(grosime_outline*CurrentCamera.zoom),y_tile,math.ceil(grosime_outline*CurrentCamera.zoom),current_tile_length))
 
         #desenarea Ui - ului 
         #chat windowul daca este deschis
@@ -361,10 +362,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 else :
                     elements = len(units)
                 for i in range(construction_tab_scroll,math.ceil(elements/3)) :
-                    y_rand = HEIGHT*2/3 +5 + i*70 + i*10 - C_menu_scroll
+                    y_rand = HEIGHT*2/3 +10 + i*70 + i*10 - C_menu_scroll
                     if y_rand+35 > HEIGHT*2/3 and y_rand < HEIGHT  :
                         for j in range(min(elements-i*3,3)) :
-                            x_coloana = WIDTH-HEIGHT/3+10 + j*70 + j*spatiu_intre
+                            x_coloana = WIDTH-HEIGHT/3+5 + j*70 + (j+0.5)*spatiu_intre
                             if  Element_selectat != i*3 + j :
                                 pygame.draw.rect(WIN,(57, 56, 57),(x_coloana,y_rand,70,70))
                             else :
@@ -776,7 +777,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
         if timer == 0 :
             determine_visible_tiles()
-            refresh_map()
 
             for unit in controllables_vec:  #Allow each unit to make an action
                 if tiles[unit.position[1]][unit.position[0]].unit == unit:
@@ -871,19 +871,22 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         if x_layer >= 0 and x_layer < tiles_per_row:
                             if y_layer >= 0 and y_layer < rows:
                                 enlighted_surface = draw_enlighted_tiles()
-                                selected_tile = [x_layer,y_layer]
-                                if tiles[y_layer][x_layer].structure == None and tiles[y_layer][x_layer].ore == None and tiles[y_layer][x_layer].unit == None and tiles[y_layer][x_layer].collidable == False :
-                                    if tile_empty != True :
-                                        tile_empty = True
-                                        Element_selectat = None
-                                else : 
-                                    tile_empty=False
+                                if selected_tile[0] == None or (selected_tile[0] == x_layer and selected_tile[1] == y_layer)==0 : 
+                                    selected_tile = [x_layer,y_layer]
+                                    if tiles[y_layer][x_layer].structure == None and tiles[y_layer][x_layer].ore == None and tiles[y_layer][x_layer].unit == None and tiles[y_layer][x_layer].collidable == False :
+                                        if tile_empty != True :
+                                            tile_empty = True
+                                            Element_selectat = None
+                                    else : 
+                                        tile_empty=False
 
-                                if tiles[y_layer][x_layer].unit != None and tiles[y_layer][x_layer].unit.owner == map_locations[Pozitie] and (x_layer, y_layer) in visible_tiles:
-                                    selected_controllable = tiles[y_layer][x_layer].unit
-                                    if selected_controllable.canAction == True:
-                                        determine_enlighted_tiles()
-                                        enlighted_surface = draw_enlighted_tiles(True)
+                                    if tiles[y_layer][x_layer].unit != None and tiles[y_layer][x_layer].unit.owner == map_locations[Pozitie] and (x_layer, y_layer) in visible_tiles:
+                                        selected_controllable = tiles[y_layer][x_layer].unit
+                                        if selected_controllable.canAction == True:
+                                            determine_enlighted_tiles()
+                                            enlighted_surface = draw_enlighted_tiles(True)
+                                else :
+                                    selected_tile = [None,None]
 
                     #detecteaza daca playeru a schimbat coinstruction tabul
                     elif press_coordonaits[0]> WIDTH-HEIGHT/3 and press_coordonaits[1] <= HEIGHT*2/3 -5 and press_coordonaits[1] >= HEIGHT*2/3 -55 :

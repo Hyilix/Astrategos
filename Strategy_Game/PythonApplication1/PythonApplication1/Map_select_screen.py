@@ -174,7 +174,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                     data_recv = pickle.loads(data_recv)
                     if data_recv[0] == "sa_votat" :
                         Voturi[data_recv[3]]=(data_recv[1],data_recv[2])
-                        Transmit_to_all.append((("sa_votat",data_recv[1],data_recv[2],data_recv[3]),data_recv[3]-1))
+                        Transmit_to_all.append((("sa_votat",data_recv[1],data_recv[2],data_recv[3]),cod))
                     elif data_recv[0] == "enter_next_stage" :
                         Confirmatii += 1 
                         break
