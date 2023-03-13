@@ -192,7 +192,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     4 : None
     }
 
-    TileClass.full_bright = False  #if full_bright == True, player can see the whole map at any time, like in editor.
+    TileClass.full_bright = True  #if full_bright == True, player can see the whole map at any time, like in editor.
+
     index = 0
     for player in playeri:  #assign colors to structures and units. Any structure/unit with 
         colorTable[map_locations[index]] = Player_Colors[player[1]]
@@ -264,6 +265,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             pygame.draw.rect(WIN,Light_Green,(x_tile,y_tile,5,current_tile_length))
             pygame.draw.rect(WIN,Light_Green,(x_tile,y_tile+current_tile_length-5,current_tile_length,5))
             pygame.draw.rect(WIN,Light_Green,(x_tile+current_tile_length-5,y_tile,5,current_tile_length))
+
         #desenarea Ui - ului 
         #chat windowul daca este deschis
         if Chat_window :
@@ -320,6 +322,14 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         text_rect = text.get_rect()
         text_rect.center = (WIDTH/2,60)
         WIN.blit(text,text_rect)
+        #butonul de end Turn
+        if Whos_turn == Pozitie :
+            pygame.draw.rect(WIN,Player_Colors[playeri[Whos_turn][1]],((WIDTH-260)/2,HEIGHT*2/25 + 5,260,35))
+            pygame.draw.rect(WIN,(225, 223, 240),((WIDTH-250)/2,HEIGHT*2/25 + 5,250,30))
+            text = Font.render("End Turn", True, (150,0,0))
+            text_rect = text.get_rect()
+            text_rect.center = (WIDTH/2,HEIGHT*2/25 + 20)
+            WIN.blit(text,text_rect)
         #butonul de chat din dreapta sus
         pygame.draw.rect(WIN,(25,25,25),(WIDTH-80,0,80,80))
         pygame.draw.rect(WIN,(225, 223, 240),(WIDTH-75,0,75,75))
@@ -392,6 +402,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     elif data_recv[0] == "new_message" :
                         Changes_from_clients.append(data_recv)
                         Transmit_to_all.append((data_recv,None))
+                    elif data_recv[0] == "Force_end_turn" :
+                        Changes_from_clients.append(data_recv)
+                        Transmit_to_all.append((("Force_end_turn",None),cod))
                 else :
                     client.close()
                     Killed_Clients.append(cod)
@@ -729,6 +742,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             while len(Changes_from_clients) > 0 :
                 if Changes_from_clients[0][0] == "new_message" :
                     archive_message(Changes_from_clients[0][1],Changes_from_clients[0][2],Changes_from_clients[0][3])
+                elif Changes_from_clients[0][0] == "Force_end_turn" :
+                    timer = 0
                 Changes_from_clients.pop(0)
         else :
             #Se verifica daca serverul a trimis lucruri spre acest client
@@ -755,6 +770,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     next_turn = True
                 elif Changes_from_server[0][0] == "new_message" :
                     archive_message(Changes_from_server[0][1],Changes_from_server[0][2],Changes_from_server[0][3])
+                elif Changes_from_server[0][0] == "Force_end_turn" :
+                    timer = 0
                 Changes_from_server.pop(0)
 
         if timer == 0 :
@@ -837,6 +854,16 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             writing_in_chat = True
                         else :
                             writing_in_chat = False
+                    #Detecteaza daca a apapasat butonul de End Turn
+                    pygame.draw.rect(WIN,Player_Colors[playeri[Whos_turn][1]],((WIDTH-260)/2,HEIGHT*2/25 + 5,260,35))
+                    if Whos_turn == Pozitie and press_coordonaits[0]>(WIDTH-260)/2 and press_coordonaits[0]<(WIDTH-260)/2 +260 and press_coordonaits[1]>HEIGHT*2/25 and press_coordonaits[1]<HEIGHT*2/25 + 40 :
+                        timer = 0 
+                        if Role == "host" :
+                            Transmit_to_all.append((("Force_end_turn",None),None))
+                        else :
+                            data_send = pickle.dumps(("Force_end_turn",None))
+                            data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
+                            Connection.send(data_send)
                     #detecteaza daca playeru apasa un tile vizibil
                     if (press_coordonaits[1] > HEIGHT/25 and (press_coordonaits[1] > HEIGHT*2/3 and press_coordonaits[0] < HEIGHT/3)==0) and ((press_coordonaits[0]<(WIDTH-260)/2 + 260 and Chat_window == True) or Chat_window == False) and( selected_tile[0]==None or (press_coordonaits[1] < HEIGHT*4/5-5 and (tile_empty==False or (press_coordonaits[0]>WIDTH-HEIGHT/3 and press_coordonaits[1]>HEIGHT*2/3-60)==0 ))) :
                         x_layer = (press_coordonaits[0] + CurrentCamera.x) // current_tile_length 
@@ -908,7 +935,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
                                         enlighted_surface = draw_enlighted_tiles()
                                         tiles[y_layer][x_layer].unit.canAction = False
-
+                                        
                 #daca dai scrol in sus
                 if event.button == 4 :
                     if Chat_window == True and press_coordonaits[0] >= (WIDTH-260)/2 + 265 and len(chat_archive) > 30 :
