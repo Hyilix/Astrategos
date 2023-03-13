@@ -632,7 +632,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
             for x in range(rows):  #Redraw the whole map
                 for y in range(tiles_per_row):
-                    tiles[x][y].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles, path_tiles))
+                    tiles[x][y].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles))
                 #tiles.append(newLine)
 
             nonlocal mapSurface
@@ -642,17 +642,23 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             print("No such file exists")
 
     #functia asta face refresh la harta 
-    def refresh_map():
+    def refresh_map(specific_vector = None):
         nonlocal mapSurface
+
+        if specific_vector != None:    #If an array is given to the function, update only the tiles inside said function. The positions are (x,y)
+            for pos in specific_vector:
+                tiles[pos[1]][pos[0]].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles))
+            mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
+            return
 
         if TileClass.full_bright == True : 
             for x in range(rows):  #Redraw the whole map
                 for y in range(tiles_per_row):
-                    tiles[x][y].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles, path_tiles))
+                    tiles[x][y].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles))
 
         else:
             for pos in partially_visible_tiles:
-                tiles[pos[1]][pos[0]].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles, path_tiles))
+                tiles[pos[1]][pos[0]].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles))
 
         mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
 
@@ -898,8 +904,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                         del tiles[lastPos[1]][lastPos[0]].unit
                                         tiles[lastPos[1]][lastPos[0]].unit = None
 
-                                        tiles[y_layer][x_layer].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles, path_tiles))
-                                        tiles[lastPos[1]][lastPos[0]].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles, path_tiles))
+                                        refresh_map([(x_layer, y_layer), lastPos])
 
                                         enlighted_surface = draw_enlighted_tiles()
                                         tiles[y_layer][x_layer].unit.canAction = False

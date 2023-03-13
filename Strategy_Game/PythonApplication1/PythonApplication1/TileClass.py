@@ -66,14 +66,14 @@ class Tile:
         dark = pygame.Surface(size).convert_alpha()
         dark.fill((0,0,0, darken_percent * 255))
 
-        if special_blit == False:
+        if special_blit == False:   #Special blit resizes the texture on the spot and blits it, instead of blitting and resizing the map after.
             img = textures[texture_names.index(self.image_name)].copy()
             if full_bright == False and not (self.position in visible_tuple[0]) and not (self.position in visible_tuple[1]):
                 img.fill(darkness)
             if full_bright == False and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
                 img.blit(dark,(0,0))
 
-            screen.blit(img, (self.position[0] * size[0], self.position[1]  * size[1]))
+            screen.blit(img, (self.position[0] * size[0], self.position[1] * size[1]))
         else:
             img = textures[texture_names.index(self.image_name)].copy()
             img = pygame.transform.scale(img, size)
@@ -82,11 +82,12 @@ class Tile:
             if full_bright == False and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
                 img.blit(dark,(0,0))
 
-            screen.blit(img, (self.position[0] * size[0], self.position[1]  * size[1]))
+            screen.blit(img, (self.position[0] * size[0], self.position[1] * size[1]))
 
-        if (visible_tuple != None and self.position in visible_tuple[0]) or visible_tuple == None:
-            if self.ore != None:
-                self.ore.DrawImage(screen, size, special_blit, visible_tuple)
+        if self.ore != None:
+            self.ore.DrawImage(screen, size, special_blit, visible_tuple)
+
+        if (visible_tuple != None and self.position in visible_tuple[0]) or visible_tuple == None:  #If you can't see the tile, you can't see structures or units.
             if self.structure != None:
                 if colorTable[self.structure.owner] == None:
                     del self.structure
