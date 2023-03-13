@@ -28,6 +28,8 @@ full_bright = False
 darken_percent = .60    #Percentage of full black to use on partial visibility
 darkness = (10,10,10)   #Color to use on non-visible tiles
 
+show_walls = False
+
 for img in os.listdir(default_path):
     if img[-4:] == '.png':
         avalible_textures.append(img)
@@ -73,6 +75,20 @@ class Tile:
             if full_bright == False and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
                 img.blit(dark,(0,0))
 
+            if show_walls == True:
+                if self.collidable == True:
+                   darken = pygame.Surface(size).convert_alpha()
+                   darken.fill((0,0,0, 0.9 * 255))
+                   img.blit(darken,(0,0))
+
+                if self.ore != None:
+                    oreish = pygame.Surface(size).convert_alpha()
+                    color = (76,0,153,0.6 * 255)
+                    if self.ore.tier == 1:
+                        color = (0,128,255,0.6 * 255)
+                    oreish.fill(color)
+                    img.blit(oreish,(0,0))
+
             screen.blit(img, (self.position[0] * size[0], self.position[1] * size[1]))
         else:
             img = textures[texture_names.index(self.image_name)].copy()
@@ -81,6 +97,20 @@ class Tile:
                 img.fill((0,0,0))
             if full_bright == False and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
                 img.blit(dark,(0,0))
+
+            if show_walls == True:
+                if self.collidable == True:
+                   darken = pygame.Surface(size).convert_alpha()
+                   darken.fill((0,0,0, 0.6 * 255))
+                   img.blit(darken,(0,0))
+
+                if self.ore != None:
+                    oreish = pygame.Surface(size).convert_alpha()
+                    color = (76,0,153,0.6 * 255)
+                    if self.ore.tier == 1:
+                        color = (0,128,255,0.6 * 255)
+                    oreish.fill(color)
+                    img.blit(oreish,(0,0))
 
             screen.blit(img, (self.position[0] * size[0], self.position[1] * size[1]))
 
