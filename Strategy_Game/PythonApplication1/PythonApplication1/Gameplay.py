@@ -96,56 +96,8 @@ def draw_star(length, y, x):    #Determine what tiles the player currently sees.
                         if (y + in_y, x + in_x) not in visited_vec:
                             if tiles[y][x].collidable == False:
                                 new_tiles.append((y + in_y, x + in_x))
-                            elif tiles[y][x].collidable == True and tiles[y + in_y][x + in_x].collidable == False:
-                                new_tiles.append((y + in_y, x + in_x))
-
-        queued_tiles.clear()
-
-        if len(new_tiles) == 0: isDone = True
-
-        queued_tiles += new_tiles
-        length -= 1
-
-    visited_vec.clear()
-    queued_tiles.clear()
-
-def draw_path_star(length, y, x):
-    path_tiles.clear()
-    visited_vec = []
-    queued_tiles = [(y,x)]
-
-    directions = [
-        (-1,0),
-        (1,0),
-        (0,1),
-        (0,-1)
-    ]
-
-    checks = 0
-    tries = 0
-
-    isDone = False
-
-    while not isDone:
-        if length < 0: break
-        new_tiles = []
-
-        for myTile in queued_tiles:
-            tries += 1
-
-            x = myTile[1]
-            y = myTile[0]
-
-            if (y, x) not in visited_vec and (x, y) in visible_tiles and (x, y) in partially_visible_tiles:
-                if x >= 0 and y >= 0 and y < rows and x < tiles_per_row:
-                    checks += 1
-                    visited_vec.append((y, x))
-                    if (x, y) not in path_tiles: path_tiles.append((x, y))
-                    for direction in directions:
-                        in_x = direction[0]
-                        in_y = direction[1]
-                        if (y + in_y, x + in_x) not in visited_vec:
-                            if tiles[y][x].collidable == False and tiles[y][x].unit == None and tiles[y][x].structure == None and tiles[y][x].ore == None:
+                            
+                            elif tiles[y][x].collidable == True and y + in_y >= 0 and x + in_x >= 0 and y + in_y < rows and x + in_x < tiles_per_row and tiles[y + in_y][x + in_x].collidable == False:
                                 new_tiles.append((y + in_y, x + in_x))
 
         queued_tiles.clear()
@@ -159,10 +111,13 @@ def draw_path_star(length, y, x):
     queued_tiles.clear()
 
 def determine_visible_tiles():
-    visible_tiles.clear()
-    for obj in controllables_vec:
-        draw_star(obj.fog_range, obj.position[1], obj.position[0])
+    if TileClass.full_bright == False:
+        visible_tiles.clear()
+        for obj in controllables_vec:
+            draw_star(obj.fog_range, obj.position[1], obj.position[0])
 
+selected_controllable = None
+enlighted_surface = None
 
 #De stiut map_locations este un vector de aceasi lungime cu vectorul de playeri care contine locatia de pe hart a fiecaruia reprezentata printr-un nr de la 1 la 4
 def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client,map_name,map_locations) :
@@ -171,6 +126,63 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     global Confirmatii_timer
     global chat_notification
     global colorTable
+    global selected_controllable
+    global enlighted_surface
+
+    def draw_path_star(length, y, x):
+        visited_vec = []
+        queued_tiles = [(y,x)]
+
+        directions = [
+            (-1,0),
+            (1,0),
+            (0,1),
+            (0,-1)
+        ]
+
+        checks = 0
+        tries = 0
+
+        isDone = False
+
+        while not isDone:
+            if length < 0: break
+            new_tiles = []
+
+            for myTile in queued_tiles:
+                tries += 1
+
+                x = myTile[1]
+                y = myTile[0]
+
+                if (y, x) not in visited_vec and (x, y) in visible_tiles and (x, y) in partially_visible_tiles:
+                    if x >= 0 and y >= 0 and y < rows and x < tiles_per_row:
+                        checks += 1
+                        visited_vec.append((y, x))
+                        if (x, y) not in path_tiles and tiles[y][x].unit == None: path_tiles.append((x, y))
+                        for direction in directions:
+                            in_x = direction[0]
+                            in_y = direction[1]
+                            if (y + in_y, x + in_x) not in visited_vec:
+                                Y = y + in_y
+                                X = x + in_x
+                                if Y >= 0 and X >= 0 and Y < rows and X < tiles_per_row:
+                                    if tiles[Y][X].collidable == False and (tiles[Y][X].structure == None or (tiles[Y][X].structure.owner == map_locations[Pozitie] and tiles[Y][X].structure.canShareSpace == True)) and tiles[Y][X].ore == None:
+                                        new_tiles.append((y + in_y, x + in_x))
+
+            queued_tiles.clear()
+
+            if len(new_tiles) == 0: isDone = True
+
+            queued_tiles += new_tiles
+            length -= 1
+
+        visited_vec.clear()
+        queued_tiles.clear()
+
+    def determine_enlighted_tiles():
+        path_tiles.clear()
+        draw_path_star(selected_controllable.move_range, selected_controllable.position[1], selected_controllable.position[0])
 
     colorTable = {  #Remake the dictionary
     0 : (64,64,64),
@@ -181,6 +193,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     }
 
     TileClass.full_bright = True  #if full_bright == True, player can see the whole map at any time, like in editor.
+
     index = 0
     for player in playeri:  #assign colors to structures and units. Any structure/unit with 
         colorTable[map_locations[index]] = Player_Colors[player[1]]
@@ -190,6 +203,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
     WIN.fill((255,255,255))
     pygame.display.update()
+
+    if TileClass.full_bright == True:
+        for y in range(rows):
+            for x in range(tiles_per_row):
+                visible_tiles.append((x,y))
+                partially_visible_tiles.append((x,y))
 
     chat_icon = pygame.transform.scale(pygame.image.load('Assets/Gameplay_UI/chatbox-icon.png'),(60,60))
     mithril_icon = pygame.transform.scale(pygame.image.load('Assets/Gameplay_UI/mars-mithril-bar-1.png'),(32,32))
@@ -232,6 +251,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         #Draw map
         tempSurface = pygame.Surface((WIDTH, HEIGHT))
         tempSurface.blit(mapSurface, (0, 0), (CurrentCamera.x, CurrentCamera.y, WIDTH, HEIGHT))
+
+        if enlighted_surface != None:
+            tempSurface.blit(enlighted_surface, (0, 0), (CurrentCamera.x, CurrentCamera.y, WIDTH, HEIGHT))
 
         WIN.blit(tempSurface, (0, 0)) 
 
@@ -632,15 +654,43 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         except:
             print("No such file exists")
 
-    #funcia asta face refresh la harta 
-    def refresh_map():
+    #functia asta face refresh la harta 
+    def refresh_map(specific_vector = None):
+        nonlocal mapSurface
+
+        if specific_vector != None:    #If an array is given to the function, update only the tiles inside said function. The positions are (x,y)
+            for pos in specific_vector:
+                tiles[pos[1]][pos[0]].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles))
+            mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
+            return
+
         if TileClass.full_bright == True : 
             for x in range(rows):  #Redraw the whole map
                 for y in range(tiles_per_row):
                     tiles[x][y].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles))
 
+        else:
+            for pos in partially_visible_tiles:
+                tiles[pos[1]][pos[0]].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles))
+
         mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
 
+    def draw_enlighted_tiles(create = False):
+        if create == False:
+            enlighted_surface = None
+            return enlighted_surface
+
+        enlighted_surface = pygame.Surface((int(tiles_per_row * current_tile_length), int(rows * current_tile_length))).convert_alpha()
+        enlighted_surface.fill((0,0,0,0))
+
+        light_percent = .20 #Percentage of full white to use on movable tiles
+
+        light = pygame.Surface((current_tile_length, current_tile_length)).convert_alpha()
+        light.fill((0,204,0, light_percent * 255))
+
+        for pos in path_tiles:
+            enlighted_surface.blit(light, (pos[0] * current_tile_length, pos[1] * current_tile_length))
+        return enlighted_surface
 
     load_map(map_name)
     mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
@@ -725,6 +775,13 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 Changes_from_server.pop(0)
 
         if timer == 0 :
+            determine_visible_tiles()
+            refresh_map()
+
+            for unit in controllables_vec:  #Allow each unit to make an action
+                if tiles[unit.position[1]][unit.position[0]].unit == unit:
+                    unit.canAction = True
+
             if Role == "host" :
                 if Confirmatii_timer == len(CLIENTS) :
                     #daca e tura hostului,trimite toate schimbarile facute.
@@ -813,6 +870,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         y_layer = (press_coordonaits[1] + CurrentCamera.y) // current_tile_length
                         if x_layer >= 0 and x_layer < tiles_per_row:
                             if y_layer >= 0 and y_layer < rows:
+                                enlighted_surface = draw_enlighted_tiles()
                                 selected_tile = [x_layer,y_layer]
                                 if tiles[y_layer][x_layer].structure == None and tiles[y_layer][x_layer].ore == None and tiles[y_layer][x_layer].unit == None and tiles[y_layer][x_layer].collidable == False :
                                     if tile_empty != True :
@@ -820,6 +878,13 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                         Element_selectat = None
                                 else : 
                                     tile_empty=False
+
+                                if tiles[y_layer][x_layer].unit != None and tiles[y_layer][x_layer].unit.owner == map_locations[Pozitie] and (x_layer, y_layer) in visible_tiles:
+                                    selected_controllable = tiles[y_layer][x_layer].unit
+                                    if selected_controllable.canAction == True:
+                                        determine_enlighted_tiles()
+                                        enlighted_surface = draw_enlighted_tiles(True)
+
                     #detecteaza daca playeru a schimbat coinstruction tabul
                     elif press_coordonaits[0]> WIDTH-HEIGHT/3 and press_coordonaits[1] <= HEIGHT*2/3 -5 and press_coordonaits[1] >= HEIGHT*2/3 -55 :
                         Element_selectat = None
@@ -846,10 +911,31 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                                 large_img_element_afisat = pygame.transform.scale(structures[Element_selectat],(HEIGHT/5 -50,HEIGHT/5 -50))
                                              else :
                                                 large_img_element_afisat = pygame.transform.scale(units[Element_selectat],(HEIGHT/5 -50,HEIGHT/5 -50))
-                                             break
+                                             #break
                                      break
 
-                                
+                #daca apesi click dreapta 
+                if event.button == 3:
+                    #daca ai o unitate selectata, incearca sa o muti 
+                    if selected_controllable != None:
+                        if (press_coordonaits[1] > HEIGHT/25 and (press_coordonaits[1] > HEIGHT*2/3 and press_coordonaits[0] < HEIGHT/3)==0) and ((press_coordonaits[0]<(WIDTH-260)/2 + 260 and Chat_window == True) or Chat_window == False) and( selected_tile[0]==None or (press_coordonaits[1] < HEIGHT*4/5-5 and (tile_empty==False or (press_coordonaits[0]>WIDTH-HEIGHT/3 and press_coordonaits[1]>HEIGHT*2/3-60)==0 ))) :
+                            x_layer = (press_coordonaits[0] + CurrentCamera.x) // current_tile_length 
+                            y_layer = (press_coordonaits[1] + CurrentCamera.y) // current_tile_length
+                            if x_layer >= 0 and x_layer < tiles_per_row:
+                                if y_layer >= 0 and y_layer < rows:
+                                    lastPos = selected_controllable.position
+                                    hasMoved = selected_controllable.MoveTo((x_layer, y_layer), path_tiles, tiles)
+                                    if hasMoved:
+                                        selected_controllable = None
+
+                                        del tiles[lastPos[1]][lastPos[0]].unit
+                                        tiles[lastPos[1]][lastPos[0]].unit = None
+
+                                        refresh_map([(x_layer, y_layer), lastPos])
+
+                                        enlighted_surface = draw_enlighted_tiles()
+                                        tiles[y_layer][x_layer].unit.canAction = False
+                                        
                 #daca dai scrol in sus
                 if event.button == 4 :
                     if Chat_window == True and press_coordonaits[0] >= (WIDTH-260)/2 + 265 and len(chat_archive) > 30 :
@@ -897,10 +983,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
                 CurrentCamera.Check_Camera_Boundaries()
                 CurrentCamera.Calculate_After_Zoom_Position(last_map_size_x, map_size_x, last_map_size_y, map_size_y)
-                #TODO: Make a way to zoom in/out with minimal lag. This method is very bad but for now it works... kinda.
-                #Apparently it works well with low texture sizes.
+
                 try:
                     mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
+                    if enlighted_surface != None:
+                        enlighted_surface = pygame.transform.scale(enlighted_surface, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
                 except:     #if that failed, the surface is too big.
                     print("Can't zoom in further")
 
@@ -918,18 +1005,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     elif Ctrl_zeed == True :
                         Ctrl_zeed = False
 
-                    if event.unicode.lower() == 'p':    #Enable/Disable simple textures
-                        TileClass.simple_textures_enabled = not TileClass.simple_textures_enabled
-
-                        for x in range(rows):  #Redraw the whole map
-                            for y in range(tiles_per_row):
-                                tiles[x][y].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
-
-                        mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
-
                     elif event.unicode.lower() == 'l':  #Enable/Disable GUIs
                         #GUI.GUIs_enabled = not GUI.GUIs_enabled      
-                        print("No GUIs implemented for gameplay yet") 
+                        print("GUI disable not implemented yet. Sorry") 
 
                 if writing_in_chat == True and event.key != pygame.K_TAB :
                     if event.key == pygame.K_ESCAPE :

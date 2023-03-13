@@ -22,9 +22,9 @@ def resize_textures(size):
 
 last_index = len(texture_names)
 
-predefined_Units = {   #HP, MaxHp, attack, defence, range, move_range, actions, fog_range, price (Mithril, Flerovium)
-    "Marine" : [5, 5, 2, 3, 1, 2, 3, 5, (6,0)],
-    "Phantom" : [5, 5, 2, 3, 1, 2, 3, 7, (10,0)],
+predefined_Units = {   #HP, MaxHp, attack, defence, range, move_range, fog_range, price (Mithril, Flerovium)
+    "Marine" : [5, 5, 2, 3, 1, 4, 5, (6,0)],
+    "Phantom" : [5, 5, 2, 3, 1, 5, 7, (10,0)],
     }
 
 class Unit():
@@ -35,6 +35,8 @@ class Unit():
 
         vec = predefined_Units[name]
 
+        self.canAction = True
+
         self.texture = name + ".png"
         self.HP = vec[0]
         self.MaxHP = vec[1]
@@ -42,10 +44,16 @@ class Unit():
         self.defence = vec[3]
         self.range = vec[4]
         self.move_range = vec[5]
-        self.actions = vec[6]
-        self.fog_range = vec[7]      #How much can the unit see
+        self.fog_range = vec[6]      #How much can the unit see
 
-        self.price = vec[8]
+        self.price = vec[7]
+
+    def MoveTo(self, position, path_vec, tiles):
+        if position in path_vec:
+            tiles[position[1]][position[0]].unit = self
+            tiles[position[1]][position[0]].unit.position = tiles[position[1]][position[0]].position
+            return True
+        return False
 
     def DrawImage(self, screen, size, colorTable, special_blit = False, visible_tuple = None):
 
