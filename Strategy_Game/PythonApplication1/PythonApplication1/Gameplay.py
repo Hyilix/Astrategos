@@ -777,7 +777,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
         if timer == 0 :
             determine_visible_tiles()
-            refresh_map()
 
             for unit in controllables_vec:  #Allow each unit to make an action
                 if tiles[unit.position[1]][unit.position[0]].unit == unit:
