@@ -872,19 +872,22 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         if x_layer >= 0 and x_layer < tiles_per_row:
                             if y_layer >= 0 and y_layer < rows:
                                 enlighted_surface = draw_enlighted_tiles()
-                                selected_tile = [x_layer,y_layer]
-                                if tiles[y_layer][x_layer].structure == None and tiles[y_layer][x_layer].ore == None and tiles[y_layer][x_layer].unit == None and tiles[y_layer][x_layer].collidable == False :
-                                    if tile_empty != True :
-                                        tile_empty = True
-                                        Element_selectat = None
-                                else : 
-                                    tile_empty=False
+                                if selected_tile[0] == None or (selected_tile[0] == x_layer and selected_tile[1] == y_layer)==0 : 
+                                    selected_tile = [x_layer,y_layer]
+                                    if tiles[y_layer][x_layer].structure == None and tiles[y_layer][x_layer].ore == None and tiles[y_layer][x_layer].unit == None and tiles[y_layer][x_layer].collidable == False :
+                                        if tile_empty != True :
+                                            tile_empty = True
+                                            Element_selectat = None
+                                    else : 
+                                        tile_empty=False
 
-                                if tiles[y_layer][x_layer].unit != None and tiles[y_layer][x_layer].unit.owner == map_locations[Pozitie] and (x_layer, y_layer) in visible_tiles:
-                                    selected_controllable = tiles[y_layer][x_layer].unit
-                                    if selected_controllable.canAction == True:
-                                        determine_enlighted_tiles()
-                                        enlighted_surface = draw_enlighted_tiles(True)
+                                    if tiles[y_layer][x_layer].unit != None and tiles[y_layer][x_layer].unit.owner == map_locations[Pozitie] and (x_layer, y_layer) in visible_tiles:
+                                        selected_controllable = tiles[y_layer][x_layer].unit
+                                        if selected_controllable.canAction == True:
+                                            determine_enlighted_tiles()
+                                            enlighted_surface = draw_enlighted_tiles(True)
+                                else :
+                                    selected_tile = [None,None]
 
                     #detecteaza daca playeru a schimbat coinstruction tabul
                     elif press_coordonaits[0]> WIDTH-HEIGHT/3 and press_coordonaits[1] <= HEIGHT*2/3 -5 and press_coordonaits[1] >= HEIGHT*2/3 -55 :
