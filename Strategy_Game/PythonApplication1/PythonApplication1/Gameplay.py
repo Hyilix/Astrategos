@@ -215,6 +215,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     flerovium_icon = pygame.transform.scale(pygame.image.load('Assets/Gameplay_UI/mars-flerovium-crystal-1.png'),(32,32))
 
     # incaracarea imaginilor structurilor si unitatilor care le poate produce playeru, cu culoarea specifica.
+    grosime_outline = 5
     spatiu_intre = (HEIGHT/3 - 10 - 70*3)/2
     C_menu_scroll = 0
     Element_selectat = None
@@ -261,10 +262,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         if selected_tile[0] != None : 
             x_tile=selected_tile[0]* current_tile_length - CurrentCamera.x
             y_tile = selected_tile[1]* current_tile_length - CurrentCamera.y
-            pygame.draw.rect(WIN,Light_Green,(x_tile,y_tile,current_tile_length,5))
-            pygame.draw.rect(WIN,Light_Green,(x_tile,y_tile,5,current_tile_length))
-            pygame.draw.rect(WIN,Light_Green,(x_tile,y_tile+current_tile_length-5,current_tile_length,5))
-            pygame.draw.rect(WIN,Light_Green,(x_tile+current_tile_length-5,y_tile,5,current_tile_length))
+            pygame.draw.rect(WIN,Light_Green,(x_tile,y_tile,current_tile_length,math.ceil(grosime_outline*CurrentCamera.zoom)))
+            pygame.draw.rect(WIN,Light_Green,(x_tile,y_tile,math.ceil(grosime_outline*CurrentCamera.zoom),current_tile_length))
+            pygame.draw.rect(WIN,Light_Green,(x_tile,y_tile+current_tile_length-math.ceil(grosime_outline*CurrentCamera.zoom),current_tile_length,math.ceil(grosime_outline*CurrentCamera.zoom)))
+            pygame.draw.rect(WIN,Light_Green,(x_tile+current_tile_length-math.ceil(grosime_outline*CurrentCamera.zoom),y_tile,math.ceil(grosime_outline*CurrentCamera.zoom),current_tile_length))
 
         #desenarea Ui - ului 
         #chat windowul daca este deschis
