@@ -216,7 +216,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
     # incaracarea imaginilor structurilor si unitatilor care le poate produce playeru, cu culoarea specifica.
     grosime_outline = 5
-    spatiu_intre = (HEIGHT/3 - 10 - 70*3)/2
+    spatiu_intre = (HEIGHT/3 - 5 - 70*3)/3
     C_menu_scroll = 0
     Element_selectat = None
     large_img_element_afisat = None
@@ -362,10 +362,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 else :
                     elements = len(units)
                 for i in range(construction_tab_scroll,math.ceil(elements/3)) :
-                    y_rand = HEIGHT*2/3 +5 + i*70 + i*10 - C_menu_scroll
+                    y_rand = HEIGHT*2/3 +10 + i*70 + i*10 - C_menu_scroll
                     if y_rand+35 > HEIGHT*2/3 and y_rand < HEIGHT  :
                         for j in range(min(elements-i*3,3)) :
-                            x_coloana = WIDTH-HEIGHT/3+10 + j*70 + j*spatiu_intre
+                            x_coloana = WIDTH-HEIGHT/3+5 + j*70 + (j+0.5)*spatiu_intre
                             if  Element_selectat != i*3 + j :
                                 pygame.draw.rect(WIN,(57, 56, 57),(x_coloana,y_rand,70,70))
                             else :
