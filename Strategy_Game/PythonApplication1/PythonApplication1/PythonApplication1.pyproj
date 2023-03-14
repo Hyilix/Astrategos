@@ -43,6 +43,7 @@
     <Compile Include="Editor.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Node.py" />
     <Compile Include="Ores.py" />
     <Compile Include="Structures.py" />
     <Compile Include="TileClass.py" />
