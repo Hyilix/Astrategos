@@ -192,7 +192,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     4 : None
     }
 
-    TileClass.full_bright = True  #if full_bright == True, player can see the whole map at any time, like in editor.
+    TileClass.full_bright = False  #if full_bright == True, player can see the whole map at any time, like in editor.
 
     index = 0
     for player in playeri:  #assign colors to structures and units. Any structure/unit with 
@@ -494,7 +494,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
             refresh_map([Action[1], Action[2]])
 
-            #enlighted_surface = draw_enlighted_tiles()
             tiles[Action[1][1]][Action[1][0]].unit.canAction = True
 
     #variabilele necesare indiferent de rol
@@ -809,6 +808,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         Whos_turn = 0
                     timer = turn_time
                     Confirmatii_timer = 0
+                    if TileClass.full_bright == False :
+                        refresh_map()
             else :
                 if timer_notification_sent == False :
                     #Daca era tura clientului se trimit schimbarile
@@ -831,6 +832,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     timer = turn_time
                     timer_notification_sent = False
                     next_turn = False
+                    if TileClass.full_bright == False :
+                        refresh_map()
 
 
         #The event loop
@@ -1018,8 +1021,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             if len(Turn_Actions) > 0 :
                                 reverse_action(Turn_Actions[-1])
                                 Turn_Actions.pop(-1)
-                    elif Ctrl_zeed == True :
-                        Ctrl_zeed = False
 
                     elif event.unicode.lower() == 'l':  #Enable/Disable GUIs
                         #GUI.GUIs_enabled = not GUI.GUIs_enabled      
@@ -1047,6 +1048,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         message += ((pygame.scrap.get(pygame.SCRAP_TEXT)).decode()[:-1])
                     else : 
                         message += event.unicode
+
+            if pygame.key.get_pressed()[pygame.K_z]==False :
+                Ctrl_zeed = False
 
         x_pos = pygame.mouse.get_pos()[0]
         y_pos = pygame.mouse.get_pos()[1]
