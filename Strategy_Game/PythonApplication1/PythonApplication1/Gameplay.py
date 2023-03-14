@@ -359,8 +359,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 # afisarea lucrurilor din meniul de constructii
                 if construction_tab == "Structures" :
                     elements = len(structures)
-                else :
+                elif construction_tab == "Units" :
                     elements = len(units)
+                else :
+                    elements = 0
                 for i in range(construction_tab_scroll,math.ceil(elements/3)) :
                     y_rand = HEIGHT*2/3 +10 + i*70 + i*10 - C_menu_scroll
                     if y_rand+35 > HEIGHT*2/3 and y_rand < HEIGHT  :
@@ -373,7 +375,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             pygame.draw.rect(WIN,Gri,(x_coloana+2,y_rand+2,66,66))
                             if construction_tab == "Structures" :
                                 WIN.blit(structures[i*3+j],(x_coloana+3,y_rand+3))
-                            else :
+                            elif construction_tab == "Units" :
                                 WIN.blit(units[i*3+j],(x_coloana+3,y_rand+3))
                 #Afisarea imaginii si informatiilor elementului selectat din meniul de structuri
                 if Element_selectat != None :
@@ -907,10 +909,14 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                 enlighted_surface = draw_enlighted_tiles()
                                 if selected_tile[0] == None or (selected_tile[0] == x_layer and selected_tile[1] == y_layer)==0 : 
                                     selected_tile = [x_layer,y_layer]
-                                    if tiles[y_layer][x_layer].structure == None and tiles[y_layer][x_layer].ore == None and tiles[y_layer][x_layer].unit == None and tiles[y_layer][x_layer].collidable == False :
+                                    if tiles[y_layer][x_layer].structure == None and tiles[y_layer][x_layer].unit == None and tiles[y_layer][x_layer].collidable == False :
                                         if tile_empty != True :
                                             tile_empty = True
                                             Element_selectat = None
+                                        if tiles[y_layer][x_layer].ore != None :
+                                            construction_tab = "Mines"
+                                        else :
+                                            construction_tab = "Structures"
                                     else : 
                                         tile_empty=False
 
