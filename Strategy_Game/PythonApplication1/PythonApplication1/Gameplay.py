@@ -59,6 +59,7 @@ partially_visible_tiles = []
 path_tiles = [] #Tiles that a selected unit can move to
 
 def draw_star(length, y, x):    #Determine what tiles the player currently sees.
+    First = True
     visited_vec = []
     queued_tiles = [(y,x)]
 
@@ -83,13 +84,19 @@ def draw_star(length, y, x):    #Determine what tiles the player currently sees.
 
             x = myTile[1]
             y = myTile[0]
+            stop = False
+            try:
+                stop = myTile[2]
+            except:
+                print("WELP")
 
             if (y, x) not in visited_vec:
-                if x >= 0 and y >= 0 and y < rows and x < tiles_per_row:
+                if x >= 0 and y >= 0 and y < rows and x < tiles_per_row and (stop == False or First == True):
                     checks += 1
                     visited_vec.append((y, x))
                     if (x, y) not in visible_tiles: visible_tiles.append((x, y))
                     if (x, y) not in partially_visible_tiles: partially_visible_tiles.append((x, y))
+
                     for direction in directions:
                         in_x = direction[0]
                         in_y = direction[1]
@@ -98,7 +105,11 @@ def draw_star(length, y, x):    #Determine what tiles the player currently sees.
                                 new_tiles.append((y + in_y, x + in_x))
                             
                             elif tiles[y][x].collidable == True and y + in_y >= 0 and x + in_x >= 0 and y + in_y < rows and x + in_x < tiles_per_row and tiles[y + in_y][x + in_x].collidable == False:
-                                new_tiles.append((y + in_y, x + in_x))
+                                if First == False:
+                                    new_tiles.append((y + in_y, x + in_x, True))
+                                else:
+                                    new_tiles.append((y + in_y, x + in_x))
+                                    First = False
 
         queued_tiles.clear()
 
@@ -811,7 +822,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
             for unit in controllables_vec:  #Allow each unit to make an action
                 if tiles[unit.position[1]][unit.position[0]].unit == unit:
-                    unit.canAction = True
+                    unit.canMove = True
+                    unit.canAttack = True
 
             if Role == "host" :
                 if Confirmatii_timer == len(CLIENTS) :
@@ -917,7 +929,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
                                     if tiles[y_layer][x_layer].unit != None and tiles[y_layer][x_layer].unit.owner == map_locations[Pozitie] and (x_layer, y_layer) in visible_tiles:
                                         selected_controllable = tiles[y_layer][x_layer].unit
-                                        if selected_controllable.canAction == True:
+                                        if selected_controllable.canMove == True:
                                             determine_enlighted_tiles()
                                             enlighted_surface = draw_enlighted_tiles(True)
                                 else :
@@ -963,8 +975,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                 if y_layer >= 0 and y_layer < rows:
                                     lastPos = selected_controllable.position
                                     hasMoved = selected_controllable.MoveTo((x_layer, y_layer), path_tiles, tiles)
+                                    #If the unit has moved, delete the unit from last position tile and redraw those 2 tiles.
                                     if hasMoved:
                                         selected_controllable = None
+                                        path_tiles.clear()
 
                                         del tiles[lastPos[1]][lastPos[0]].unit
                                         tiles[lastPos[1]][lastPos[0]].unit = None
@@ -972,7 +986,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                         refresh_map([(x_layer, y_layer), lastPos])
 
                                         enlighted_surface = draw_enlighted_tiles()
-                                        tiles[y_layer][x_layer].unit.canAction = False
 
                                         #Pune aceasta actiune in Turn-Actions
                                         Turn_Actions.append(("move_unit",lastPos,(x_layer, y_layer)))

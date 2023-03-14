@@ -35,7 +35,8 @@ class Unit():
 
         vec = predefined_Units[name]
 
-        self.canAction = True
+        self.canMove = True
+        self.canAttack = True
 
         self.texture = name + ".png"
         self.HP = vec[0]
@@ -52,6 +53,7 @@ class Unit():
         if position in path_vec:
             tiles[position[1]][position[0]].unit = self
             tiles[position[1]][position[0]].unit.position = tiles[position[1]][position[0]].position
+            tiles[position[1]][position[0]].unit.canMove = False
             return True
         return False
 
