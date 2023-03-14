@@ -192,7 +192,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     4 : None
     }
 
-    TileClass.full_bright = False  #if full_bright == True, player can see the whole map at any time, like in editor.
+    TileClass.full_bright = True  #if full_bright == True, player can see the whole map at any time, like in editor.
 
     index = 0
     for player in playeri:  #assign colors to structures and units. Any structure/unit with 
@@ -406,6 +406,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     elif data_recv[0] == "Force_end_turn" :
                         Changes_from_clients.append(data_recv)
                         Transmit_to_all.append((("Force_end_turn",None),cod))
+                    else :
+                        Changes_from_clients.append(data_recv)
+                        Transmit_to_all.append((data_recv,cod))
                 else :
                     client.close()
                     Killed_Clients.append(cod)
@@ -755,6 +758,14 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     archive_message(Changes_from_clients[0][1],Changes_from_clients[0][2],Changes_from_clients[0][3])
                 elif Changes_from_clients[0][0] == "Force_end_turn" :
                     timer = 0
+                elif Changes_from_clients[0][0] == "move_unit" :
+                    tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].unit = tiles[Changes_from_clients[0][1][1]][Changes_from_clients[0][1][0]].unit
+                    tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].unit.position = tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].position
+
+                    del tiles[Changes_from_clients[0][1][1]][Changes_from_clients[0][1][0]].unit
+                    tiles[Changes_from_clients[0][1][1]][Changes_from_clients[0][1][0]].unit = None
+
+                    refresh_map([Changes_from_clients[0][1], Changes_from_clients[0][2]])
                 Changes_from_clients.pop(0)
         else :
             #Se verifica daca serverul a trimis lucruri spre acest client
@@ -783,6 +794,15 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     archive_message(Changes_from_server[0][1],Changes_from_server[0][2],Changes_from_server[0][3])
                 elif Changes_from_server[0][0] == "Force_end_turn" :
                     timer = 0
+                elif Changes_from_server[0][0] == "move_unit" :
+                    tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].unit = tiles[Changes_from_server[0][1][1]][Changes_from_server[0][1][0]].unit
+                    tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].unit.position = tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].position
+
+                    del tiles[Changes_from_server[0][1][1]][Changes_from_server[0][1][0]].unit
+                    tiles[Changes_from_server[0][1][1]][Changes_from_server[0][1][0]].unit = None
+
+                    refresh_map([Changes_from_server[0][1], Changes_from_server[0][2]])
+
                 Changes_from_server.pop(0)
 
         if timer == 0 :
