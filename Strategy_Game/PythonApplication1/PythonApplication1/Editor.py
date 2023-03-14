@@ -28,6 +28,7 @@ colorTable = {  #Table for assigning each controller with a color. In editor it'
 mouse_pos = None
 
 def editor(WIN,WIDTH,HEIGHT,FPS) :
+    TileClass.show_walls = False
     global mouse_pos
     rows = 100
     tiles_per_row = 100
@@ -376,7 +377,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
             for x in range(rows):  #Create the map with empty tiles
                 newLine = []
                 for y in range(tiles_per_row):
-                    newTile = TileClass.Tile((y, x), False, None, TileClass.empty_image_name, None, None, None)
+                    newTile = TileClass.Tile((y, x), False, TileClass.empty_image_name, None, None, None)
                     newLine.append(newTile)
                     newTile.DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
                 tiles.append(newLine)
@@ -649,6 +650,14 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                 if event.key == pygame.K_ESCAPE : #Intoarcerea in meniu
                     Running = False
                 
+                if event.unicode.lower() == 'p':    #Darken walls
+                    TileClass.show_walls = not TileClass.show_walls
+                    for x in range(rows):  #Redraw the whole map
+                        for y in range(tiles_per_row):
+                            tiles[x][y].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+
+                    mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
+
                 elif event.unicode.lower() == 'l':  #Enable/Disable GUIs
                     GUI.GUIs_enabled = not GUI.GUIs_enabled                
 
