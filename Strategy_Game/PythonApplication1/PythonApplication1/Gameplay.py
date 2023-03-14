@@ -484,7 +484,18 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             chat_archive.append((Font.render(rand,True,color),0))
 
     def reverse_action (Action) :
-        x=10
+        #reverse unit movement
+        if Action[0] == "move_unit" :
+            tiles[Action[1][1]][Action[1][0]].unit = tiles[Action[2][1]][Action[2][0]].unit
+            tiles[Action[1][1]][Action[1][0]].unit.position = tiles[Action[1][1]][Action[1][0]].position
+
+            del tiles[Action[2][1]][Action[2][0]].unit
+            tiles[Action[2][1]][Action[2][0]].unit = None
+
+            refresh_map([Action[1], Action[2]])
+
+            #enlighted_surface = draw_enlighted_tiles()
+            tiles[Action[1][1]][Action[1][0]].unit.canAction = True
 
     #variabilele necesare indiferent de rol
     Whos_turn = 0
@@ -788,7 +799,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     if Whos_turn == Pozitie :
                         if Whos_turn == Pozitie :
                             for i in range(len(Turn_Actions)) :
-                                Transmit_to_all.append(Turn_Actions[i],None)
+                                Transmit_to_all.append((Turn_Actions[i],None))
                             Turn_Actions = []
                     #transmite la toti ca se schimba tura
                     Transmit_to_all.append((("next_turn",None),None))
@@ -919,8 +930,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
                 #daca apesi click dreapta 
                 if event.button == 3:
-                    #daca ai o unitate selectata, incearca sa o muti 
-                    if selected_controllable != None:
+                    #daca ai o unitate selectata, incearca sa o muti  daca este tura playerului
+                    if selected_controllable != None and timer>0 and Whos_turn == Pozitie :
                         if (press_coordonaits[1] > HEIGHT/25 and (press_coordonaits[1] > HEIGHT*2/3 and press_coordonaits[0] < HEIGHT/3)==0) and ((press_coordonaits[0]<(WIDTH-260)/2 + 260 and Chat_window == True) or Chat_window == False) and( selected_tile[0]==None or (press_coordonaits[1] < HEIGHT*4/5-5 and (tile_empty==False or (press_coordonaits[0]>WIDTH-HEIGHT/3 and press_coordonaits[1]>HEIGHT*2/3-60)==0 ))) :
                             x_layer = (press_coordonaits[0] + CurrentCamera.x) // current_tile_length 
                             y_layer = (press_coordonaits[1] + CurrentCamera.y) // current_tile_length
@@ -938,7 +949,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
                                         enlighted_surface = draw_enlighted_tiles()
                                         tiles[y_layer][x_layer].unit.canAction = False
-                                        
+
+                                        #Pune aceasta actiune in Turn-Actions
+                                        Turn_Actions.append(("move_unit",lastPos,(x_layer, y_layer)))
                 #daca dai scrol in sus
                 if event.button == 4 :
                     if Chat_window == True and press_coordonaits[0] >= (WIDTH-260)/2 + 265 and len(chat_archive) > 30 :
