@@ -391,6 +391,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             else :
                 pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3,HEIGHT*4/5-5 , WIDTH - HEIGHT/3,5))
                 pygame.draw.rect(WIN,(225, 223, 240),(HEIGHT/3,HEIGHT*4/5, WIDTH - HEIGHT/3,HEIGHT/5))
+                #daca este selectata o unitate sau cladire o afiseaza :
+                #if tile_empty == False and (tiles[selected_tile[1]][selected_tile[0]].structure != None or tiles[selected_tile[1]][selected_tile[0]].unit != None) :
+                    #pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3+20,HEIGHT*4/5+20,large_img_element_afisat.get_width()+10,large_img_element_afisat.get_width()+10))
+                    #pygame.draw.rect(WIN,Gri,(HEIGHT/3+25,HEIGHT*4/5+25,large_img_element_afisat.get_width(),large_img_element_afisat.get_width()))
+                    #WIN.blit(large_img_element_afisat,(HEIGHT/3+25,HEIGHT*4/5+25))
 
         pygame.display.update()
 
@@ -926,6 +931,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                             construction_tab = "Structures"
                                     else : 
                                         tile_empty=False
+                                        #daca tile_ul are o strucutra sau unitate ii salveaza imaginea pentru afisare
+                                        #if tiles[selected_tile[1]][selected_tile[0]].unit != None :
+                                            #large_img_element_afisat = pygame.transform.scale(units[Element_selectat],(HEIGHT/5 -50,HEIGHT/5 -50))
 
                                     if tiles[y_layer][x_layer].unit != None and tiles[y_layer][x_layer].unit.owner == map_locations[Pozitie] and (x_layer, y_layer) in visible_tiles:
                                         selected_controllable = tiles[y_layer][x_layer].unit
@@ -1105,4 +1113,3 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         return playeri, CLIENTS, Coduri_pozitie_client
     else :
         return playeri,Pozitie 
-
