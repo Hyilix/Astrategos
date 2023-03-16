@@ -128,7 +128,7 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
                                 run = False 
                                 break
             elif selected >= 0 and event.type == pygame.KEYDOWN and event.key != pygame.K_TAB :
-                if event.key == pygame.K_ESCAPE or event.key == pygame.K_RETURN :
+                if event.key == pygame.K_ESCAPE or event.key == pygame.K_RETURN or event.key == pygame.K_KP_ENTER  :
                     selected = -1
                 elif event.key == pygame.K_BACKSPACE  :
                     info[selected] = info[selected][:-1]
