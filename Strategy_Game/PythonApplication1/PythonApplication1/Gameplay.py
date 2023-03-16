@@ -392,10 +392,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3,HEIGHT*4/5-5 , WIDTH - HEIGHT/3,5))
                 pygame.draw.rect(WIN,(225, 223, 240),(HEIGHT/3,HEIGHT*4/5, WIDTH - HEIGHT/3,HEIGHT/5))
                 #daca este selectata o unitate sau cladire o afiseaza :
-                #if tile_empty == False and (tiles[selected_tile[1]][selected_tile[0]].structure != None or tiles[selected_tile[1]][selected_tile[0]].unit != None) :
-                    #pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3+20,HEIGHT*4/5+20,large_img_element_afisat.get_width()+10,large_img_element_afisat.get_width()+10))
-                    #pygame.draw.rect(WIN,Gri,(HEIGHT/3+25,HEIGHT*4/5+25,large_img_element_afisat.get_width(),large_img_element_afisat.get_width()))
-                    #WIN.blit(large_img_element_afisat,(HEIGHT/3+25,HEIGHT*4/5+25))
+                if tile_empty == False and (tiles[selected_tile[1]][selected_tile[0]].structure != None or tiles[selected_tile[1]][selected_tile[0]].unit != None) :
+                    pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3+20,HEIGHT*4/5+20,large_img_element_afisat.get_width()+10,large_img_element_afisat.get_width()+10))
+                    pygame.draw.rect(WIN,Gri,(HEIGHT/3+25,HEIGHT*4/5+25,large_img_element_afisat.get_width(),large_img_element_afisat.get_width()))
+                    WIN.blit(large_img_element_afisat,(HEIGHT/3+25,HEIGHT*4/5+25))
 
         pygame.display.update()
 
@@ -932,8 +932,24 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                     else : 
                                         tile_empty=False
                                         #daca tile_ul are o strucutra sau unitate ii salveaza imaginea pentru afisare
-                                        #if tiles[selected_tile[1]][selected_tile[0]].unit != None :
-                                            #large_img_element_afisat = pygame.transform.scale(units[Element_selectat],(HEIGHT/5 -50,HEIGHT/5 -50))
+                                        if tiles[selected_tile[1]][selected_tile[0]].unit != None :
+                                            unit =  tiles[selected_tile[1]][selected_tile[0]].unit
+                                            large_img_element_afisat = pygame.image.load('Assets/Units/' + unit.texture)
+                                            #colorarea imagini si transformarea acesteia
+                                            for i in range(large_img_element_afisat.get_width()):
+                                                for j in range(large_img_element_afisat.get_height()):
+                                                    if large_img_element_afisat.get_at((i,j)) == (1,1,1):
+                                                        large_img_element_afisat.set_at((i,j), colorTable[unit.owner])
+                                            large_img_element_afisat = pygame.transform.scale(large_img_element_afisat,(HEIGHT/5 -50,HEIGHT/5 -50))
+                                        elif tiles[selected_tile[1]][selected_tile[0]].structure != None :
+                                            structure =  tiles[selected_tile[1]][selected_tile[0]].structure
+                                            large_img_element_afisat = pygame.image.load('Assets/Structures/' + structure.texture)
+                                            #colorarea imagini si transformarea acesteia
+                                            for i in range(large_img_element_afisat.get_width()):
+                                                for j in range(large_img_element_afisat.get_height()):
+                                                    if large_img_element_afisat.get_at((i,j)) == (1,1,1):
+                                                        large_img_element_afisat.set_at((i,j), colorTable[structure.owner])
+                                            large_img_element_afisat = pygame.transform.scale(large_img_element_afisat,(HEIGHT/5 -50,HEIGHT/5 -50))
 
                                     if tiles[y_layer][x_layer].unit != None and tiles[y_layer][x_layer].unit.owner == map_locations[Pozitie] and (x_layer, y_layer) in visible_tiles:
                                         selected_controllable = tiles[y_layer][x_layer].unit
