@@ -21,8 +21,9 @@ def resize_textures(size):
 
 last_index = len(texture_names)
 
-predefined_structures = {   #HP, MaxHp, attack, defence, canShareSpace, fog_range, Price (Mithril, Flerovium)
-    "Kernel" : [100, 5, 2, 3, False, 7, (None,None)],
+predefined_structures = {   #HP, MaxHp, Area_of_effect(block radius), defence, canShareSpace, fog_range, Price (Mithril, Flerovium)
+    "Kernel" : [100, 100, 5, 3, False, 7, (None,None)],
+    "Node" : [10, 10, 4, 0, False, 3, (1,None)],
     }
 
 class Structure():
@@ -36,9 +37,9 @@ class Structure():
         self.texture = name + ".png"
         self.HP = vec[0]
         self.MaxHP = vec[1]
-        self.attack = vec[2]
-        self.defence = vec[3]
-        self.canShareSpace = vec[4]
+        self.AOE = vec[2]   #Area of effect
+        self.defence = vec[3]   #Damage reduction
+        self.canShareSpace = vec[4]     #If an allied unit can stay inside the structure. Usefull for a bunker.
         self.fog_range = vec[5]      #How much can the structure see
 
         self.price = vec[6]
