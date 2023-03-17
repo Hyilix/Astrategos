@@ -380,6 +380,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 pygame.draw.rect(WIN,(25,25,25),(WIDTH- HEIGHT/3, HEIGHT - HEIGHT/3 -5,HEIGHT/3,5))
                 pygame.draw.rect(WIN,(25,25,25),(WIDTH- HEIGHT/3, HEIGHT - HEIGHT/3 -60,HEIGHT/3,5))
                 pygame.draw.rect(WIN,(225, 223, 240),(WIDTH- HEIGHT/3 +5, HEIGHT - HEIGHT/3,HEIGHT/3-5,HEIGHT/3))
+
                 pygame.draw.rect(WIN,(225, 223, 240),(WIDTH- HEIGHT/3 +5, HEIGHT - HEIGHT/3-55,HEIGHT/3-5,50))
                 #draw the name of the menu
                 text = FontT.render(construction_tab,True,(0,0,0))
@@ -413,6 +414,19 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3+20,HEIGHT*4/5+20,large_img_element_afisat.get_width()+10,large_img_element_afisat.get_width()+10))
                     pygame.draw.rect(WIN,Gri,(HEIGHT/3+25,HEIGHT*4/5+25,large_img_element_afisat.get_width(),large_img_element_afisat.get_width()))
                     WIN.blit(large_img_element_afisat,(HEIGHT/3+25,HEIGHT*4/5+25))
+                    #desenarea butonului de Build sau recruit
+                    if construction_tab == "Units" :
+                        button_text = FontT.render("Recruit",True,(0,0,0))
+                    else :
+                        button_text = FontT.render("Build",True,(0,0,0))
+                    text_rect = button_text.get_rect()
+                    x_center =HEIGHT/3 + 50 + large_img_element_afisat.get_width() + (WIDTH - HEIGHT*2/3 -75 -large_img_element_afisat.get_width())/2
+                    text_rect.center = ( x_center , HEIGHT - 30 -10 )
+                    pygame.draw.rect(WIN,(25,25,25),(x_center - text_rect[2]/2 -10 , HEIGHT-70,text_rect[2]+20,60))
+                    pygame.draw.rect(WIN,(225, 223, 240),(x_center - text_rect[2]/2 -5,  HEIGHT-65,text_rect[2]+10,50))
+                    WIN.blit(button_text,text_rect)
+
+
             else :
                 pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3,HEIGHT*4/5-5 , WIDTH - HEIGHT/3,5))
                 pygame.draw.rect(WIN,(225, 223, 240),(HEIGHT/3,HEIGHT*4/5, WIDTH - HEIGHT/3,HEIGHT/5))
