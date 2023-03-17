@@ -10,6 +10,7 @@ import TileClass
 import Structures
 import Units
 import Ores
+import Node
 
 pygame.init()
 
@@ -58,6 +59,8 @@ visible_tiles = []
 partially_visible_tiles = []
 path_tiles = [] #Tiles that a selected unit can move to
 
+DEBUG_FORCED_POSITION = 4
+
 def draw_star(length, y, x):    #Determine what tiles the player currently sees.
     First = True
     visited_vec = []
@@ -88,7 +91,7 @@ def draw_star(length, y, x):    #Determine what tiles the player currently sees.
             try:
                 stop = myTile[2]
             except:
-                print("WELP")
+                a = 1
 
             if (y, x) not in visited_vec:
                 if x >= 0 and y >= 0 and y < rows and x < tiles_per_row and (stop == False or First == True):
@@ -132,6 +135,9 @@ enlighted_surface = None
 
 #De stiut map_locations este un vector de aceasi lungime cu vectorul de playeri care contine locatia de pe hart a fiecaruia reprezentata printr-un nr de la 1 la 4
 def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client,map_name,map_locations) :
+    if DEBUG_FORCED_POSITION != None:
+        map_locations[Pozitie] = DEBUG_FORCED_POSITION
+
     TileClass.show_walls = False
     global run
     global timer 
@@ -269,6 +275,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             tempSurface.blit(enlighted_surface, (0, 0), (CurrentCamera.x, CurrentCamera.y, WIDTH, HEIGHT))
 
         WIN.blit(tempSurface, (0, 0)) 
+
+        #Draw Nodes circles
+        Node.Draw_tree_circles(Node.TreeRoot, WIN, current_tile_length, (CurrentCamera.x, CurrentCamera.y))
+        #Node.Draw_all_nodes(WIN, current_tile_length, (CurrentCamera.x, CurrentCamera.y))
 
         #draw selected tile outline
         if selected_tile[0] != None : 
@@ -649,6 +659,16 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                                     new_structure
                                                     )
 
+                        #Detect if the structure is either Kernel or Node to populate the Node module.
+                        if new_tile.structure != None:
+                            if (new_tile.structure.name == "Kernel" or new_tile.structure.name == "Node") and new_tile.structure.owner == map_locations[Pozitie]:
+                                new_node = Node.Node((new_tile.position[0] + 0.5, new_tile.position[1] + 0.5), 4)
+                                if new_tile.structure.name == "Kernel":
+                                    Node.TreeRoot = new_node
+                                    new_node.Powered = True
+
+                                Node.NodeList.append(new_node)
+
                         #Save controlling units and structures
                         if new_tile.structure != None: 
                             #Center camera to player's Kernel at the start of the game.
@@ -679,6 +699,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
         except:
             print("No such file exists")
+
+        Node.InitTree()
 
     #functia asta face refresh la harta 
     def refresh_map(specific_vector = None):

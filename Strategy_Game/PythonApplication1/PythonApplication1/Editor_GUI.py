@@ -164,7 +164,6 @@ def Draw_Textures_GUI(position):
         comparison = Units.last_index - (math.ceil(Units.last_index / texture_cap) - 1) * texture_cap
 
     if current_texture_screen == "Units":
-        print("BA", comparison)
         for i in range((current_tab - 1) * texture_cap, (current_tab - 1) * texture_cap + comparison):
             image_name = Units.texture_names[i]
             cloned_image = pygame.transform.scale(Units.base_textures[Units.texture_names.index(image_name)], (texture_size, texture_size))
