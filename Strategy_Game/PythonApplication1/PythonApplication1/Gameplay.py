@@ -204,7 +204,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     4 : None
     }
 
-    TileClass.full_bright = False  #if full_bright == True, player can see the whole map at any time, like in editor.
+    TileClass.full_bright = True  #if full_bright == True, player can see the whole map at any time, like in editor.
 
     index = 0
     for player in playeri:  #assign colors to structures and units. Any structure/unit with 
@@ -226,6 +226,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     mithril_icon = pygame.transform.scale(pygame.image.load('Assets/Gameplay_UI/mars-mithril-bar-1.png'),(32,32))
     flerovium_icon = pygame.transform.scale(pygame.image.load('Assets/Gameplay_UI/mars-flerovium-crystal-1.png'),(32,32))
     man_power_icon = pygame.transform.scale(pygame.image.load('Assets/Units/Marine.png'),(32,32))
+    nodes_icon = pygame.transform.scale(pygame.image.load('Assets/Structures/Node.png'),(32,32))
 
     # incaracarea imaginilor structurilor si unitatilor care le poate produce playeru, cu culoarea specifica.
     grosime_outline = 5
@@ -317,18 +318,30 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         pygame.draw.rect(WIN,(225, 223, 240),(0,0,WIDTH,HEIGHT/25))
         pygame.draw.rect(WIN,(25,25,25),(0,HEIGHT/25,WIDTH,5))
         #Afisarea resurselor detinute
-        WIN.blit(mithril_icon,(5,(HEIGHT/25-32)/2))
+        x_coord = 5
+        WIN.blit(mithril_icon,(x_coord,(HEIGHT/25-32)/2))
+        x_coord = x_coord +32 + 10
         mit_count = Font.render(str(Mithril),True,(75, 91, 248))
         mit_rect = mit_count.get_rect()
-        WIN.blit(mit_count,(15 + 32,(HEIGHT/25-mit_rect[3])/2))
+        WIN.blit(mit_count,(x_coord,(HEIGHT/25-mit_rect[3])/2))
+        x_coord = mit_rect[2] + 10 + x_coord
         fle_count = Font.render(str(Flerovium),True,(152, 65, 182))
         fle_rect = fle_count.get_rect()
-        WIN.blit(flerovium_icon,(15+32+60+10,(HEIGHT/25-32)/2))
-        WIN.blit(fle_count,(15+64+60+20,(HEIGHT/25-fle_rect[3])/2))
+        WIN.blit(flerovium_icon,(x_coord,(HEIGHT/25-32)/2))
+        x_coord = x_coord + 10 + 32
+        WIN.blit(fle_count,(x_coord,(HEIGHT/25-fle_rect[3])/2))
+        x_coord = x_coord + fle_rect[2]+10
         man_power_count = Font.render(("  " + str(Man_power_used))[-3:]+' / '+ str(Max_Man_power),True,(0,0,0))
         man_rect = man_power_count.get_rect()
-        WIN.blit(man_power_icon,(15+32*2+60*2+10*3,(HEIGHT/25-32)/2))
-        WIN.blit(man_power_count,(15+32*3+60*2+10*4,(HEIGHT/25-man_rect[3])/2))
+        WIN.blit(man_power_icon,(x_coord,(HEIGHT/25-32)/2))
+        x_coord = x_coord + 32 + 10
+        WIN.blit(man_power_count,(x_coord,(HEIGHT/25-man_rect[3])/2))
+        x_coord = x_coord + man_rect[2] + 10
+        nodes_count = Font.render(("  " + str(Nodes))[-2:] + " / " + str(Max_Nodes),True,(0,0,0))
+        nodes_rect = nodes_count.get_rect()
+        WIN.blit(nodes_icon,(x_coord,(HEIGHT/25-32)/2))
+        x_coord = x_coord + 10 + 32
+        WIN.blit(nodes_count,(x_coord,(HEIGHT/25-nodes_rect[3])/2))
         #turn part
         pygame.draw.rect(WIN,Player_Colors[playeri[Whos_turn][1]],((WIDTH-260)/2,0,260,HEIGHT*2/25 + 5))
         pygame.draw.rect(WIN,(225, 223, 240),((WIDTH-250)/2,0,250,HEIGHT*2/25 ))
@@ -544,6 +557,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     Flerovium = 5555
     Man_power_used = 0
     Max_Man_power = 100
+    Nodes = 0
+    Max_Nodes = 50
     #Vectorul care detine actiunile playerului din tura lui
     Turn_Actions = []
     Ctrl_zeed = False
