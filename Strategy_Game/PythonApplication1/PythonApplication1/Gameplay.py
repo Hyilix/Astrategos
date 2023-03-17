@@ -534,7 +534,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
             refresh_map([Action[1], Action[2]])
 
-            tiles[Action[1][1]][Action[1][0]].unit.canAction = True
+            tiles[Action[1][1]][Action[1][0]].unit.canMove = True
 
     #variabilele necesare indiferent de rol
     Whos_turn = 0
