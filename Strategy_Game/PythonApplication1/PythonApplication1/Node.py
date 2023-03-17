@@ -25,26 +25,19 @@ def InitTree():     #Start from the root, find Nodes, and from these Nodes searc
                     target.Add(node)
                     target.Powered = True
 
-def Tree_iteration():
-    global NodesFound
-    NodesFound = [TreeRoot]
-    index = 0
+def Find_connections():
+    for node in NodesFound:
+        for target in NodeList:
+            if target != node and target not in NodesFound:
+                if node.CheckCollision(target) == True:
+                    NodesFound.append(target)
+                    target.Add(node)
+                    target.Powered = True
 
-    for node in NodeList:
-        if index == len(NodesFound): break
-        if node != TreeRoot and node not in NodesFound and node.Powered == False:
-            if NodesFound[index].CheckCollision(node):
-                NodesFound.append(node)
-                index += 1
-                NodesFound[index].Add(node)
-
-def Draw_tree_circles(node, screen, size, offset):
-    for child in NodesFound:
-        child.DrawCircle(screen, size, offset)
-
-def Draw_all_nodes(screen, size, offset):
-    for child in NodeList:
-        child.DrawCircle(screen, size, offset)
+def Draw_tree_circles(node, screen, size, offset):  #Go trough the tree and draw all circles
+    node.DrawCircle(screen, size, offset)
+    for child in node.Children:
+        Draw_tree_circles(child, screen, size, offset)
 
 class Node():
     def __init__(self, Position, Range):
@@ -92,6 +85,9 @@ class Node():
 
     def CheckCollision(self, target):   #Checks if the target Node and this Node are intersecting. This can be very bad for a lot of Nodes because of n^2 complexity
         return math.sqrt((self.Position[0] - target.Position[0]) ** 2 + (self.Position[1] - target.Position[1]) ** 2) <= max(self.Range, target.Range)
+
+    def CheckBuildingInRadius(self, target):
+        return math.sqrt((self.Position[0] - target.Position[0]) ** 2 + (self.Position[1] - target.Position[1]) ** 2) <= self.Range
 
     def DrawCircle(self, screen, size, offset):
         pygame.draw.circle(screen, CircleColor, (self.Position[0] * size - offset[0], self.Position[1] * size - offset[1]), self.Range * size, 1)

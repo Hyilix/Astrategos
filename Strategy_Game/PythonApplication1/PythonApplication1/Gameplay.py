@@ -278,7 +278,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
         #Draw Nodes circles
         Node.Draw_tree_circles(Node.TreeRoot, WIN, current_tile_length, (CurrentCamera.x, CurrentCamera.y))
-        #Node.Draw_all_nodes(WIN, current_tile_length, (CurrentCamera.x, CurrentCamera.y))
 
         #draw selected tile outline
         if selected_tile[0] != None : 
