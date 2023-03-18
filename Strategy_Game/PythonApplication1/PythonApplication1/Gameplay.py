@@ -10,6 +10,7 @@ import TileClass
 import Structures
 import Units
 import Ores
+from button import Button
 
 pygame.init()
 
@@ -41,6 +42,7 @@ FontT = pygame.font.Font(None, 50)
 
 run = True
 timer = 120
+tile_empty = False
 
 Confirmatii_timer = 0
 chat_notification = False
@@ -135,6 +137,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     TileClass.show_walls = False
     global run
     global timer 
+    global tile_empty
     global Confirmatii_timer
     global chat_notification
     global colorTable
@@ -227,6 +230,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     flerovium_icon = pygame.transform.scale(pygame.image.load('Assets/Gameplay_UI/mars-flerovium-crystal-1.png'),(32,32))
     man_power_icon = pygame.transform.scale(pygame.image.load('Assets/Units/Marine.png'),(32,32))
     nodes_icon = pygame.transform.scale(pygame.image.load('Assets/Structures/Node.png'),(32,32))
+
+    #butonul de creare a unei cladiri/unitati
+    #Button_rect = ((WIDTH-260)/2-5,(HEIGHT-90*4-50*4-60)/2-5 + 60 + 50,260,90)
+    #Create_Button = Button()
 
     # incaracarea imaginilor structurilor si unitatilor care le poate produce playeru, cu culoarea specifica.
     grosime_outline = 5
@@ -420,6 +427,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     else :
                         button_text = FontT.render("Build",True,(0,0,0))
                     text_rect = button_text.get_rect()
+                    print(text_rect[2])
                     x_center =HEIGHT/3 + 50 + large_img_element_afisat.get_width() + (WIDTH - HEIGHT*2/3 -75 -large_img_element_afisat.get_width())/2
                     text_rect.center = ( x_center , HEIGHT - 30 -10 )
                     pygame.draw.rect(WIN,(25,25,25),(x_center - text_rect[2]/2 -10 , HEIGHT-70,text_rect[2]+20,60))
@@ -549,6 +557,15 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             refresh_map([Action[1], Action[2]])
 
             tiles[Action[1][1]][Action[1][0]].unit.canMove = True
+            selected_tile_check()
+
+    def selected_tile_check() :
+        global tile_empty
+        if tiles[selected_tile[1]][selected_tile[0]].unit == None and tiles[selected_tile[1]][selected_tile[0]].structure == None and tiles[selected_tile[1]][selected_tile[0]].ore == None :
+            tile_empty = True
+            print("YEEEEEEEEES")
+        else :
+            tile_empty = False
 
     #variabilele necesare indiferent de rol
     Whos_turn = 0
@@ -1055,6 +1072,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
                                         #Pune aceasta actiune in Turn-Actions
                                         Turn_Actions.append(("move_unit",lastPos,(x_layer, y_layer)))
+                                        selected_tile_check()
+                                        print(tile_empty)
                 #daca dai scrol in sus
                 if event.button == 4 :
                     if Chat_window == True and press_coordonaits[0] >= (WIDTH-260)/2 + 265 and len(chat_archive) > 30 :
