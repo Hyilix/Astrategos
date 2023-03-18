@@ -1007,7 +1007,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 #daca apesi click dreapta 
                 if event.button == 3:
                     #daca ai o unitate selectata, incearca sa o muti daca este tura playerului
-                    if selected_controllable != None and timer>0 and Whos_turn == Pozitie :
+                    if selected_controllable != None and timer > 0 and Whos_turn == Pozitie :
                         if (press_coordonaits[1] > HEIGHT/25 and (press_coordonaits[1] > HEIGHT*2/3 and press_coordonaits[0] < HEIGHT/3)==0) and ((press_coordonaits[0]<(WIDTH-260)/2 + 260 and Chat_window == True) or Chat_window == False) and( selected_tile[0]==None or (press_coordonaits[1] < HEIGHT*4/5-5 and (tile_empty==False or (press_coordonaits[0]>WIDTH-HEIGHT/3 and press_coordonaits[1]>HEIGHT*2/3-60)==0 ))) :
                             x_layer = (press_coordonaits[0] + CurrentCamera.x) // current_tile_length 
                             y_layer = (press_coordonaits[1] + CurrentCamera.y) // current_tile_length
@@ -1031,12 +1031,18 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                         Turn_Actions.append(("move_unit",lastPos,(x_layer, y_layer)))
 
                     #Daca ai in construction tab ceva selectat, incearca sa o construiesti
-                    if Element_selectat != None and selected_controllable == None:
-                        if construction_tab == "Structures":
-                            new_struct = Structures.BuildStructure(Element_selectat, selected_tile, map_locations[Pozitie])
-                            tiles[selected_tile[1]][selected_tile[0]].structure = new_struct
-                            tiles[selected_tile[1]][selected_tile[0]].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles))
-                            controllables_vec.append(new_struct)
+                    if timer > 0 and Whos_turn == Pozitie:
+                        if Element_selectat != None and selected_controllable == None:
+                            if construction_tab == "Structures":
+                                new_struct = Structures.BuildStructure(Element_selectat, selected_tile, map_locations[Pozitie])
+                                if Flerovium >= new_struct.price[1] and Mithril >= new_struct.price[0]:
+                                    tiles[selected_tile[1]][selected_tile[0]].structure = new_struct
+                                    controllables_vec.append(new_struct)
+                                    tiles[selected_tile[1]][selected_tile[0]].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), True, (visible_tiles, partially_visible_tiles))
+                                    Flerovium -= new_struct.price[1]
+                                    Mithril -= new_struct.price[0]
+                                else:
+                                    del new_struct
 
                 #daca dai scrol in sus
                 if event.button == 4 :

@@ -22,8 +22,8 @@ def resize_textures(size):
 last_index = len(texture_names)
 
 predefined_structures = {   #HP, MaxHp, Area_of_effect(block radius), defence, canShareSpace, fog_range, Price (Mithril, Flerovium)
-    "Kernel" : [100, 100, 5, 3, False, 7, (None,None)],
-    "Node" : [10, 10, 4, 0, False, 3, (1,None)],
+    "Kernel" : [100, 100, 5, 3, False, 7, (0,0)],
+    "Node" : [10, 10, 4, 0, False, 3, (3,0)],
     }
 
 def BuildStructure(index, position, owner):
@@ -34,7 +34,6 @@ def BuildStructure(index, position, owner):
             found = i
             break
         new_index += 1
-    print(found)
     new_struct = Structure(found, position, owner)
     return new_struct
 
