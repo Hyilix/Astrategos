@@ -91,7 +91,7 @@ def draw_star(length, y, x):    #Determine what tiles the player currently sees.
             try:
                 stop = myTile[2]
             except:
-                a = 1
+                stop = False
 
             if (y, x) not in visited_vec:
                 if x >= 0 and y >= 0 and y < rows and x < tiles_per_row and (stop == False or First == True):
@@ -106,6 +106,7 @@ def draw_star(length, y, x):    #Determine what tiles the player currently sees.
                         if (y + in_y, x + in_x) not in visited_vec:
                             if tiles[y][x].collidable == False:
                                 new_tiles.append((y + in_y, x + in_x))
+                                First = False
                             
                             elif tiles[y][x].collidable == True and y + in_y >= 0 and x + in_x >= 0 and y + in_y < rows and x + in_x < tiles_per_row and tiles[y + in_y][x + in_x].collidable == False:
                                 if First == False:
@@ -661,7 +662,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         #Detect if the structure is either Kernel or Node to populate the Node module.
                         if new_tile.structure != None:
                             if (new_tile.structure.name == "Kernel" or new_tile.structure.name == "Node") and new_tile.structure.owner == map_locations[Pozitie]:
-                                new_node = Node.Node((new_tile.position[0] + 0.5, new_tile.position[1] + 0.5), 4)
+                                new_node = Node.Node((new_tile.position[0] + 0.5, new_tile.position[1] + 0.5), 4.5)
                                 if new_tile.structure.name == "Kernel":
                                     Node.TreeRoot = new_node
                                     new_node.Powered = True
