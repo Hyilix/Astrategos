@@ -26,6 +26,18 @@ predefined_structures = {   #HP, MaxHp, Area_of_effect(block radius), defence, c
     "Node" : [10, 10, 4, 0, False, 3, (1,None)],
     }
 
+def BuildStructure(index, position, owner):
+    found = None
+    new_index = 0
+    for i in predefined_structures.keys():
+        if index == new_index:
+            found = i
+            break
+        new_index += 1
+    print(found)
+    new_struct = Structure(found, position, owner)
+    return new_struct
+
 class Structure():
     def __init__(self, name, position, owner):
         self.position = position    #The position of the tile it's sitted.

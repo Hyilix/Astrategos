@@ -1,3 +1,4 @@
+from ctypes import Structure
 import pygame 
 import os 
 import socket
@@ -59,7 +60,7 @@ visible_tiles = []
 partially_visible_tiles = []
 path_tiles = [] #Tiles that a selected unit can move to
 
-DEBUG_FORCED_POSITION = 4
+DEBUG_FORCED_POSITION = None
 
 def draw_star(length, y, x):    #Determine what tiles the player currently sees.
     First = True
@@ -265,6 +266,19 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     unit.set_at((i,j), Player_Colors[playeri[Pozitie][1]])
 
 
+    def draw_nodes():
+        if selected_tile[0] != None:
+            examined_struct = tiles[selected_tile[1]][selected_tile[0]].structure   #Selecting a node structure will draw the whole Tree
+            if examined_struct != None and examined_struct in controllables_vec:
+                if examined_struct.owner == map_locations[Pozitie]:
+                    if examined_struct.name == "Kernel" or examined_struct.name == "Node":
+                        node = Node.getNodeFromObj(examined_struct)
+                        if node in Node.NodesFound:
+                            Node.Draw_tree_circles(Node.TreeRoot, WIN, current_tile_length, (CurrentCamera.x, CurrentCamera.y))
+
+            if Element_selectat != None:    #Selecting an unit/structure in construction tab will draw the whole Tree
+                Node.Draw_tree_circles(Node.TreeRoot, WIN, current_tile_length, (CurrentCamera.x, CurrentCamera.y))
+
     def draw_window () :
         WIN.fill((255,255,255))
 
@@ -278,7 +292,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         WIN.blit(tempSurface, (0, 0)) 
 
         #Draw Nodes circles
-        Node.Draw_tree_circles(Node.TreeRoot, WIN, current_tile_length, (CurrentCamera.x, CurrentCamera.y))
+        draw_nodes()
 
         #draw selected tile outline
         if selected_tile[0] != None : 
@@ -519,7 +533,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
             refresh_map([Action[1], Action[2]])
 
-            tiles[Action[1][1]][Action[1][0]].unit.canAction = True
+            tiles[Action[1][1]][Action[1][0]].unit.canMove = True
 
     #variabilele necesare indiferent de rol
     Whos_turn = 0
@@ -662,7 +676,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         #Detect if the structure is either Kernel or Node to populate the Node module.
                         if new_tile.structure != None:
                             if (new_tile.structure.name == "Kernel" or new_tile.structure.name == "Node") and new_tile.structure.owner == map_locations[Pozitie]:
-                                new_node = Node.Node((new_tile.position[0] + 0.5, new_tile.position[1] + 0.5), 4.5)
+                                new_node = Node.Node((new_tile.position[0] + 0.5, new_tile.position[1] + 0.5), 4.5, new_tile.structure)
                                 if new_tile.structure.name == "Kernel":
                                     Node.TreeRoot = new_node
                                     new_node.Powered = True
@@ -940,6 +954,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         if x_layer >= 0 and x_layer < tiles_per_row:
                             if y_layer >= 0 and y_layer < rows:
                                 enlighted_surface = draw_enlighted_tiles()
+                                selected_controllable = None
                                 if selected_tile[0] == None or (selected_tile[0] == x_layer and selected_tile[1] == y_layer)==0 : 
                                     selected_tile = [x_layer,y_layer]
                                     if tiles[y_layer][x_layer].structure == None and tiles[y_layer][x_layer].ore == None and tiles[y_layer][x_layer].unit == None and tiles[y_layer][x_layer].collidable == False :
@@ -947,13 +962,16 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                             tile_empty = True
                                             Element_selectat = None
                                     else : 
-                                        tile_empty=False
+                                        tile_empty = False
+                                        Element_selectat = None
 
                                     if tiles[y_layer][x_layer].unit != None and tiles[y_layer][x_layer].unit.owner == map_locations[Pozitie] and (x_layer, y_layer) in visible_tiles:
                                         selected_controllable = tiles[y_layer][x_layer].unit
                                         if selected_controllable.canMove == True:
                                             determine_enlighted_tiles()
                                             enlighted_surface = draw_enlighted_tiles(True)
+                                            tile_empty = False
+                                            Element_selectat = None
                                 else :
                                     selected_tile = [None,None]
 
@@ -988,7 +1006,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
                 #daca apesi click dreapta 
                 if event.button == 3:
-                    #daca ai o unitate selectata, incearca sa o muti  daca este tura playerului
+                    #daca ai o unitate selectata, incearca sa o muti daca este tura playerului
                     if selected_controllable != None and timer>0 and Whos_turn == Pozitie :
                         if (press_coordonaits[1] > HEIGHT/25 and (press_coordonaits[1] > HEIGHT*2/3 and press_coordonaits[0] < HEIGHT/3)==0) and ((press_coordonaits[0]<(WIDTH-260)/2 + 260 and Chat_window == True) or Chat_window == False) and( selected_tile[0]==None or (press_coordonaits[1] < HEIGHT*4/5-5 and (tile_empty==False or (press_coordonaits[0]>WIDTH-HEIGHT/3 and press_coordonaits[1]>HEIGHT*2/3-60)==0 ))) :
                             x_layer = (press_coordonaits[0] + CurrentCamera.x) // current_tile_length 
@@ -1011,6 +1029,15 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
                                         #Pune aceasta actiune in Turn-Actions
                                         Turn_Actions.append(("move_unit",lastPos,(x_layer, y_layer)))
+
+                    #Daca ai in construction tab ceva selectat, incearca sa o construiesti
+                    if Element_selectat != None and selected_controllable == None:
+                        if construction_tab == "Structures":
+                            new_struct = Structures.BuildStructure(Element_selectat, selected_tile, map_locations[Pozitie])
+                            tiles[selected_tile[1]][selected_tile[0]].structure = new_struct
+                            tiles[selected_tile[1]][selected_tile[0]].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles))
+                            controllables_vec.append(new_struct)
+
                 #daca dai scrol in sus
                 if event.button == 4 :
                     if Chat_window == True and press_coordonaits[0] >= (WIDTH-260)/2 + 265 and len(chat_archive) > 30 :

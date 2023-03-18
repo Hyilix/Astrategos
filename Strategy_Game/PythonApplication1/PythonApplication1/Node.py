@@ -39,13 +39,21 @@ def Draw_tree_circles(node, screen, size, offset):  #Go trough the tree and draw
     for child in node.Children:
         Draw_tree_circles(child, screen, size, offset)
 
+def getNodeFromObj(obj):
+    for node in NodeList:
+        if node.obj == obj:
+            return node
+
+    return None
+
 class Node():
-    def __init__(self, Position, Range):
+    def __init__(self, Position, Range, obj):
         self.Position = Position    #Matrics position of the Node (structure). This is a tupple (x,y), and this is the center of the Structure.
         self.Parent = None    #Pointer to another TreeNode
         self.Children = []    #Array of TreeNodes
         self.Range = Range  #The range of the Node.
         self.Powered = False    #If it's connected to the Kernel (directly or indirectly), Powered is True
+        self.obj = obj  #The object associated with the Node
 
         NodeList.append(self)   #Add the node to the array.
 
@@ -66,6 +74,12 @@ class Node():
         self.Parent.Children.remove(self)   
         self.Parent = None
         self.Unpower_Children()
+
+    def Kill(self):     #Removes the node from the game
+        NodeList.remove(self)
+        self.Remove()
+        self.obj = None
+        del self
 
     def Add(self, target):  #Add the Node to the Tree relatively to the target Node. This function shouldn't be called on the Kernel Node.
         #Special Case for connection with Kernel Node:
