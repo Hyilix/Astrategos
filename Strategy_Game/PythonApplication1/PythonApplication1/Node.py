@@ -86,22 +86,26 @@ class Node():
         if self.Parent == None and NodeList.index(target) == 0:
             self.Parent = target
             target.Children.append(self)
+            self.Powered = True
+            NodesFound.append(self)
         elif NodeList.index(target) == 0:
             return  #You don't want to make the Kernel Node a child of another Node. You just don't.
 
-        if target.Parent == None:
-            target.Parent = self
-            self.Children.append(target)
         else:
-            target.Children.append(self)
-            self.Parent = target
-            self.Powered = True
+            if target.Parent == None:
+                target.Parent = self
+                self.Children.append(target)
+            else:
+                target.Children.append(self)
+                self.Parent = target
+                self.Powered = True
+                NodesFound.append(self)
 
     def CheckCollision(self, target):   #Checks if the target Node and this Node are intersecting. This can be very bad for a lot of Nodes because of n^2 complexity
         return math.sqrt((self.Position[0] - target.Position[0]) ** 2 + (self.Position[1] - target.Position[1]) ** 2) <= max(self.Range, target.Range)
 
     def CheckBuildingInRadius(self, target):
-        return math.sqrt((self.Position[0] - target.Position[0] + 0.5) ** 2 + (self.Position[1] - target.Position[1] + 0.5) ** 2) <= self.Range
+        return math.sqrt((self.Position[0] - target.position[0] - 0.5) ** 2 + (self.Position[1] - target.position[1] - 0.5) ** 2) <= self.Range
 
     def DrawCircle(self, screen, size, offset):
         pygame.draw.circle(screen, CircleColor, (self.Position[0] * size - offset[0], self.Position[1] * size - offset[1]), self.Range * size, 1)

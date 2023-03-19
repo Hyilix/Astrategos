@@ -581,6 +581,62 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         timer_notification_sent = False
         next_turn = False
 
+    def Create_Building():
+        nonlocal Flerovium
+        nonlocal Mithril
+        nonlocal Whos_turn
+        nonlocal Element_selectat
+        nonlocal selected_tile
+
+        if timer > 0 and Whos_turn == Pozitie:
+            if Element_selectat != None and selected_controllable == None and (selected_tile[0], selected_tile[1]) in visible_tiles:
+                if tiles[selected_tile[1]][selected_tile[0]].structure == None and tiles[selected_tile[1]][selected_tile[0]].unit == None:
+                    if construction_tab == "Structures":
+                        new_struct = Structures.BuildStructure(Element_selectat, (selected_tile[0], selected_tile[1]), map_locations[Pozitie])
+
+                        inRangeOfNode = False
+                        for node in Node.NodesFound:
+                            if node.CheckBuildingInRadius(new_struct):
+                                inRangeOfNode = True
+                                break
+
+                        if Flerovium >= new_struct.price[1] and Mithril >= new_struct.price[0] and inRangeOfNode:
+                            tiles[selected_tile[1]][selected_tile[0]].structure = new_struct
+                            tiles[selected_tile[1]][selected_tile[0]].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+                            controllables_vec.append(new_struct)
+
+                            Flerovium -= new_struct.price[1]
+                            Mithril -= new_struct.price[0]
+
+                            if new_struct.name == "Node":
+                                new_node = Node.Node((selected_tile[0] + 0.5, selected_tile[1] + 0.5), 4.5, new_struct)
+                                for node in Node.NodeList:
+                                    if node != new_node and new_node.CheckCollision(node):
+                                        new_node.Add(node)
+
+                        else:
+                            del new_struct
+
+                    elif construction_tab == "Units":
+                        new_unit = Units.BuildUnit(Element_selectat, (selected_tile[0], selected_tile[1]), map_locations[Pozitie])
+
+                        inRangeOfNode = False
+                        for node in Node.NodesFound:
+                            if node.CheckBuildingInRadius(new_unit):
+                                inRangeOfNode = True
+                                break
+
+                        if Flerovium >= new_unit.price[1] and Mithril >= new_unit.price[0] and inRangeOfNode:
+                            tiles[selected_tile[1]][selected_tile[0]].unit = new_unit
+                            tiles[selected_tile[1]][selected_tile[0]].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+                            controllables_vec.append(new_unit)
+
+                            Flerovium -= new_unit.price[1]
+                            Mithril -= new_unit.price[0]
+
+                        else:
+                            del new_unit    
+
     #Camera, texture resizing and load function
     class Camera:
         def __init__(self, position, zoom, max_zoom, min_zoom):
@@ -683,7 +739,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                     Node.TreeRoot = new_node
                                     new_node.Powered = True
 
-                                Node.NodeList.append(new_node)
+                                #Node.NodeList.append(new_node)
 
                         #Save controlling units and structures
                         if new_tile.structure != None: 
@@ -1033,27 +1089,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                         Turn_Actions.append(("move_unit",lastPos,(x_layer, y_layer)))
 
                     #Daca ai in construction tab ceva selectat, incearca sa o construiesti
-                    if timer > 0 and Whos_turn == Pozitie:
-                        if Element_selectat != None and selected_controllable == None:
-                            if construction_tab == "Structures":
-                                new_struct = Structures.BuildStructure(Element_selectat, (selected_tile[0], selected_tile[1]), map_locations[Pozitie])
-
-                                if Flerovium >= new_struct.price[1] and Mithril >= new_struct.price[0]:
-                                    tiles[selected_tile[1]][selected_tile[0]].structure = new_struct
-                                    tiles[selected_tile[1]][selected_tile[0]].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
-                                    controllables_vec.append(new_struct)
-
-                                    Flerovium -= new_struct.price[1]
-                                    Mithril -= new_struct.price[0]
-
-                                    if new_struct.name == "Node":
-                                        new_node = Node.Node((selected_tile[0] + 0.5, selected_tile[1] + 0.5), 4, new_struct)
-                                        for node in Node.NodeList:
-                                            if node != new_node and new_node.CheckCollision(node):
-                                                new_node.Add(node)
-
-                                else:
-                                    del new_struct
+                    Create_Building()
 
                 #daca dai scrol in sus
                 if event.button == 4 :

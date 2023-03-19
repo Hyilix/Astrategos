@@ -27,6 +27,17 @@ predefined_Units = {   #HP, MaxHp, attack, defence, range, move_range, fog_range
     "Phantom" : [5, 5, 2, 3, 1, 5, 7, (10,0)],
     }
 
+def BuildUnit(index, position, owner):
+    found = None
+    new_index = 0
+    for i in predefined_Units.keys():
+        if index == new_index:
+            found = i
+            break
+        new_index += 1
+    new_struct = Unit(found, position, owner)
+    return new_struct
+
 class Unit():
     def __init__(self, name, position, owner):
         self.position = position    #The position of the tile it's sitted.
