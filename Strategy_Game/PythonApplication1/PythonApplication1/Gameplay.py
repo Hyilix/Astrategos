@@ -235,6 +235,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     chat_icon = pygame.transform.scale(pygame.image.load('Assets/Gameplay_UI/chatbox-icon.png'),(60,60))
     mithril_icon = pygame.transform.scale(pygame.image.load('Assets/Gameplay_UI/mars-mithril-bar-1.png'),(32,32))
     flerovium_icon = pygame.transform.scale(pygame.image.load('Assets/Gameplay_UI/mars-flerovium-crystal-1.png'),(32,32))
+    man_power_icon = pygame.transform.scale(pygame.image.load('Assets/Units/Marine.png'),(32,32))
 
     # incaracarea imaginilor structurilor si unitatilor care le poate produce playeru, cu culoarea specifica.
     grosime_outline = 5
@@ -350,6 +351,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         fle_rect = fle_count.get_rect()
         WIN.blit(flerovium_icon,(15+32+60+10,(HEIGHT/25-32)/2))
         WIN.blit(fle_count,(15+64+60+20,(HEIGHT/25-fle_rect[3])/2))
+        man_power_count = Font.render(("  " + str(Man_power_used))[-3:]+' / '+ str(Max_Man_power),True,(0,0,0))
+        man_rect = man_power_count.get_rect()
+        WIN.blit(man_power_icon,(15+32*2+60*2+10*3,(HEIGHT/25-32)/2))
+        WIN.blit(man_power_count,(15+32*3+60*2+10*4,(HEIGHT/25-man_rect[3])/2))
         #turn part
         pygame.draw.rect(WIN,Player_Colors[playeri[Whos_turn][1]],((WIDTH-260)/2,0,260,HEIGHT*2/25 + 5))
         pygame.draw.rect(WIN,(225, 223, 240),((WIDTH-250)/2,0,250,HEIGHT*2/25 ))
@@ -397,8 +402,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 # afisarea lucrurilor din meniul de constructii
                 if construction_tab == "Structures" :
                     elements = len(structures)
-                else :
+                elif construction_tab == "Units" :
                     elements = len(units)
+                else :
+                    elements = 0
                 for i in range(construction_tab_scroll,math.ceil(elements/3)) :
                     y_rand = HEIGHT*2/3 +10 + i*70 + i*10 - C_menu_scroll
                     if y_rand+35 > HEIGHT*2/3 and y_rand < HEIGHT  :
@@ -411,7 +418,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             pygame.draw.rect(WIN,Gri,(x_coloana+2,y_rand+2,66,66))
                             if construction_tab == "Structures" :
                                 WIN.blit(structures[i*3+j],(x_coloana+3,y_rand+3))
-                            else :
+                            elif construction_tab == "Units" :
                                 WIN.blit(units[i*3+j],(x_coloana+3,y_rand+3))
                 #Afisarea imaginii si informatiilor elementului selectat din meniul de structuri
                 if Element_selectat != None :
@@ -422,6 +429,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             else :
                 pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3,HEIGHT*4/5-5 , WIDTH - HEIGHT/3,5))
                 pygame.draw.rect(WIN,(225, 223, 240),(HEIGHT/3,HEIGHT*4/5, WIDTH - HEIGHT/3,HEIGHT/5))
+                #daca este selectata o unitate sau cladire o afiseaza :
+                if tile_empty == False and (tiles[selected_tile[1]][selected_tile[0]].structure != None or tiles[selected_tile[1]][selected_tile[0]].unit != None) :
+                    pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3+20,HEIGHT*4/5+20,large_img_element_afisat.get_width()+10,large_img_element_afisat.get_width()+10))
+                    pygame.draw.rect(WIN,Gri,(HEIGHT/3+25,HEIGHT*4/5+25,large_img_element_afisat.get_width(),large_img_element_afisat.get_width()))
+                    WIN.blit(large_img_element_afisat,(HEIGHT/3+25,HEIGHT*4/5+25))
 
         pygame.display.update()
 
@@ -556,6 +568,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     #Resursele playerului 
     Mithril = 5555
     Flerovium = 5555
+    Man_power_used = 0
+    Max_Man_power = 100
     #Vectorul care detine actiunile playerului din tura lui
     Turn_Actions = []
     Ctrl_zeed = False
@@ -1015,13 +1029,36 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                 selected_controllable = None
                                 if selected_tile[0] == None or (selected_tile[0] == x_layer and selected_tile[1] == y_layer)==0 : 
                                     selected_tile = [x_layer,y_layer]
-                                    if tiles[y_layer][x_layer].structure == None and tiles[y_layer][x_layer].ore == None and tiles[y_layer][x_layer].unit == None and tiles[y_layer][x_layer].collidable == False :
+                                    if tiles[y_layer][x_layer].structure == None and tiles[y_layer][x_layer].unit == None and tiles[y_layer][x_layer].collidable == False :
                                         if tile_empty != True :
                                             tile_empty = True
                                             Element_selectat = None
+                                        if tiles[y_layer][x_layer].ore != None :
+                                            construction_tab = "Mines"
+                                        else :
+                                            construction_tab = "Structures"
                                     else : 
-                                        tile_empty = False
                                         Element_selectat = None
+                                        tile_empty=False
+                                        #daca tile_ul are o strucutra sau unitate ii salveaza imaginea pentru afisare
+                                        if tiles[selected_tile[1]][selected_tile[0]].unit != None :
+                                            unit =  tiles[selected_tile[1]][selected_tile[0]].unit
+                                            large_img_element_afisat = pygame.image.load('Assets/Units/' + unit.texture)
+                                            #colorarea imagini si transformarea acesteia
+                                            for i in range(large_img_element_afisat.get_width()):
+                                                for j in range(large_img_element_afisat.get_height()):
+                                                    if large_img_element_afisat.get_at((i,j)) == (1,1,1):
+                                                        large_img_element_afisat.set_at((i,j), colorTable[unit.owner])
+                                            large_img_element_afisat = pygame.transform.scale(large_img_element_afisat,(HEIGHT/5 -50,HEIGHT/5 -50))
+                                        elif tiles[selected_tile[1]][selected_tile[0]].structure != None :
+                                            structure =  tiles[selected_tile[1]][selected_tile[0]].structure
+                                            large_img_element_afisat = pygame.image.load('Assets/Structures/' + structure.texture)
+                                            #colorarea imagini si transformarea acesteia
+                                            for i in range(large_img_element_afisat.get_width()):
+                                                for j in range(large_img_element_afisat.get_height()):
+                                                    if large_img_element_afisat.get_at((i,j)) == (1,1,1):
+                                                        large_img_element_afisat.set_at((i,j), colorTable[structure.owner])
+                                            large_img_element_afisat = pygame.transform.scale(large_img_element_afisat,(HEIGHT/5 -50,HEIGHT/5 -50))
 
                                     if tiles[y_layer][x_layer].unit != None and tiles[y_layer][x_layer].unit.owner == map_locations[Pozitie] and (x_layer, y_layer) in visible_tiles:
                                         selected_controllable = tiles[y_layer][x_layer].unit
@@ -1208,4 +1245,3 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         return playeri, CLIENTS, Coduri_pozitie_client
     else :
         return playeri,Pozitie 
-
