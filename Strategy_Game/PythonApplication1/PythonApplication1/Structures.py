@@ -21,9 +21,10 @@ def resize_textures(size):
 
 last_index = len(texture_names)
 
-predefined_structures = {   #HP, MaxHp, Area_of_effect(block radius), defence, canShareSpace, fog_range, Price (Mithril, Flerovium)
-    "Kernel" : [100, 100, 5, 3, False, 7, (0,0)],
-    "Node" : [10, 10, 4, 0, False, 3, (3,0)],
+predefined_structures = {   #HP, MaxHp, Area_of_effect(block radius), defence, canShareSpace, fog_range, TrueSight, Price (Mithril, Flerovium)
+    "Kernel" : [100, 100, 0, 3, False, 6, False, (0,0)],
+    "Node" : [4, 4, 0, 0, False, 3, False, (3,0)],
+    "Radar" : [10, 10, 0, 0, False, 9, True, (20, 0)]
     }
 
 def BuildStructure(index, position, owner):
@@ -52,8 +53,9 @@ class Structure():
         self.defence = vec[3]   #Damage reduction
         self.canShareSpace = vec[4]     #If an allied unit can stay inside the structure. Usefull for a bunker.
         self.fog_range = vec[5]      #How much can the structure see
+        self.TrueSight = vec[6]     #If True, you can see trough walls.
 
-        self.price = vec[6]
+        self.price = vec[7]
 
     def DrawImage(self, screen, size, colorTable, special_blit = False, visible_tuple = None):
         image = textures[texture_names.index(self.texture)].copy()

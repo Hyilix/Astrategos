@@ -62,9 +62,9 @@ path_tiles = [] #Tiles that a selected unit can move to
 
 visited_vec = []
 
-DEBUG_FORCED_POSITION = None
+DEBUG_FORCED_POSITION = 1
 
-def draw_star(length, y, x):    #Determine what tiles the player currently sees.
+def draw_star(length, y, x, TrueSight = False):    #Determine what tiles the player currently sees.
     First = True
     visited_vec.clear()
     queued_tiles = [(y,x)]
@@ -107,16 +107,19 @@ def draw_star(length, y, x):    #Determine what tiles the player currently sees.
                         in_x = direction[0]
                         in_y = direction[1]
                         if (y + in_y, x + in_x) not in visited_vec:
-                            if tiles[y][x].collidable == False:
+                            if TrueSight == True:
                                 new_tiles.append((y + in_y, x + in_x))
-                                First = False
-                            
-                            elif tiles[y][x].collidable == True and y + in_y >= 0 and x + in_x >= 0 and y + in_y < rows and x + in_x < tiles_per_row and tiles[y + in_y][x + in_x].collidable == False:
-                                if First == False:
-                                    new_tiles.append((y + in_y, x + in_x, True))
-                                else:
+                            else:
+                                if tiles[y][x].collidable == False:
                                     new_tiles.append((y + in_y, x + in_x))
                                     First = False
+                            
+                                elif tiles[y][x].collidable == True and y + in_y >= 0 and x + in_x >= 0 and y + in_y < rows and x + in_x < tiles_per_row and tiles[y + in_y][x + in_x].collidable == False:
+                                    if First == False:
+                                        new_tiles.append((y + in_y, x + in_x, True))
+                                    else:
+                                        new_tiles.append((y + in_y, x + in_x))
+                                        First = False
 
         queued_tiles.clear()
 
@@ -132,6 +135,11 @@ def determine_visible_tiles():
     if TileClass.full_bright == False:
         visible_tiles.clear()
         for obj in controllables_vec:
+            if type(obj) == Structures.Structure:
+                if obj.TrueSight == True:
+                    draw_star(obj.fog_range, obj.position[1], obj.position[0], True)
+                    continue
+
             draw_star(obj.fog_range, obj.position[1], obj.position[0])
 
 selected_controllable = None
