@@ -60,11 +60,13 @@ visible_tiles = []
 partially_visible_tiles = []
 path_tiles = [] #Tiles that a selected unit can move to
 
+visited_vec = []
+
 DEBUG_FORCED_POSITION = None
 
 def draw_star(length, y, x):    #Determine what tiles the player currently sees.
     First = True
-    visited_vec = []
+    visited_vec.clear()
     queued_tiles = [(y,x)]
 
     directions = [
@@ -1034,11 +1036,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     if timer > 0 and Whos_turn == Pozitie:
                         if Element_selectat != None and selected_controllable == None:
                             if construction_tab == "Structures":
-                                new_struct = Structures.BuildStructure(Element_selectat, selected_tile, map_locations[Pozitie])
+                                new_struct = Structures.BuildStructure(Element_selectat, (selected_tile[0], selected_tile[1]), map_locations[Pozitie])
                                 if Flerovium >= new_struct.price[1] and Mithril >= new_struct.price[0]:
                                     tiles[selected_tile[1]][selected_tile[0]].structure = new_struct
                                     controllables_vec.append(new_struct)
-                                    tiles[selected_tile[1]][selected_tile[0]].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), True, (visible_tiles, partially_visible_tiles))
+                                    tiles[selected_tile[1]][selected_tile[0]].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
                                     Flerovium -= new_struct.price[1]
                                     Mithril -= new_struct.price[0]
                                 else:
