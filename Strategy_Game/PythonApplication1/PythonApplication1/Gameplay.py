@@ -1037,12 +1037,21 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         if Element_selectat != None and selected_controllable == None:
                             if construction_tab == "Structures":
                                 new_struct = Structures.BuildStructure(Element_selectat, (selected_tile[0], selected_tile[1]), map_locations[Pozitie])
+
                                 if Flerovium >= new_struct.price[1] and Mithril >= new_struct.price[0]:
                                     tiles[selected_tile[1]][selected_tile[0]].structure = new_struct
-                                    controllables_vec.append(new_struct)
                                     tiles[selected_tile[1]][selected_tile[0]].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+                                    controllables_vec.append(new_struct)
+
                                     Flerovium -= new_struct.price[1]
                                     Mithril -= new_struct.price[0]
+
+                                    if new_struct.name == "Node":
+                                        new_node = Node.Node((selected_tile[0] + 0.5, selected_tile[1] + 0.5), 4, new_struct)
+                                        for node in Node.NodeList:
+                                            if node != new_node and new_node.CheckCollision(node):
+                                                new_node.Add(node)
+
                                 else:
                                     del new_struct
 

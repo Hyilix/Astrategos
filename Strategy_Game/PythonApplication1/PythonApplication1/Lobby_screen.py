@@ -9,6 +9,7 @@ import time
 from Map_select_screen import Map_select
 
 DEBUG_DARK_MODE = True
+DEBUG_START_NOW = True
 
 pygame.init()
 #Culori
@@ -445,7 +446,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                 cooldown -= 1
             elif All_Readied == False and started_cooldown == True :
                 started_cooldown = False
-            if  cooldown == 0 and  started_cooldown == True:
+            if DEBUG_START_NOW == True or cooldown == 0 and  started_cooldown == True:
                 if Role == "host" :
                     if sent_reaquest == False :
                         In_next_stage = True

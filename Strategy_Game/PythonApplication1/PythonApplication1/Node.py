@@ -101,7 +101,7 @@ class Node():
         return math.sqrt((self.Position[0] - target.Position[0]) ** 2 + (self.Position[1] - target.Position[1]) ** 2) <= max(self.Range, target.Range)
 
     def CheckBuildingInRadius(self, target):
-        return math.sqrt((self.Position[0] - target.Position[0]) ** 2 + (self.Position[1] - target.Position[1]) ** 2) <= self.Range
+        return math.sqrt((self.Position[0] - target.Position[0] + 0.5) ** 2 + (self.Position[1] - target.Position[1] + 0.5) ** 2) <= self.Range
 
     def DrawCircle(self, screen, size, offset):
         pygame.draw.circle(screen, CircleColor, (self.Position[0] * size - offset[0], self.Position[1] * size - offset[1]), self.Range * size, 1)
