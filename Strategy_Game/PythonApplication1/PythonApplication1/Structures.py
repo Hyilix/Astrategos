@@ -21,10 +21,22 @@ def resize_textures(size):
 
 last_index = len(texture_names)
 
-predefined_structures = {   #HP, MaxHp, Area_of_effect(block radius), defence, canShareSpace, fog_range, Price (Mithril, Flerovium)
-    "Kernel" : [100, 100, 5, 3, False, 7, (None,None)],
-    "Node" : [10, 10, 4, 0, False, 3, (1,None)],
+predefined_structures = {   #HP, MaxHp, Area_of_effect(block radius), defence, canShareSpace, fog_range, TrueSight, Price (Mithril, Flerovium)
+    "Kernel" : [100, 100, 0, 3, False, 6, False, (0,0)],
+    "Node" : [4, 4, 0, 0, False, 3, False, (3,0)],
+    "Radar" : [10, 10, 0, 0, False, 9, True, (20, 0)]
     }
+
+def BuildStructure(index, position, owner):
+    found = None
+    new_index = 0
+    for i in predefined_structures.keys():
+        if index == new_index:
+            found = i
+            break
+        new_index += 1
+    new_struct = Structure(found, position, owner)
+    return new_struct
 
 class Structure():
     def __init__(self, name, position, owner):
@@ -41,8 +53,9 @@ class Structure():
         self.defence = vec[3]   #Damage reduction
         self.canShareSpace = vec[4]     #If an allied unit can stay inside the structure. Usefull for a bunker.
         self.fog_range = vec[5]      #How much can the structure see
+        self.TrueSight = vec[6]     #If True, you can see trough walls.
 
-        self.price = vec[6]
+        self.price = vec[7]
 
     def DrawImage(self, screen, size, colorTable, special_blit = False, visible_tuple = None):
         image = textures[texture_names.index(self.texture)].copy()
@@ -57,9 +70,9 @@ class Structure():
                     dark.set_at((i,j), (0, 0, 0, TileClass.darken_percent * 255))
 
         if special_blit == False:
-            if TileClass.full_bright == False and not (self.position in visible_tuple[0]) and not (self.position in visible_tuple[1]):
+            if TileClass.full_bright == False and visible_tuple and not (self.position in visible_tuple[0]) and not (self.position in visible_tuple[1]):
                 image.fill(TileClass.darkness)
-            elif TileClass.full_bright == False and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
+            elif TileClass.full_bright == False and visible_tuple and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
                 image.blit(dark,(0,0))
             screen.blit(image, (self.position[0] * size[0], self.position[1]  * size[1]))
         else:

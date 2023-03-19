@@ -9,6 +9,8 @@ import random
 
 from Gameplay import gameplay
 
+DEBUG_START_NOW = True
+
 pygame.init()
 
 #Culori
@@ -295,8 +297,11 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                     All_voted = False
                     break
         if cooldown>0 :
+            if DEBUG_START_NOW == True and All_voted:
+                cooldown = 0
+
             if All_voted :
-                cooldown  -=3
+                cooldown -=3
             else :
                 cooldown -=1
         else :

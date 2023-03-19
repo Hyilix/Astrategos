@@ -70,12 +70,12 @@ class Tile:
 
         if special_blit == False:   #Special blit resizes the texture on the spot and blits it, instead of blitting and resizing the map after.
             img = textures[texture_names.index(self.image_name)].copy()
-            if full_bright == False and not (self.position in visible_tuple[0]) and not (self.position in visible_tuple[1]):
+            if full_bright == False and visible_tuple and not (self.position in visible_tuple[0]) and not (self.position in visible_tuple[1]):
                 img.fill(darkness)
-            if full_bright == False and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
+            elif full_bright == False and visible_tuple and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
                 img.blit(dark,(0,0))
 
-            if show_walls == True:
+            if show_walls == True:  #For editor
                 if self.collidable == True:
                    darken = pygame.Surface(size).convert_alpha()
                    darken.fill((0,0,0, 0.9 * 255))
@@ -93,9 +93,9 @@ class Tile:
         else:
             img = textures[texture_names.index(self.image_name)].copy()
             img = pygame.transform.scale(img, size)
-            if full_bright == False and not (self.position in visible_tuple[0]) and not (self.position in visible_tuple[1]):
+            if full_bright == False and visible_tuple and not (self.position in visible_tuple[0]) and not (self.position in visible_tuple[1]):
                 img.fill((0,0,0))
-            if full_bright == False and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
+            if full_bright == False and visible_tuple and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
                 img.blit(dark,(0,0))
 
             if show_walls == True:
