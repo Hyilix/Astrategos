@@ -41,17 +41,17 @@ class Ore():
 
         if special_blit == False:
             #img = textures[texture_names.index(self.texture)]
-            if TileClass.full_bright == False and not (self.position in visible_tuple[0]) and not (self.position in visible_tuple[1]):
+            if TileClass.full_bright == False and visible_tuple and not (self.position in visible_tuple[0]) and not (self.position in visible_tuple[1]):
                 image.fill(TileClass.darkness)
-            elif TileClass.full_bright == False and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
+            elif TileClass.full_bright == False and visible_tuple and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
                 image.blit(dark,(0,0))
             screen.blit(image, (self.position[0] * size[0], self.position[1]  * size[1]))
         else:
 
             image = pygame.transform.scale(image, size)
             dark = pygame.transform.scale(dark, size)
-            if TileClass.full_bright == False and not (self.position in visible_tuple[0]) and not (self.position in visible_tuple[1]):
+            if TileClass.full_bright == False and visible_tuple and not (self.position in visible_tuple[0]) and not (self.position in visible_tuple[1]):
                 image.fill((0,0,0))
-            elif TileClass.full_bright == False and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
+            elif TileClass.full_bright == False and visible_tuple and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
                 image.blit(dark,(0,0))
             screen.blit(image, (self.position[0] * size[0], self.position[1]  * size[1]))

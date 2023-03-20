@@ -27,6 +27,17 @@ predefined_Units = {   #HP, MaxHp, attack, defence, range, move_range, fog_range
     "Phantom" : [5, 5, 2, 3, 1, 5, 7, (10,0,2)],
     }
 
+def BuildUnit(index, position, owner):
+    found = None
+    new_index = 0
+    for i in predefined_Units.keys():
+        if index == new_index:
+            found = i
+            break
+        new_index += 1
+    new_struct = Unit(found, position, owner)
+    return new_struct
+
 class Unit():
     def __init__(self, name, position, owner):
         self.position = position    #The position of the tile it's sitted.
@@ -70,9 +81,9 @@ class Unit():
                     dark.set_at((i,j), (0, 0, 0, TileClass.darken_percent * 255))
 
         if special_blit == False:
-            if TileClass.full_bright == False and not (self.position in visible_tuple[0]) and not (self.position in visible_tuple[1]):
+            if TileClass.full_bright == False and visible_tuple and not (self.position in visible_tuple[0]) and not (self.position in visible_tuple[1]):
                 image.fill(TileClass.darkness)
-            elif TileClass.full_bright == False and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
+            elif TileClass.full_bright == False and visible_tuple and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
                 image.blit(dark,(0,0))
             screen.blit(image, (self.position[0] * size[0], self.position[1]  * size[1]))
         else:
