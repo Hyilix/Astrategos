@@ -1083,13 +1083,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         #construieste structura
                         tiles[Changes_from_server[0][4][1]][Changes_from_server[0][4][0]].structure = new_struct
                         refrefresh_map([[Changes_from_server[0][4][0],Changes_from_server[0][4][1]]])
-                        #conditie daca este Node
-                        if new_struct.name == "Node":
-                            new_node = Node.Node((selected_tile[0] + 0.5, selected_tile[1] + 0.5), 4.5, new_struct)
-                            for node in Node.NodeList:
-                                if node != new_node and new_node.CheckCollision(node):
-                                    new_node.Add(node)
-                        del new_struct
 
                     elif Changes_from_server[0][1] == "Units":
                         new_unit = Units.BuildUnit(Changes_from_server[0][2], (Changes_from_server[0][4][0], Changes_from_server[0][4][1]), Changes_from_server[0][3])
@@ -1141,12 +1134,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         #construieste structura
                         tiles[Changes_from_server[0][4][1]][Changes_from_server[0][4][0]].structure = new_struct
                         refrefresh_map([[Changes_from_server[0][4][0],Changes_from_server[0][4][1]]])
-                        #conditie daca este Node
-                        if new_struct.name == "Node":
-                            new_node = Node.Node((selected_tile[0] + 0.5, selected_tile[1] + 0.5), 4.5, new_struct)
-                            for node in Node.NodeList:
-                                if node != new_node and new_node.CheckCollision(node):
-                                    new_node.Add(node)
                         del new_struct
 
                     elif Changes_from_server[0][1] == "Units":
