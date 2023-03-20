@@ -460,7 +460,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3+20,HEIGHT*4/5+20,large_img_element_afisat.get_width()+10,large_img_element_afisat.get_width()+10))
                     pygame.draw.rect(WIN,Gri,(HEIGHT/3+25,HEIGHT*4/5+25,large_img_element_afisat.get_width(),large_img_element_afisat.get_width()))
                     WIN.blit(large_img_element_afisat,(HEIGHT/3+25,HEIGHT*4/5+25))
-
                     can_build = True
                     #desenarea butonului de Build sau recruit
                     if construction_tab == "Units" :
@@ -520,7 +519,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             WIN.blit(man_power_icon,(start_x,y_center - 16))
                             start_x += 42
                             WIN.blit(MP_cost,(start_x,y_center - MP_rect[3]/2)) 
-
                     else :
                         Create_Button.text = FontT.render("Build",True,(0,0,0))
                         #desenarea resurselor necesare construirii 
@@ -569,11 +567,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     if can_build == False :
                         pygame.draw.rect(WIN,(25,25,25),Button_rect)
                     else :
-                        pygame.draw.rect(WIN,Green,Button_rect)
+                        pygame.draw.rect(WIN,Light_Green,Button_rect)
                     Create_Button.update(WIN)
-
-
-
             else :
                 pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3,HEIGHT*4/5-5 , WIDTH - HEIGHT/3,5))
                 pygame.draw.rect(WIN,(225, 223, 240),(HEIGHT/3,HEIGHT*4/5, WIDTH - HEIGHT/3,HEIGHT/5))
