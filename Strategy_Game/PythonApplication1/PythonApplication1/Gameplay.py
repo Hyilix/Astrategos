@@ -64,7 +64,7 @@ path_tiles = [] #Tiles that a selected unit can move to
 
 visited_vec = []
 
-DEBUG_FORCED_POSITION = 1
+DEBUG_FORCED_POSITION = None
 
 def draw_star(length, y, x, TrueSight = False):    #Determine what tiles the player currently sees.
     First = True
@@ -806,7 +806,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         if node.CheckBuildingInRadius(new_struct):
                             #construieste structura
                             tiles[selected_tile[1]][selected_tile[0]].structure = new_struct
-                            refrefresh_map([[selected_tile[0],selected_tile[1]]])
+                            refresh_map([[selected_tile[0],selected_tile[1]]])
                             controllables_vec.append(new_struct)
                             #scade costul
                             Flerovium -= new_struct.price[1]
@@ -830,7 +830,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         if node.CheckBuildingInRadius(new_unit):
                             #Se recruteaza noua unitate
                             tiles[selected_tile[1]][selected_tile[0]].unit = new_unit
-                            refrefresh_map([[selected_tile[0],selected_tile[1]]])
+                            refresh_map([[selected_tile[0],selected_tile[1]]])
                             controllables_vec.append(new_unit)
                             #se iau costurile
                             Flerovium -= new_unit.price[1]
@@ -1077,19 +1077,18 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     tiles[Changes_from_clients[0][1][1]][Changes_from_clients[0][1][0]].unit = None
 
                     refresh_map([Changes_from_clients[0][1], Changes_from_clients[0][2]])
-                elif Changes_from_server[0][0] == "new_entity" :
-                    if Changes_from_server[0][1] == "Structures":
-                        new_struct = Structures.BuildStructure(Changes_from_server[0][2], (Changes_from_server[0][4][0], Changes_from_server[0][4][1]), Changes_from_server[0][3])
+                elif Changes_from_clients[0][0] == "new_entity" :
+                    if Changes_from_clients[0][1] == "Structures":
+                        new_struct = Structures.BuildStructure(Changes_from_clients[0][2], (Changes_from_clients[0][4][0], Changes_from_clients[0][4][1]), Changes_from_clients[0][3])
                         #construieste structura
-                        tiles[Changes_from_server[0][4][1]][Changes_from_server[0][4][0]].structure = new_struct
-                        refrefresh_map([[Changes_from_server[0][4][0],Changes_from_server[0][4][1]]])
+                        tiles[Changes_from_clients[0][4][1]][Changes_from_clients[0][4][0]].structure = new_struct
+                        refresh_map([[Changes_from_clients[0][4][0],Changes_from_clients[0][4][1]]])
 
-                    elif Changes_from_server[0][1] == "Units":
-                        new_unit = Units.BuildUnit(Changes_from_server[0][2], (Changes_from_server[0][4][0], Changes_from_server[0][4][1]), Changes_from_server[0][3])
+                    elif Changes_from_clients[0][1] == "Units":
+                        new_unit = Units.BuildUnit(Changes_from_clients[0][2], (Changes_from_clients[0][4][0], Changes_from_clients[0][4][1]), Changes_from_clients[0][3])
                         #Se recruteaza noua unitate
-                        tiles[Changes_from_server[0][4][1]][Changes_from_server[0][4][0]].unit = new_unit
-                        refrefresh_map([[Changes_from_server[0][4][0],Changes_from_server[0][4][1]]])
-                        controllables_vec.append(new_unit)
+                        tiles[Changes_from_clients[0][4][1]][Changes_from_clients[0][4][0]].unit = new_unit
+                        refresh_map([[Changes_from_clients[0][4][0],Changes_from_clients[0][4][1]]])
                         del new_unit
 
                 Changes_from_clients.pop(0)
@@ -1133,15 +1132,14 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         new_struct = Structures.BuildStructure(Changes_from_server[0][2], (Changes_from_server[0][4][0], Changes_from_server[0][4][1]), Changes_from_server[0][3])
                         #construieste structura
                         tiles[Changes_from_server[0][4][1]][Changes_from_server[0][4][0]].structure = new_struct
-                        refrefresh_map([[Changes_from_server[0][4][0],Changes_from_server[0][4][1]]])
+                        refresh_map([[Changes_from_server[0][4][0],Changes_from_server[0][4][1]]])
                         del new_struct
 
                     elif Changes_from_server[0][1] == "Units":
                         new_unit = Units.BuildUnit(Changes_from_server[0][2], (Changes_from_server[0][4][0], Changes_from_server[0][4][1]), Changes_from_server[0][3])
                         #Se recruteaza noua unitate
                         tiles[Changes_from_server[0][4][1]][Changes_from_server[0][4][0]].unit = new_unit
-                        refrefresh_map([[Changes_from_server[0][4][0],Changes_from_server[0][4][1]]])
-                        controllables_vec.append(new_unit)
+                        refresh_map([[Changes_from_server[0][4][0],Changes_from_server[0][4][1]]])
                         del new_unit
 
                 Changes_from_server.pop(0)
