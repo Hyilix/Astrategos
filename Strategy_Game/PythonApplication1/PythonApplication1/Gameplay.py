@@ -758,6 +758,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         nonlocal Flerovium
         nonlocal Mithril
         nonlocal Nodes
+        nonlocal Man_power_used
         nonlocal Whos_turn
         nonlocal Element_selectat
         nonlocal selected_tile
@@ -784,26 +785,21 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                         new_node.Add(node)
                             break
 
-
                 elif construction_tab == "Units":
                     new_unit = Units.BuildUnit(Element_selectat, (selected_tile[0], selected_tile[1]), map_locations[Pozitie])
 
-                    inRangeOfNode = False
                     for node in Node.NodesFound:
                         if node.CheckBuildingInRadius(new_unit):
-                            inRangeOfNode = True
+                            #Se recruteaza noua unitate
+                            tiles[selected_tile[1]][selected_tile[0]].unit = new_unit
+                            tiles[selected_tile[1]][selected_tile[0]].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+                            controllables_vec.append(new_unit)
+                            #se iau costurile
+                            Flerovium -= new_unit.price[1]
+                            Mithril -= new_unit.price[0]
+                            Man_power_used += new_unit.price[2]
                             break
-
-                    if Flerovium >= new_unit.price[1] and Mithril >= new_unit.price[0] and inRangeOfNode:
-                        tiles[selected_tile[1]][selected_tile[0]].unit = new_unit
-                        tiles[selected_tile[1]][selected_tile[0]].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
-                        controllables_vec.append(new_unit)
-
-                        Flerovium -= new_unit.price[1]
-                        Mithril -= new_unit.price[0]
-
-                    else:
-                        del new_unit    
+   
 
     #Camera, texture resizing and load function
     class Camera:
