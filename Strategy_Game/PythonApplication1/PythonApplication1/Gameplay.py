@@ -242,10 +242,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     C_menu_scroll = 0
     Element_selectat = None
     large_img_element_afisat = None
-    structures = []
 
+    structures = []
+    s_names = []
     directory = "Assets\Structures"
     for filename in os.listdir(directory):
+        s_names.append(filename[:-4])
         adres=os.path.join(directory, filename)
         structures.append(pygame.transform.scale(pygame.image.load(adres),(64,64)))
     #colorarea structurilor cu culoarea playerului
@@ -256,8 +258,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     structure.set_at((i,j), Player_Colors[playeri[Pozitie][1]])
 
     units = []
+    u_names = []
     directory = "Assets" + '\\' + "Units"
     for filename in os.listdir(directory):
+        u_names.append(filename[:-4])
         adres=os.path.join(directory, filename)
         units.append(pygame.transform.scale(pygame.image.load(adres),(64,64)))
     #colorarea unitatilor cu culoarea playerului
