@@ -697,7 +697,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             refresh_map([Action[1], Action[2]])
 
             tiles[Action[1][1]][Action[1][0]].unit.canMove = True
-            selected_tile_check()
         elif Action[0] == "new_entity" :
             nonlocal Flerovium
             nonlocal Mithril
@@ -718,7 +717,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     new_node = Node.Node((Action[4][0] + 0.5, Action[4][1] + 0.5), 4.5, new_struct)
                     new_node.Kill()
                 del new_struct
-                selected_tile_check()
 
             elif Action[1] == "Units":
                 new_unit = Units.BuildUnit(Action[2], (Action[4][0], Action[4][1]), Action[3])
@@ -731,7 +729,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 Mithril += new_unit.price[0]
                 Man_power_used -= new_unit.price[2]
                 del new_unit
-                selected_tile_check()
+        selected_tile_check()
 
     def selected_tile_check() :
         global tile_empty
@@ -1322,6 +1320,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     #detecteaza daca s-a apasat butonul de Build/recruit
                     if Create_Button.on_click(event) and can_build == True :
                         Create_Building()
+                        selected_tile_check()
                 #daca apesi click dreapta 
                 if event.button == 3:
 
