@@ -161,6 +161,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     global colorTable
     global selected_controllable
     global enlighted_surface
+    can_build = False
 
     def draw_path_star(length, y, x):
         visited_vec = []
@@ -460,6 +461,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3+20,HEIGHT*4/5+20,large_img_element_afisat.get_width()+10,large_img_element_afisat.get_width()+10))
                     pygame.draw.rect(WIN,Gri,(HEIGHT/3+25,HEIGHT*4/5+25,large_img_element_afisat.get_width(),large_img_element_afisat.get_width()))
                     WIN.blit(large_img_element_afisat,(HEIGHT/3+25,HEIGHT*4/5+25))
+                    nonlocal can_build
                     can_build = True
                     #desenarea butonului de Build sau recruit
                     if construction_tab == "Units" :
@@ -522,7 +524,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     else :
                         Create_Button.text = FontT.render("Build",True,(0,0,0))
                         #desenarea resurselor necesare construirii 
-                        cost = Structures.predefined_structures[s_names[Element_selectat]][6]
+                        cost = Structures.predefined_structures[s_names[Element_selectat]][7]
                         lungime = 0
                         M_cost = None
                         F_cost = None
@@ -540,6 +542,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                 can_build = False
                                 F_cost = Font.render(str(cost[1]),True,Red)
                             F_rect = F_cost.get_rect()
+                        if s_names[Element_selectat] == "Node" and Max_Nodes == Nodes :
+                            can_build = False
+
                         #determinarea lungimii costului cand e afisat
                         if M_cost !=None and F_cost !=None  :
                             lungime = 64 + 30 + M_rect[2] + F_rect[2]
@@ -752,58 +757,53 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     def Create_Building():
         nonlocal Flerovium
         nonlocal Mithril
+        nonlocal Nodes
         nonlocal Whos_turn
         nonlocal Element_selectat
         nonlocal selected_tile
 
         if timer > 0 and Whos_turn == Pozitie:
-            if Element_selectat != None and selected_controllable == None and (selected_tile[0], selected_tile[1]) in visible_tiles:
-                if tiles[selected_tile[1]][selected_tile[0]].structure == None and tiles[selected_tile[1]][selected_tile[0]].unit == None:
-                    if construction_tab == "Structures":
-                        new_struct = Structures.BuildStructure(Element_selectat, (selected_tile[0], selected_tile[1]), map_locations[Pozitie])
-
-                        inRangeOfNode = False
-                        for node in Node.NodesFound:
-                            if node.CheckBuildingInRadius(new_struct):
-                                inRangeOfNode = True
-                                break
-
-                        if Flerovium >= new_struct.price[1] and Mithril >= new_struct.price[0] and inRangeOfNode:
+            if Element_selectat != None and tile_empty == True and (selected_tile[0], selected_tile[1]) in visible_tiles:
+                if construction_tab == "Structures":
+                    new_struct = Structures.BuildStructure(Element_selectat, (selected_tile[0], selected_tile[1]), map_locations[Pozitie])
+                    for node in Node.NodesFound:
+                        if node.CheckBuildingInRadius(new_struct):
+                            #construieste structura
                             tiles[selected_tile[1]][selected_tile[0]].structure = new_struct
                             tiles[selected_tile[1]][selected_tile[0]].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
                             controllables_vec.append(new_struct)
-
+                            #scade costul
                             Flerovium -= new_struct.price[1]
                             Mithril -= new_struct.price[0]
-
+                            #conditie daca este Node
                             if new_struct.name == "Node":
+                                Nodes += 1
                                 new_node = Node.Node((selected_tile[0] + 0.5, selected_tile[1] + 0.5), 4.5, new_struct)
                                 for node in Node.NodeList:
                                     if node != new_node and new_node.CheckCollision(node):
                                         new_node.Add(node)
+                            break
 
-                        else:
-                            del new_struct
 
-                    elif construction_tab == "Units":
-                        new_unit = Units.BuildUnit(Element_selectat, (selected_tile[0], selected_tile[1]), map_locations[Pozitie])
+                elif construction_tab == "Units":
+                    new_unit = Units.BuildUnit(Element_selectat, (selected_tile[0], selected_tile[1]), map_locations[Pozitie])
 
-                        inRangeOfNode = False
-                        for node in Node.NodesFound:
-                            if node.CheckBuildingInRadius(new_unit):
-                                inRangeOfNode = True
-                                break
+                    inRangeOfNode = False
+                    for node in Node.NodesFound:
+                        if node.CheckBuildingInRadius(new_unit):
+                            inRangeOfNode = True
+                            break
 
-                        if Flerovium >= new_unit.price[1] and Mithril >= new_unit.price[0] and inRangeOfNode:
-                            tiles[selected_tile[1]][selected_tile[0]].unit = new_unit
-                            tiles[selected_tile[1]][selected_tile[0]].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
-                            controllables_vec.append(new_unit)
+                    if Flerovium >= new_unit.price[1] and Mithril >= new_unit.price[0] and inRangeOfNode:
+                        tiles[selected_tile[1]][selected_tile[0]].unit = new_unit
+                        tiles[selected_tile[1]][selected_tile[0]].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length))
+                        controllables_vec.append(new_unit)
 
-                            Flerovium -= new_unit.price[1]
-                            Mithril -= new_unit.price[0]
+                        Flerovium -= new_unit.price[1]
+                        Mithril -= new_unit.price[0]
 
-                        else:
-                            del new_unit    
+                    else:
+                        del new_unit    
 
     #Camera, texture resizing and load function
     class Camera:
@@ -1163,8 +1163,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             writing_in_chat = True
                         else :
                             writing_in_chat = False
-                    #Detecteaza daca a apapasat butonul de End Turn
-                    pygame.draw.rect(WIN,Player_Colors[playeri[Whos_turn][1]],((WIDTH-260)/2,HEIGHT*2/25 + 5,260,35))
+                    #Detecteaza daca a apasat butonul de End Turn
                     if Whos_turn == Pozitie and press_coordonaits[0]>(WIDTH-260)/2 and press_coordonaits[0]<(WIDTH-260)/2 +260 and press_coordonaits[1]>HEIGHT*2/25 and press_coordonaits[1]<HEIGHT*2/25 + 40 :
                         timer = 0 
                         if Role == "host" :
@@ -1188,9 +1187,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                             tile_empty = True
                                             Element_selectat = None
                                         if tiles[y_layer][x_layer].ore != None :
-                                            construction_tab = "Mines"
-                                        else :
+                                            if construction_tab != "Mines" :
+                                                construction_tab = "Mines"
+                                                Element_selectat = None
+                                        elif construction_tab != "Structures" and construction_tab != "Units" :
                                             construction_tab = "Structures"
+                                            Element_selectat = None
                                     else : 
                                         Element_selectat = None
                                         tile_empty=False
@@ -1252,7 +1254,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                                 large_img_element_afisat = pygame.transform.scale(units[Element_selectat],(HEIGHT/5 -50,HEIGHT/5 -50))
                                              #break
                                      break
-
+                    #detecteaza daca s-a apasat butonul de Build/recruit
+                    if Create_Button.on_click(event) and can_build == True :
+                        Create_Building()
                 #daca apesi click dreapta 
                 if event.button == 3:
 
@@ -1282,8 +1286,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                         Turn_Actions.append(("move_unit",lastPos,(x_layer, y_layer)))
                                         selected_tile_check()
 
-                    #Daca ai in construction tab ceva selectat, incearca sa o construiesti
-                    Create_Building()
 
                 #daca dai scrol in sus
                 if event.button == 4 :
