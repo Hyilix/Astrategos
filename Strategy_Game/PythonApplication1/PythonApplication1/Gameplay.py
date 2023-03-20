@@ -704,33 +704,34 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             nonlocal Nodes
             nonlocal Man_power_used
             if Action[1] == "Structures":
-                new_struct = Structures.BuildStructure(Action[2], (Action[4][0], Action[4][1]), Action[3])
-                #Sterge structura
-                tiles[Action[4][1]][Action[4][0]].structure = None
-                refresh_map([[Action[4][0],Action[4][1]]])
-                controllables_vec.pop(Action[5])
+                new_struct = tiles[Action[4][1]][Action[4][0]].structure
                 #se reda costul
                 Flerovium += new_struct.price[1]
                 Mithril += new_struct.price[0]
                 #conditie daca este Node
                 if new_struct.name == "Node":
                     Nodes -= 1
-                    new_node = Node.Node((Action[4][0] + 0.5, Action[4][1] + 0.5), 4.5, new_struct)
+                    new_node = Node.getNodeFromObj(new_struct)
                     new_node.Kill()
-                del new_struct
                 selected_tile_check()
-
-            elif Action[1] == "Units":
-                new_unit = Units.BuildUnit(Action[2], (Action[4][0], Action[4][1]), Action[3])
-                #Se sterge unitate
-                tiles[Action[4][1]][Action[4][0]].unit = None
+                #Sterge structura
+                tiles[Action[4][1]][Action[4][0]].structure = None
                 refresh_map([[Action[4][0],Action[4][1]]])
                 controllables_vec.pop(Action[5])
+                del new_struct
+                del new_node
+
+            elif Action[1] == "Units":
+                new_unit = tiles[Action[4][1]][Action[4][0]].unit
                 #se redau costurile
                 Flerovium += new_unit.price[1]
                 Mithril += new_unit.price[0]
                 Man_power_used -= new_unit.price[2]
                 del new_unit
+                #Se sterge unitatea
+                tiles[Action[4][1]][Action[4][0]].unit = None
+                refresh_map([[Action[4][0],Action[4][1]]])
+                controllables_vec.pop(Action[5])
                 selected_tile_check()
 
     def selected_tile_check() :
@@ -800,46 +801,47 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
         if timer > 0 and Whos_turn == Pozitie:
             if Element_selectat != None and tile_empty == True and (selected_tile[0], selected_tile[1]) in visible_tiles:
-                if construction_tab == "Structures":
-                    new_struct = Structures.BuildStructure(Element_selectat, (selected_tile[0], selected_tile[1]), map_locations[Pozitie])
-                    for node in Node.NodesFound:
-                        if node.CheckBuildingInRadius(new_struct):
-                            #construieste structura
-                            tiles[selected_tile[1]][selected_tile[0]].structure = new_struct
-                            refresh_map([[selected_tile[0],selected_tile[1]]])
-                            controllables_vec.append(new_struct)
-                            #scade costul
-                            Flerovium -= new_struct.price[1]
-                            Mithril -= new_struct.price[0]
-                            #conditie daca este Node
-                            if new_struct.name == "Node":
-                                Nodes += 1
-                                new_node = Node.Node((selected_tile[0] + 0.5, selected_tile[1] + 0.5), 4.5, new_struct)
-                                for node in Node.NodeList:
-                                    if node != new_node and new_node.CheckCollision(node):
-                                        new_node.Add(node)
-                            #Adaugarea actiunii in Istoricul actiunilor
-                            Turn_Actions.append(("new_entity",construction_tab,Element_selectat,map_locations[Pozitie],selected_tile,len(controllables_vec)-1))
-                            break
-                    del new_struct
+                if tiles[selected_tile[1]][selected_tile[0]].structure == None and tiles[selected_tile[1]][selected_tile[0]].unit == None:
+                    if construction_tab == "Structures":
+                        new_struct = Structures.BuildStructure(Element_selectat, (selected_tile[0], selected_tile[1]), map_locations[Pozitie])
+                        for node in Node.NodesFound:
+                            if node.CheckBuildingInRadius(new_struct):
+                                #construieste structura
+                                tiles[selected_tile[1]][selected_tile[0]].structure = new_struct
+                                refresh_map([[selected_tile[0],selected_tile[1]]])
+                                controllables_vec.append(new_struct)
+                                #scade costul
+                                Flerovium -= new_struct.price[1]
+                                Mithril -= new_struct.price[0]
+                                #conditie daca este Node
+                                if new_struct.name == "Node":
+                                    Nodes += 1
+                                    new_node = Node.Node((selected_tile[0] + 0.5, selected_tile[1] + 0.5), 4.5, new_struct)
+                                    for node in Node.NodeList:
+                                        if node != new_node and new_node.CheckCollision(node):
+                                            new_node.Add(node)
+                                #Adaugarea actiunii in Istoricul actiunilor
+                                Turn_Actions.append(("new_entity",construction_tab,Element_selectat,map_locations[Pozitie],selected_tile,len(controllables_vec)-1))
+                                break
+                        del new_struct
 
-                elif construction_tab == "Units":
-                    new_unit = Units.BuildUnit(Element_selectat, (selected_tile[0], selected_tile[1]), map_locations[Pozitie])
+                    elif construction_tab == "Units":
+                        new_unit = Units.BuildUnit(Element_selectat, (selected_tile[0], selected_tile[1]), map_locations[Pozitie])
 
-                    for node in Node.NodesFound:
-                        if node.CheckBuildingInRadius(new_unit):
-                            #Se recruteaza noua unitate
-                            tiles[selected_tile[1]][selected_tile[0]].unit = new_unit
-                            refresh_map([[selected_tile[0],selected_tile[1]]])
-                            controllables_vec.append(new_unit)
-                            #se iau costurile
-                            Flerovium -= new_unit.price[1]
-                            Mithril -= new_unit.price[0]
-                            Man_power_used += new_unit.price[2]
-                            #Adaugarea actiunii in Istoricul actiunilor
-                            Turn_Actions.append(("new_entity",construction_tab,Element_selectat,map_locations[Pozitie],selected_tile,len(controllables_vec)-1))
-                            break
-                    del new_unit
+                        for node in Node.NodesFound:
+                            if node.CheckBuildingInRadius(new_unit):
+                                #Se recruteaza noua unitate
+                                tiles[selected_tile[1]][selected_tile[0]].unit = new_unit
+                                refresh_map([[selected_tile[0],selected_tile[1]]])
+                                controllables_vec.append(new_unit)
+                                #se iau costurile
+                                Flerovium -= new_unit.price[1]
+                                Mithril -= new_unit.price[0]
+                                Man_power_used += new_unit.price[2]
+                                #Adaugarea actiunii in Istoricul actiunilor
+                                Turn_Actions.append(("new_entity",construction_tab,Element_selectat,map_locations[Pozitie],selected_tile,len(controllables_vec)-1))
+                                break
+                        del new_unit
    
 
     #Camera, texture resizing and load function
