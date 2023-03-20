@@ -431,6 +431,62 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     #desenarea butonului de Build sau recruit
                     if construction_tab == "Units" :
                         Create_Button.text = FontT.render("Recruit",True,(0,0,0))
+                        #desenarea resurselor necesare construirii 
+                        cost = Units.predefined_Units[u_names[Element_selectat]][7]
+                        lungime = 0
+                        M_cost = None
+                        F_cost = None
+                        MP_cost = None
+                        if cost[0] != None and cost[0] != 0 :
+                            if Mithril >= cost[0] :
+                                M_cost = Font.render(str(cost[0]),True,Green)
+                            else :
+                                can_build = False
+                                M_cost = Font.render(str(cost[0]),True,Red)
+                            M_rect =  M_cost.get_rect()
+                        if cost[1] != None and cost[1] != 0 :
+                            if Flerovium >= cost[1] :
+                                F_cost = Font.render(str(cost[1]),True,Green)
+                            else :
+                                can_build = False
+                                F_cost = Font.render(str(cost[1]),True,Red)
+                            F_rect = F_cost.get_rect()
+                        if cost[2] != None and cost[2] != 0 :
+                            if Max_Man_power - Man_power_used >= cost[2] :
+                                MP_cost = Font.render(str(cost[2]),True,Green)
+                            else :
+                                can_build = False
+                                MP_cost = Font.render(str(cost[2]),True,Red)
+                            MP_rect = MP_cost.get_rect()
+                        #determinarea lungimii costului cand e afisat
+                        if M_cost != None :
+                            lungime += 32 + 10 + M_rect[2]
+                            if F_cost !=None or MP_cost !=None :
+                                lungime += 10
+                        if F_cost != None :
+                            lungime += 32 + 10 + F_rect[2]
+                            if  MP_cost !=None :
+                                lungime += 10
+                        if MP_cost != None :
+                            lungime += 32 + 10 + MP_rect[2]
+                        #afisarea costurilor
+                        start_x = Button_rect[0] + Button_rect[2]/2 - lungime/2 
+                        y_center = Button_rect[1] -26
+                        if M_cost != None :
+                            WIN.blit(mithril_icon,(start_x,y_center - 16))
+                            start_x += 42
+                            WIN.blit(M_cost,(start_x,y_center - M_rect[3]/2)) 
+                            start_x += M_rect[2] + 10
+                        if F_cost != None :
+                            WIN.blit(flerovium_icon,(start_x,y_center - 16))
+                            start_x += 42
+                            WIN.blit(F_cost,(start_x,y_center - F_rect[3]/2)) 
+                            start_x += F_rect[2] + 10
+                        if MP_cost != None :
+                            WIN.blit(man_power_icon,(start_x,y_center - 16))
+                            start_x += 42
+                            WIN.blit(MP_cost,(start_x,y_center - MP_rect[3]/2)) 
+
                     else :
                         Create_Button.text = FontT.render("Build",True,(0,0,0))
                         #desenarea resurselor necesare construirii 
@@ -468,12 +524,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             WIN.blit(mithril_icon,(start_x,y_center - 16))
                             start_x += 42
                             WIN.blit(M_cost,(start_x,y_center - M_rect[3]/2)) 
-                            start_x += M_rect[2] + 10
+                            start_x += M_rect[2] +10
                         if F_cost != None :
                             WIN.blit(flerovium_icon,(start_x,y_center - 16))
                             start_x += 42
                             WIN.blit(F_cost,(start_x,y_center - F_rect[3]/2)) 
-                            start_x += F_rect[2] + 10
+                            start_x += F_rect[2]
 
 
                     if can_build == False :
