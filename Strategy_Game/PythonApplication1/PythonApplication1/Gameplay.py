@@ -62,7 +62,7 @@ path_tiles = [] #Tiles that a selected unit can move to
 
 visited_vec = []
 
-DEBUG_FORCED_POSITION = 1
+DEBUG_FORCED_POSITION = None
 
 def draw_star(length, y, x, TrueSight = False):    #Determine what tiles the player currently sees.
     First = True

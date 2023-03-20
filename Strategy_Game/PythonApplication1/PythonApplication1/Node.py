@@ -13,27 +13,6 @@ NodesFound = []
 
 CircleColor = (204,204,0)
 
-def InitTree():     #Start from the root, find Nodes, and from these Nodes search until no Node is left out.
-    global NodesFound
-    NodesFound = [TreeRoot]
-
-    for node in NodesFound:
-        for target in NodeList:
-            if target != node and target not in NodesFound:
-                if node.CheckCollision(target) == True:
-                    NodesFound.append(target)
-                    target.Add(node)
-                    target.Powered = True
-
-def Find_connections():
-    for node in NodesFound:
-        for target in NodeList:
-            if target != node and target not in NodesFound:
-                if node.CheckCollision(target) == True:
-                    NodesFound.append(target)
-                    target.Add(node)
-                    target.Powered = True
-
 def Draw_tree_circles(node, screen, size, offset):  #Go trough the tree and draw all circles
     node.DrawCircle(screen, size, offset)
     for child in node.Children:
@@ -41,10 +20,42 @@ def Draw_tree_circles(node, screen, size, offset):  #Go trough the tree and draw
 
 def getNodeFromObj(obj):
     for node in NodeList:
-        if node.obj == obj.Position:
+        if node.obj == obj.position:
             return node
 
     return None
+
+def getNodeFromPosObj(obj):
+    for node in NodeList:
+        if node.obj == obj:
+            return node
+
+    return node
+
+def InitTree():     #Start from the root, find Nodes, and from these Nodes search until no Node is left out.
+    global NodesFound
+    NodesFound = [TreeRoot]
+
+    for nodeS in NodesFound:
+        for targetS in NodeList:
+            node = getNodeFromPosObj(nodeS)
+            target = getNodeFromPosObj(targetS)
+            if target != node and target not in NodesFound:
+                if node.CheckCollision(target) == True:
+                    NodesFound.append(target)
+                    target.Add(node)
+                    target.Powered = True
+
+def Find_connections():
+    for nodeS in NodesFound:
+        for targetS in NodeList:
+            node = getNodeFromPosObj(nodeS)
+            target = getNodeFromPosObj(targetS
+            if target != node and target not in NodesFound:
+                if node.CheckCollision(target) == True:
+                    NodesFound.append(target)
+                    target.Add(node)
+                    target.Powered = True
 
 class Node():
     def __init__(self, Position, Range, obj):
@@ -53,7 +64,7 @@ class Node():
         self.Children = []    #Array of TreeNodes
         self.Range = Range  #The range of the Node.
         self.Powered = False    #If it's connected to the Kernel (directly or indirectly), Powered is True
-        self.obj = obj.Position  #The object associated with the Node
+        self.obj = obj.position  #The object associated with the Node
 
         NodeList.append(self.obj)   #Add the node to the array.
 
