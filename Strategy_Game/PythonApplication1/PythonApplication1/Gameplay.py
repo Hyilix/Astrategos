@@ -427,6 +427,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     pygame.draw.rect(WIN,Gri,(HEIGHT/3+25,HEIGHT*4/5+25,large_img_element_afisat.get_width(),large_img_element_afisat.get_width()))
                     WIN.blit(large_img_element_afisat,(HEIGHT/3+25,HEIGHT*4/5+25))
 
+                    can_build = True
                     #desenarea butonului de Build sau recruit
                     if construction_tab == "Units" :
                         Create_Button.text = FontT.render("Recruit",True,(0,0,0))
@@ -441,12 +442,14 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             if Mithril >= cost[0] :
                                 M_cost = Font.render(str(cost[0]),True,Green)
                             else :
+                                can_build = False
                                 M_cost = Font.render(str(cost[0]),True,Red)
                             M_rect =  M_cost.get_rect()
                         if cost[1] != None and cost[1] != 0 :
                             if Flerovium >= cost[1] :
                                 F_cost = Font.render(str(cost[1]),True,Green)
                             else :
+                                can_build = False
                                 F_cost = Font.render(str(cost[1]),True,Red)
                             F_rect = F_cost.get_rect()
                         #determinarea lungimii costului cand e afisat
@@ -473,7 +476,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             start_x += F_rect[2] + 10
 
 
-                    pygame.draw.rect(WIN,(25,25,25),Button_rect)
+                    if can_build == False :
+                        pygame.draw.rect(WIN,(25,25,25),Button_rect)
+                    else :
+                        pygame.draw.rect(WIN,Green,Button_rect)
                     Create_Button.update(WIN)
 
 
