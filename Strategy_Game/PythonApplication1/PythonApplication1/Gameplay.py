@@ -62,13 +62,11 @@ visible_tiles = []
 partially_visible_tiles = []
 path_tiles = [] #Tiles that a selected unit can move to
 
-visited_vec = []
-
 DEBUG_FORCED_POSITION = None
 
 def draw_star(length, y, x, TrueSight = False):    #Determine what tiles the player currently sees.
     First = True
-    visited_vec.clear()
+    visited_vec = []
     queued_tiles = [(y,x)]
 
     directions = [
@@ -238,11 +236,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     WIN.fill((255,255,255))
     pygame.display.update()
 
-    if TileClass.full_bright == True:
-        for y in range(rows):
-            for x in range(tiles_per_row):
-                visible_tiles.append((x,y))
-                partially_visible_tiles.append((x,y))
 
     chat_icon = pygame.transform.scale(pygame.image.load('Assets/Gameplay_UI/chatbox-icon.png'),(60,60))
     mithril_icon = pygame.transform.scale(pygame.image.load('Assets/Gameplay_UI/mars-mithril-bar-1.png'),(32,32))
@@ -980,6 +973,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             print("No such file exists")
 
         Node.InitTree()
+        
+        if TileClass.full_bright == True:
+            for y in range(rows):
+                for x in range(tiles_per_row):
+                    visible_tiles.append((x,y))
+                    partially_visible_tiles.append((x,y))
 
     #functia asta face refresh la harta 
     def refresh_map(specific_vector = None):
