@@ -23,8 +23,8 @@ def resize_textures(size):
 last_index = len(texture_names)
 
 predefined_Units = {   #HP, MaxHp, attack, defence, range, move_range, fog_range, price (Mithril, Flerovium)
-    "Marine" : [5, 5, 2, 3, 1, 4, 5, (6,0)],
-    "Phantom" : [5, 5, 2, 3, 1, 5, 7, (10,0)],
+    "Marine" : [5, 5, 2, 3, 1, 4, 5, (6,0,1)],
+    "Phantom" : [5, 5, 2, 3, 1, 5, 7, (10,0,2)],
     }
 
 def BuildUnit(index, position, owner):

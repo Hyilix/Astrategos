@@ -11,6 +11,7 @@ import TileClass
 import Structures
 import Units
 import Ores
+from button import Button
 import Node
 
 pygame.init()
@@ -43,6 +44,7 @@ FontT = pygame.font.Font(None, 50)
 
 run = True
 timer = 120
+tile_empty = False
 
 Confirmatii_timer = 0
 chat_notification = False
@@ -153,6 +155,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     TileClass.show_walls = False
     global run
     global timer 
+    global tile_empty
     global Confirmatii_timer
     global chat_notification
     global colorTable
@@ -222,7 +225,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     4 : None
     }
 
-    TileClass.full_bright = False  #if full_bright == True, player can see the whole map at any time, like in editor.
+    TileClass.full_bright = True  #if full_bright == True, player can see the whole map at any time, like in editor.
 
     index = 0
     for player in playeri:  #assign colors to structures and units. Any structure/unit with 
@@ -244,6 +247,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     mithril_icon = pygame.transform.scale(pygame.image.load('Assets/Gameplay_UI/mars-mithril-bar-1.png'),(32,32))
     flerovium_icon = pygame.transform.scale(pygame.image.load('Assets/Gameplay_UI/mars-flerovium-crystal-1.png'),(32,32))
     man_power_icon = pygame.transform.scale(pygame.image.load('Assets/Units/Marine.png'),(32,32))
+    nodes_icon = pygame.transform.scale(pygame.image.load('Assets/Structures/Node.png'),(32,32))
+
+    #butonul de creare a unei cladiri/unitati
+    x_b =HEIGHT/3 + 50 + HEIGHT/5 -50 + (WIDTH - HEIGHT*2/3 -25 -HEIGHT/5 +50)/2 - 185/2
+    Button_rect = (x_b,HEIGHT-95,185,70)
+    Create_Button = Button((x_b+5,HEIGHT-90,175,60),Gri,None,**{"text": "Recruit","font": FontT})
 
     # incaracarea imaginilor structurilor si unitatilor care le poate produce playeru, cu culoarea specifica.
     grosime_outline = 5
@@ -251,10 +260,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     C_menu_scroll = 0
     Element_selectat = None
     large_img_element_afisat = None
-    structures = []
 
+    structures = []
+    s_names = []
     directory = "Assets\Structures"
     for filename in os.listdir(directory):
+        s_names.append(filename[:-4])
         adres=os.path.join(directory, filename)
         structures.append(pygame.transform.scale(pygame.image.load(adres),(64,64)))
     #colorarea structurilor cu culoarea playerului
@@ -265,8 +276,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     structure.set_at((i,j), Player_Colors[playeri[Pozitie][1]])
 
     units = []
+    u_names = []
     directory = "Assets" + '\\' + "Units"
     for filename in os.listdir(directory):
+        u_names.append(filename[:-4])
         adres=os.path.join(directory, filename)
         units.append(pygame.transform.scale(pygame.image.load(adres),(64,64)))
     #colorarea unitatilor cu culoarea playerului
@@ -351,18 +364,30 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         pygame.draw.rect(WIN,(225, 223, 240),(0,0,WIDTH,HEIGHT/25))
         pygame.draw.rect(WIN,(25,25,25),(0,HEIGHT/25,WIDTH,5))
         #Afisarea resurselor detinute
-        WIN.blit(mithril_icon,(5,(HEIGHT/25-32)/2))
+        x_coord = 5
+        WIN.blit(mithril_icon,(x_coord,(HEIGHT/25-32)/2))
+        x_coord = x_coord +32 + 10
         mit_count = Font.render(str(Mithril),True,(75, 91, 248))
         mit_rect = mit_count.get_rect()
-        WIN.blit(mit_count,(15 + 32,(HEIGHT/25-mit_rect[3])/2))
+        WIN.blit(mit_count,(x_coord,(HEIGHT/25-mit_rect[3])/2))
+        x_coord = mit_rect[2] + 10 + x_coord
         fle_count = Font.render(str(Flerovium),True,(152, 65, 182))
         fle_rect = fle_count.get_rect()
-        WIN.blit(flerovium_icon,(15+32+60+10,(HEIGHT/25-32)/2))
-        WIN.blit(fle_count,(15+64+60+20,(HEIGHT/25-fle_rect[3])/2))
+        WIN.blit(flerovium_icon,(x_coord,(HEIGHT/25-32)/2))
+        x_coord = x_coord + 10 + 32
+        WIN.blit(fle_count,(x_coord,(HEIGHT/25-fle_rect[3])/2))
+        x_coord = x_coord + fle_rect[2]+10
         man_power_count = Font.render(("  " + str(Man_power_used))[-3:]+' / '+ str(Max_Man_power),True,(0,0,0))
         man_rect = man_power_count.get_rect()
-        WIN.blit(man_power_icon,(15+32*2+60*2+10*3,(HEIGHT/25-32)/2))
-        WIN.blit(man_power_count,(15+32*3+60*2+10*4,(HEIGHT/25-man_rect[3])/2))
+        WIN.blit(man_power_icon,(x_coord,(HEIGHT/25-32)/2))
+        x_coord = x_coord + 32 + 10
+        WIN.blit(man_power_count,(x_coord,(HEIGHT/25-man_rect[3])/2))
+        x_coord = x_coord + man_rect[2] + 10
+        nodes_count = Font.render(("  " + str(Nodes))[-2:] + " / " + str(Max_Nodes),True,(0,0,0))
+        nodes_rect = nodes_count.get_rect()
+        WIN.blit(nodes_icon,(x_coord,(HEIGHT/25-32)/2))
+        x_coord = x_coord + 10 + 32
+        WIN.blit(nodes_count,(x_coord,(HEIGHT/25-nodes_rect[3])/2))
         #turn part
         pygame.draw.rect(WIN,Player_Colors[playeri[Whos_turn][1]],((WIDTH-260)/2,0,260,HEIGHT*2/25 + 5))
         pygame.draw.rect(WIN,(225, 223, 240),((WIDTH-250)/2,0,250,HEIGHT*2/25 ))
@@ -401,6 +426,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 pygame.draw.rect(WIN,(25,25,25),(WIDTH- HEIGHT/3, HEIGHT - HEIGHT/3 -5,HEIGHT/3,5))
                 pygame.draw.rect(WIN,(25,25,25),(WIDTH- HEIGHT/3, HEIGHT - HEIGHT/3 -60,HEIGHT/3,5))
                 pygame.draw.rect(WIN,(225, 223, 240),(WIDTH- HEIGHT/3 +5, HEIGHT - HEIGHT/3,HEIGHT/3-5,HEIGHT/3))
+
                 pygame.draw.rect(WIN,(225, 223, 240),(WIDTH- HEIGHT/3 +5, HEIGHT - HEIGHT/3-55,HEIGHT/3-5,50))
                 #draw the name of the menu
                 text = FontT.render(construction_tab,True,(0,0,0))
@@ -543,7 +569,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     else :
                         pygame.draw.rect(WIN,Light_Green,Button_rect)
                     Create_Button.update(WIN)
-
             else :
                 pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3,HEIGHT*4/5-5 , WIDTH - HEIGHT/3,5))
                 pygame.draw.rect(WIN,(225, 223, 240),(HEIGHT/3,HEIGHT*4/5, WIDTH - HEIGHT/3,HEIGHT/5))
@@ -666,6 +691,15 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             refresh_map([Action[1], Action[2]])
 
             tiles[Action[1][1]][Action[1][0]].unit.canMove = True
+            selected_tile_check()
+
+    def selected_tile_check() :
+        global tile_empty
+        if tiles[selected_tile[1]][selected_tile[0]].unit == None and tiles[selected_tile[1]][selected_tile[0]].structure == None and tiles[selected_tile[1]][selected_tile[0]].ore == None :
+            tile_empty = True
+        else :
+            tile_empty = False
+
 
     #variabilele necesare indiferent de rol
     Whos_turn = 0
@@ -688,6 +722,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     Flerovium = 5555
     Man_power_used = 0
     Max_Man_power = 100
+    Nodes = 0
+    Max_Nodes = 50
     #Vectorul care detine actiunile playerului din tura lui
     Turn_Actions = []
     Ctrl_zeed = False
@@ -1138,7 +1174,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                             Connection.send(data_send)
                     #detecteaza daca playeru apasa un tile vizibil
-                    if (press_coordonaits[1] > HEIGHT/25 and (press_coordonaits[1] > HEIGHT*2/3 and press_coordonaits[0] < HEIGHT/3)==0) and ((press_coordonaits[0]<(WIDTH-260)/2 + 260 and Chat_window == True) or Chat_window == False) and( selected_tile[0]==None or (press_coordonaits[1] < HEIGHT*4/5-5 and (tile_empty==False or (press_coordonaits[0]>WIDTH-HEIGHT/3 and press_coordonaits[1]>HEIGHT*2/3-60)==0 ))) :
+                    if press_coordonaits[1] > HEIGHT/25 and (press_coordonaits[0] >= (WIDTH-260)/2 and press_coordonaits[0] <= (WIDTH-260)/2 + 260 and (press_coordonaits[1] <= HEIGHT*2/25 +5 or (Whos_turn == Pozitie and press_coordonaits[1] <= HEIGHT*2/25 + 40 )) )==0 and (press_coordonaits[1] > HEIGHT*2/3 and press_coordonaits[0] < HEIGHT/3)==0 and ((press_coordonaits[0]<(WIDTH-260)/2 + 260 and Chat_window == True) or Chat_window == False) and( selected_tile[0]==None or (press_coordonaits[1] < HEIGHT*4/5-5 and (tile_empty==False or (press_coordonaits[0]>WIDTH-HEIGHT/3 and press_coordonaits[1]>HEIGHT*2/3-60)==0 ))) :
                         x_layer = (press_coordonaits[0] + CurrentCamera.x) // current_tile_length 
                         y_layer = (press_coordonaits[1] + CurrentCamera.y) // current_tile_length
                         if x_layer >= 0 and x_layer < tiles_per_row:
@@ -1219,9 +1255,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
                 #daca apesi click dreapta 
                 if event.button == 3:
-                    #daca ai o unitate selectata, incearca sa o muti daca este tura playerului
-                    if selected_controllable != None and timer > 0 and Whos_turn == Pozitie :
-                        if (press_coordonaits[1] > HEIGHT/25 and (press_coordonaits[1] > HEIGHT*2/3 and press_coordonaits[0] < HEIGHT/3)==0) and ((press_coordonaits[0]<(WIDTH-260)/2 + 260 and Chat_window == True) or Chat_window == False) and( selected_tile[0]==None or (press_coordonaits[1] < HEIGHT*4/5-5 and (tile_empty==False or (press_coordonaits[0]>WIDTH-HEIGHT/3 and press_coordonaits[1]>HEIGHT*2/3-60)==0 ))) :
+
+                    #daca ai o unitate selectata, incearca sa o muti  daca este tura playerului
+                    if selected_controllable != None and timer>0 and Whos_turn == Pozitie :
+                        if press_coordonaits[1] > HEIGHT/25 and (press_coordonaits[0] >= (WIDTH-260)/2 and press_coordonaits[0] <= (WIDTH-260)/2 + 260 and (press_coordonaits[1] <= HEIGHT*2/25 +5 or (Whos_turn == Pozitie and press_coordonaits[1] <= HEIGHT*2/25 + 40 )) )==0 and (press_coordonaits[1] > HEIGHT*2/3 and press_coordonaits[0] < HEIGHT/3)==0 and ((press_coordonaits[0]<(WIDTH-260)/2 + 260 and Chat_window == True) or Chat_window == False) and( selected_tile[0]==None or (press_coordonaits[1] < HEIGHT*4/5-5 and (tile_empty==False or (press_coordonaits[0]>WIDTH-HEIGHT/3 and press_coordonaits[1]>HEIGHT*2/3-60)==0 ))) :
+
                             x_layer = (press_coordonaits[0] + CurrentCamera.x) // current_tile_length 
                             y_layer = (press_coordonaits[1] + CurrentCamera.y) // current_tile_length
                             if x_layer >= 0 and x_layer < tiles_per_row:
@@ -1242,6 +1280,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
                                         #Pune aceasta actiune in Turn-Actions
                                         Turn_Actions.append(("move_unit",lastPos,(x_layer, y_layer)))
+                                        selected_tile_check()
 
                     #Daca ai in construction tab ceva selectat, incearca sa o construiesti
                     Create_Building()
