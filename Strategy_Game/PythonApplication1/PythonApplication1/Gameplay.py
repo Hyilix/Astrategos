@@ -437,13 +437,13 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         lungime = 0
                         M_cost = None
                         F_cost = None
-                        if cost[0] != None or cost[0] != 0 :
+                        if cost[0] != None and cost[0] != 0 :
                             if Mithril >= cost[0] :
                                 M_cost = Font.render(str(cost[0]),True,Green)
                             else :
                                 M_cost = Font.render(str(cost[0]),True,Red)
                             M_rect =  M_cost.get_rect()
-                        if cost[1] != None or cost[1] != 0 :
+                        if cost[1] != None and cost[1] != 0 :
                             if Flerovium >= cost[1] :
                                 F_cost = Font.render(str(cost[1]),True,Green)
                             else :
@@ -455,21 +455,21 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         elif M_cost !=None or F_cost !=None :
                             lungime = 32 +  10 
                             if M_cost != None :
-                                lungime += M_cost[3] 
+                                lungime += M_rect[3] 
                             else :
-                                lungime += F_cost[3]
+                                lungime += F_rect[3]
                         #afisarea costurilor
                         start_x = Button_rect[0] + Button_rect[2]/2 - lungime/2 
                         y_center = Button_rect[1] -26
                         if M_cost != None :
                             WIN.blit(mithril_icon,(start_x,y_center - 16))
                             start_x += 42
-                            WIN.blit(M_cost,(start_x,y_center - M_rect[1]/2)) 
+                            WIN.blit(M_cost,(start_x,y_center - M_rect[3]/2)) 
                             start_x += M_rect[2] + 10
                         if F_cost != None :
                             WIN.blit(flerovium_icon,(start_x,y_center - 16))
                             start_x += 42
-                            WIN.blit(F_cost,(start_x,y_center - F_rect[1]/2)) 
+                            WIN.blit(F_cost,(start_x,y_center - F_rect[3]/2)) 
                             start_x += F_rect[2] + 10
 
 
