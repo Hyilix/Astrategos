@@ -41,7 +41,7 @@ def Draw_tree_circles(node, screen, size, offset):  #Go trough the tree and draw
 
 def getNodeFromObj(obj):
     for node in NodeList:
-        if node.obj == obj:
+        if node.obj == obj.Position:
             return node
 
     return None
@@ -53,9 +53,9 @@ class Node():
         self.Children = []    #Array of TreeNodes
         self.Range = Range  #The range of the Node.
         self.Powered = False    #If it's connected to the Kernel (directly or indirectly), Powered is True
-        self.obj = obj  #The object associated with the Node
+        self.obj = obj.Position  #The object associated with the Node
 
-        NodeList.append(self)   #Add the node to the array.
+        NodeList.append(self.obj)   #Add the node to the array.
 
     def Search_Powered_Node(self):  #Searched for any powered node on the map.
         for node in NodeList:
@@ -70,13 +70,13 @@ class Node():
             child.Unpower_Children()
 
     def Remove(self):   #Removes the node from the array and the Tree
-        NodesFound.remove(self)
+        NodesFound.remove(self.obj)
         self.Parent.Children.remove(self)   
         self.Parent = None
         self.Unpower_Children()
 
     def Kill(self):     #Removes the node from the game
-        NodeList.remove(self)
+        NodesFound.remove(self.obj)
         self.Remove()
         self.obj = None
         del self
@@ -87,7 +87,7 @@ class Node():
             self.Parent = target
             target.Children.append(self)
             self.Powered = True
-            NodesFound.append(self)
+            NodesFound.append(self.obj)
         elif NodeList.index(target) == 0:
             return  #You don't want to make the Kernel Node a child of another Node. You just don't.
 
@@ -99,7 +99,7 @@ class Node():
                 target.Children.append(self)
                 self.Parent = target
                 self.Powered = True
-                NodesFound.append(self)
+                NodesFound.append(self.obj)
 
     def CheckCollision(self, target):   #Checks if the target Node and this Node are intersecting. This can be very bad for a lot of Nodes because of n^2 complexity
         return math.sqrt((self.Position[0] - target.Position[0]) ** 2 + (self.Position[1] - target.Position[1]) ** 2) <= max(self.Range, target.Range)

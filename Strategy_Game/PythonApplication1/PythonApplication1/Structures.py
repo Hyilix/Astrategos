@@ -22,8 +22,8 @@ def resize_textures(size):
 last_index = len(texture_names)
 
 predefined_structures = {   #HP, MaxHp, Area_of_effect(block radius), defence, canShareSpace, fog_range, TrueSight, Price (Mithril, Flerovium)
-    "Kernel" : [100, 100, 0, 3, False, 6, False, (0,0)],
-    "Node" : [4, 4, 0, 0, False, 3, False, (3,0)],
+    "Kernel" : [100, 100, 0, 3, False, 6, False, (0, 0)],
+    "Node" : [4, 4, 0, 0, False, 3, False, (3, 0)],
     "Radar" : [10, 10, 0, 0, False, 9, True, (20, 0)]
     }
 
