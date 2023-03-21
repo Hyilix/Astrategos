@@ -9,7 +9,7 @@ import random
 
 from Gameplay import gameplay
 
-DEBUG_START_NOW = True
+DEBUG_START_NOW = False
 
 pygame.init()
 
@@ -38,7 +38,7 @@ run = False
 
 Confirmation = False
 Confirmatii = 0
-Next_stage_cooldown = 15*60
+Next_stage_cooldown = 15
 
 MAPS = []
 map_names =[]
@@ -225,6 +225,17 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
             server.close()
             run = False
 
+    def timer_thread ():
+        nonlocal cooldown
+        while True :
+            time.sleep(0.1)
+            if cooldown > 0 :
+                if All_voted :
+                    cooldown -=0.3
+                else :
+                    cooldown -=0.1
+                if cooldown < 0 :
+                    cooldown = 0
     #declararea variabilelor rolurilor specifice
     if Role == "host" :
         global Confirmatii
@@ -250,6 +261,8 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
     clock = pygame.time.Clock()
     run=True
     cooldown = Next_stage_cooldown
+    time_thread = threading.Thread(target = timer_thread)
+    time_thread.start() 
     while run==True :
         clock.tick(FPS)
         draw_window()
@@ -293,20 +306,23 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
 
         # se verifica daca toti au votat si se modifica timerul in functie de asta
         if All_voted == False :
-            All_voted = True
-            for i in range(len(playeri)) :
-                if Voturi[i] == None :
-                    All_voted = False
-                    break
-        if cooldown>0 :
-            if DEBUG_START_NOW == True and All_voted:
-                cooldown = 0
-
-            if All_voted :
-                cooldown -=3
+            if len(playeri) == 1 :
+                if Voturi[0] !=None :
+                    All_voted = True
+            elif len(playeri) == 2  :
+                if Voturi[0] !=None and Voturi[1] != None :
+                    All_voted = True
+            elif len(playeri) == 3  :
+                if Voturi[0] !=None and Voturi[1] != None and Voturi[2] != None :
+                    All_voted = True
             else :
-                cooldown -=1
-        else :
+                if Voturi[0] !=None and Voturi[1] != None and Voturi[2] != None and Voturi[3] != None :
+                    All_voted = True
+
+        elif  DEBUG_START_NOW == True :
+            cooldown = 0
+
+        if cooldown == 0 :
             if Role == "host" :
                 if sent_reaquest == False :
                     #DETERMINA CARE ESTE HARTA CARE A CASTIGAT VOTUL 
