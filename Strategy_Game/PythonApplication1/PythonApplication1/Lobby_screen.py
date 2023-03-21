@@ -41,7 +41,7 @@ Text_draw = []
 HEADERSIZE = 10
 SPACE = "          "
 
-Next_stage_cooldown = 3*60
+Next_stage_cooldown = 3
 
 Confirmation = False
 Confirmatii = 0
@@ -299,13 +299,22 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
 
         pygame.display.update()
     
+    def timer_thread ():
+        nonlocal cooldown
+        while True :
+            time.sleep(0.05)
+            #print(All_Readied," ",started_cooldown," ",cooldown,"YEES")
+            if All_Readied == True and started_cooldown == True and cooldown > 0 :
+                cooldown -=0.05
+
     #variabilele necesare chiar pentru ambele roluri
     global Pozitie
     Costumization_Tab = False
     All_Readied = False
     started_cooldown = False
     cooldown = -1
-
+    time_thread = threading.Thread(target = timer_thread)
+    time_thread.start() 
     #Se creaza toate variabilele de care are nevoie Hostul
     if Role == "host" :
         Pozitie = 0
@@ -442,11 +451,9 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                 #Incepe timerul pentru intrarea in urmatorul stage
                 started_cooldown = True
                 cooldown = Next_stage_cooldown
-            elif All_Readied == True and started_cooldown == True and cooldown > 0 :
-                cooldown -= 1
             elif All_Readied == False and started_cooldown == True :
                 started_cooldown = False
-            if DEBUG_START_NOW == True or cooldown == 0 and  started_cooldown == True:
+            if DEBUG_START_NOW == True or cooldown <= 0 and  started_cooldown == True:
                 if Role == "host" :
                     if sent_reaquest == False :
                         In_next_stage = True
