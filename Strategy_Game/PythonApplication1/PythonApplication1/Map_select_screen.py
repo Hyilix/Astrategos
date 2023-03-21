@@ -43,12 +43,7 @@ Next_stage_cooldown = 15*60
 MAPS = []
 map_names =[]
 directory = "Maps\images"
-print("Loading maps")
-for filename in os.listdir(directory):
-    adres=os.path.join(directory, filename)
-    print(adres)
-    MAPS.append(pygame.image.load(adres))
-    map_names.append(adres[12:-4])
+
 
 resized = False
 THE_MAP = -1
@@ -62,6 +57,13 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
     global Map_Locations 
     THE_MAP = -1
     Map_Locations = []
+
+    print("Loading maps")
+    for filename in os.listdir(directory):
+        adres=os.path.join(directory, filename)
+        print(adres)
+        MAPS.append(pygame.image.load(adres))
+        map_names.append(adres[12:-4])
 
     WIN.fill((255,255,255))
     pygame.display.update()
