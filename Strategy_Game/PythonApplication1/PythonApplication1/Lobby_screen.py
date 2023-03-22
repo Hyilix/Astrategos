@@ -301,9 +301,9 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
     
     def timer_thread ():
         nonlocal cooldown
-        while True :
+        global run
+        while run :
             time.sleep(0.05)
-            #print(All_Readied," ",started_cooldown," ",cooldown,"YEES")
             if All_Readied == True and started_cooldown == True and cooldown > 0 :
                 cooldown -=0.05
 
@@ -595,6 +595,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                             CLIENTS[i][0].close()
                     Connection.close()
                     break
+                    time_thread.join()
                     
 
 

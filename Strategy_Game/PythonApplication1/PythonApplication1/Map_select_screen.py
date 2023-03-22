@@ -227,15 +227,13 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
 
     def timer_thread ():
         nonlocal cooldown
-        while True :
+        while cooldown > 0 :
             time.sleep(0.1)
             if cooldown > 0 :
                 if All_voted :
                     cooldown -=0.3
                 else :
                     cooldown -=0.1
-                if cooldown < 0 :
-                    cooldown = 0
     #declararea variabilelor rolurilor specifice
     if Role == "host" :
         global Confirmatii
@@ -395,6 +393,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                 run =False
 
     #Returnarea variabilelor necesare care s-ar fi putut schimba si motivul intoarceri in lobby
+    time_thread.join()
     if Role == "host" :
         return playeri, CLIENTS, Coduri_pozitie_client
     else :
