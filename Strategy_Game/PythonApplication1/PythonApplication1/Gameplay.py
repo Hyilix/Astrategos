@@ -6,6 +6,7 @@ import pickle
 import threading
 import time
 import math
+from PIL import Image
 
 import TileClass
 import Structures
@@ -893,15 +894,17 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     mapSurfaceNormal = pygame.Surface((int(tiles_per_row * normal_tile_length), int(rows * normal_tile_length)))
 
     def load_map(map_name):
+        global rows
+        global tiles_per_row
+        nonlocal mapSurfaceNormal 
+        nonlocal mapSurface
+
         try:
             with open("Maps/info/" + map_name + ".txt", "rb") as infile:
                 print("STARTED")
                 tiles.clear()
-                global rows
-                global tiles_per_row
                 rows = pickle.load(infile)
-                tiles_per_row = pickle.load(infile)
-                nonlocal mapSurfaceNormal 
+                tiles_per_row = pickle.load(infile) 
                 mapSurfaceNormal = pygame.Surface((int(tiles_per_row * normal_tile_length), int(rows * normal_tile_length)))
                 for x in range(rows):
                     new_vec = []
@@ -969,11 +972,85 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     tiles[x][y].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles))
                 #tiles.append(newLine)
 
-            nonlocal mapSurface
             mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
 
         except:
-            print("No such file exists")
+            try:
+                with open("Maps/Imported_Maps/info/" + map_name + ".txt", "rb") as infile:
+                    print("STARTED")
+                    tiles.clear()
+                    rows = pickle.load(infile)
+                    tiles_per_row = pickle.load(infile)
+                    mapSurfaceNormal = pygame.Surface((int(tiles_per_row * normal_tile_length), int(rows * normal_tile_length)))
+                    for x in range(rows):
+                        new_vec = []
+                        for y in range(tiles_per_row):        
+                            loaded_object = pickle.load(infile)
+                            new_unit, new_structure, new_ore = None, None, None
+                            if loaded_object["Unit"]:  
+                                new_unit = Units.Unit(loaded_object["Unit"]["Name"],
+                                                        loaded_object["Unit"]["Position"],
+                                                        loaded_object["Unit"]["Owner"]
+                                                        )
+
+                            if loaded_object["Structure"]:
+                                new_structure = Structures.Structure(loaded_object["Structure"]["Name"],
+                                                        loaded_object["Structure"]["Position"],
+                                                        loaded_object["Structure"]["Owner"]
+                                                        )
+
+                            if loaded_object["Ore"]:
+                                new_ore = Ores.Ore(loaded_object["Ore"]["Position"],
+                                                        loaded_object["Ore"]["Name"],
+                                                        loaded_object["Ore"]["Tier"]
+                                                        )
+
+                            new_tile = TileClass.Tile(loaded_object["Position"],
+                                                        loaded_object["Collidable"],
+                                                        loaded_object["Image_name"],
+                                                        new_ore,
+                                                        new_unit,
+                                                        new_structure
+                                                        )
+
+                            #Detect if the structure is either Kernel or Node to populate the Node module.
+                            if new_tile.structure != None:
+                                if (new_tile.structure.name == "Kernel" or new_tile.structure.name == "Node") and new_tile.structure.owner == map_locations[Pozitie]:
+                                    new_node = Node.Node((new_tile.position[0] + 0.5, new_tile.position[1] + 0.5), 4.5, new_tile.structure)
+                                    if new_tile.structure.name == "Kernel":
+                                        Node.TreeRoot = new_node
+                                        new_node.Powered = True
+
+                                    #Node.NodeList.append(new_node)
+
+                            #Save controlling units and structures
+                            if new_tile.structure != None: 
+                                #Center camera to player's Kernel at the start of the game.
+                                if new_tile.structure.name == "Kernel" and new_tile.structure.owner == map_locations[Pozitie]:
+                                    CurrentCamera.x = new_tile.structure.position[0] * current_tile_length - WIDTH // 2
+                                    CurrentCamera.y = new_tile.structure.position[1] * current_tile_length - HEIGHT // 2
+                                    CurrentCamera.Check_Camera_Boundaries()
+
+                                if new_tile.structure.owner == map_locations[Pozitie]:
+                                    controllables_vec.append(new_tile.structure)
+
+                            if new_tile.unit != None:
+                                if new_tile.unit.owner == map_locations[Pozitie]:
+                                    controllables_vec.append(new_tile.unit)
+
+                            new_vec.append(new_tile)
+                        tiles.append(new_vec)
+
+                determine_visible_tiles()
+
+                for x in range(rows):  #Redraw the whole map
+                    for y in range(tiles_per_row):
+                        tiles[x][y].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles))
+                    #tiles.append(newLine)
+
+                mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
+            except:
+                print("No such file exists")
 
         Node.InitTree()
 

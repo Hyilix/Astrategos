@@ -170,7 +170,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
         except:
             print("No overwrite found.")
         print(map_name)
-        pygame.image.save(mapSurfaceNormal, "Maps/images/" + map_name + ".jpg")
+        pygame.image.save(pygame.transform.scale(mapSurfaceNormal,(320,320)), "Maps/images/" + map_name + ".jpg")
         used_textures = []
         with open("Maps/info/" + map_name + ".txt", "wb") as outfile:   #Saves the map into the file.
             pickle.dump(rows, outfile)
