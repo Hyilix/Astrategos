@@ -1,8 +1,6 @@
 import Menu
 
 import pygame
-from PIL import Image
-import pickle
 
 pygame.init()
 screen = pygame.display.Info()
