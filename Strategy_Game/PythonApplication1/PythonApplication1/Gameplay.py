@@ -727,6 +727,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 refresh_map([[Action[4][0],Action[4][1]]])
                 controllables_vec.pop(Action[5])
                 selected_tile_check()
+        elif Action[0] == "refund_entity":
+            print("not impemented")#TODO: Make this function undo
 
     def selected_tile_check() :
         global tile_empty
