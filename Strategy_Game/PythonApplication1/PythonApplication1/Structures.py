@@ -10,7 +10,7 @@ textures = []
 base_textures = []
 
 #VARIABLES FOR STRUCTURES
-hospital_heal = 1
+hospital_heal = 2   #HP per end turn to each unit in range of hospital(healing_point)
 
 for img in os.listdir(default_path):    #Load all images.
     texture_names.append(img)
@@ -31,15 +31,16 @@ def heal_units(val_list):
     struct = val_list[0]
     controllables = val_list[1]
     for thing in controllables:
-        if type(thing) == Units.Unit:
+        if type(thing) == Units.Unit and thing not in val_list[2]:
             if math.sqrt((struct.position[0] - thing.position[0]) ** 2 + (struct.position[1] - thing.position[1]) ** 2) <= struct.AOE:
                 thing.ModifyHealth(hospital_heal)
+                val_list[2].append(thing)
 
-predefined_structures = {   #HP, MaxHp, Area_of_effect(block radius), defence, canShareSpace, fog_range, TrueSight, Price (Mithril, Flerovium), SpecialFunction
-    "Healing_Point" : [15, 15, 5, 0, False, 4, False, (40, 5), "heal_units"],
-    "Kernel" : [100, 100, 0, 3, False, 6, False, (0,0), None],
-    "Node" : [4, 4, 0, 0, False, 3, False, (3,0), None],
-    "Radar" : [10, 10, 0, 0, False, 9, True, (20, 0), None],
+predefined_structures = {   #HP, MaxHp, Area_of_effect(block radius), defence, canShareSpace, fog_range, TrueSight, Price (Mithril, Flerovium), Refund_percent, SpecialFunction
+    "Healing_Point" : [15, 15, 5, 0, False, 4, False, (40, 5), 30/100, "heal_units"],
+    "Kernel" : [100, 100, 0, 3, False, 6, False, (0,0), 0, None],
+    "Node" : [4, 4, 0, 0, False, 3, False, (3,0), 75/100, None],
+    "Radar" : [10, 10, 0, 0, False, 9, True, (20, 0), 20/100, None],
     }
 
 def BuildStructure(index, position, owner):
@@ -71,8 +72,9 @@ class Structure():
         self.TrueSight = vec[6]     #If True, you can see trough walls.
 
         self.price = vec[7]
+        self.refund_percent = vec[8]
 
-        self.special_function = vec[8]
+        self.special_function = vec[9]
 
     def call_special_function(self, value_list):    #Call the special function
         if self.special_function != None:

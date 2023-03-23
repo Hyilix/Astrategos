@@ -784,6 +784,43 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         timer_notification_sent = False
         next_turn = False
 
+    def refund_entity():
+        nonlocal Flerovium
+        nonlocal Mithril
+        nonlocal Nodes
+        nonlocal Man_power_used
+        nonlocal Whos_turn
+        nonlocal Element_selectat
+        nonlocal selected_tile
+
+        if timer > 0 and Whos_turn == Pozitie:
+            if Element_selectat != None and tile_empty == True and (selected_tile[0], selected_tile[1]) in visible_tiles:
+                if tiles[selected_tile[1]][selected_tile[0]].structure != None and tiles[selected_tile[1]][selected_tile[0]].structure.name != "Kernel": #Structure case. Also don't refund Kernel lol
+                    my_struct = tiles[selected_tile[1]][selected_tile[0]].structure
+
+                    #if the structure was a node
+                    my_node = Node.getNodeFromObj(my_struct)
+                    my_node.Kill()
+                    del my_node
+
+                    Flerovium += int(my_struct.price[1] * my_struct.refund_percent)
+                    Mithril += int(my_struct.price[0] * my_struct.refund_percent)
+
+                    tiles[selected_tile[1]][selected_tile[0]].structure = None
+                    refresh_map([[selected_tile[0],selected_tile[1]]])
+                    del my_struct
+
+                elif tiles[selected_tile[1]][selected_tile[0]].unit != None:    #Unit case
+                    my_unit = tiles[selected_tile[1]][selected_tile[0]].unit
+
+                    Flerovium += int(my_unit.price[1] * my_struct.refund_percent)
+                    Mithril += int(my_unit.price[0] * my_struct.refund_percent)
+                    Man_power_used -= new_unit.price[2]
+
+                    tiles[selected_tile[1]][selected_tile[0]].unit = None
+                    refresh_map([[selected_tile[0],selected_tile[1]]])
+                    del my_unit
+
     def Create_Building():
         nonlocal Flerovium
         nonlocal Mithril
@@ -944,6 +981,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                         if new_tile.structure.name == "Kernel":
                                             Node.TreeRoot = new_node
                                             new_node.Powered = True
+                                            if new_tile.structure.name == "Node":
+                                                nonlocal Nodes
+                                                Nodes += 1
 
                                         #Node.NodeList.append(new_node)
 
@@ -961,6 +1001,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                 if new_tile.unit != None:
                                     if new_tile.unit.owner == map_locations[Pozitie]:
                                         controllables_vec.append(new_tile.unit)
+                                        nonlocal Man_power_used
+                                        Man_power_used += new_tile.unit.price[2]
 
                                 if new_tile.structure != None and new_tile.structure.special_function != None and new_tile.structure.owner == map_locations[Pozitie]:  
                                     caster_controllables_vec.append(new_tile.structure)
@@ -1156,8 +1198,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         if timer == 0 :
             determine_visible_tiles()
 
+            units_healed = []   #a vector to store all units healed. Hospital effects don't stack
             for caster in caster_controllables_vec: #For every caster, call it's function. Because of time and internal issues, the only caster is the hospital.
-                caster.call_special_function([caster, controllables_vec])
+                caster.call_special_function([caster, controllables_vec, units_healed])
+            del units_healed
 
             for unit in controllables_vec:  #Allow each unit to make an action
                 if tiles[unit.position[1]][unit.position[0]].unit == unit:
