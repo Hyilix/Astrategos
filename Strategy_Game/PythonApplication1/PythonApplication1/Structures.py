@@ -11,6 +11,7 @@ base_textures = []
 
 #VARIABLES FOR STRUCTURES
 hospital_heal = 2   #HP per end turn to each unit in range of hospital(healing_point)
+hospital_circle_color = (0,204,204)     #Color of the circle drawn if a hospital is selected.
 
 for img in os.listdir(default_path):    #Load all images.
     texture_names.append(img)
@@ -88,6 +89,10 @@ class Structure():
             self.HP = 0
         else:
             self.HP += value
+
+    def Draw_AOE(self, screen, size, offset):   #Draw the area of efect of a structure
+        if self.AOE != 0:
+            pygame.draw.circle(screen, hospital_circle_color, (self.position[0] * size - offset[0], self.position[1] * size - offset[1]), self.AOE * size, 1)
 
     def DrawImage(self, screen, size, colorTable, special_blit = False, visible_tuple = None):
         image = textures[texture_names.index(self.texture)].copy()
