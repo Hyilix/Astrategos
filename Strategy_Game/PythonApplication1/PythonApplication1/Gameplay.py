@@ -828,6 +828,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         nonlocal Mithril
         nonlocal Nodes
         nonlocal Man_power_used
+        nonlocal Max_Man_power
         nonlocal Whos_turn
         nonlocal Element_selectat
         nonlocal selected_tile
@@ -837,45 +838,54 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 if tiles[selected_tile[1]][selected_tile[0]].structure == None and tiles[selected_tile[1]][selected_tile[0]].unit == None:
                     if construction_tab == "Structures":
                         new_struct = Structures.BuildStructure(Element_selectat, (selected_tile[0], selected_tile[1]), map_locations[Pozitie])
-                        for node in Node.NodesFound:
-                            if node.CheckBuildingInRadius(new_struct):
-                                #construieste structura
-                                tiles[selected_tile[1]][selected_tile[0]].structure = new_struct
-                                refresh_map([[selected_tile[0],selected_tile[1]]])
-                                if new_struct.special_function != None:
-                                    caster_controllables_vec.append(new_struct)
-                                controllables_vec.append(new_struct)
-                                #scade costul
-                                Flerovium -= new_struct.price[1]
-                                Mithril -= new_struct.price[0]
-                                #conditie daca este Node
-                                if new_struct.name == "Node":
-                                    Nodes += 1
-                                    new_node = Node.Node((selected_tile[0] + 0.5, selected_tile[1] + 0.5), 4.5, new_struct)
-                                    for node in Node.NodeList:
-                                        if node != new_node and new_node.CheckCollision(node):
-                                            new_node.Add(node)
-                                #Adaugarea actiunii in Istoricul actiunilor
-                                Turn_Actions.append(("new_entity",construction_tab,Element_selectat,map_locations[Pozitie],selected_tile,len(controllables_vec)-1))
-                                break
+
+                        if Flerovium - new_struct.price[1] >= 0 and Mithril >= new_struct.price[0]: #check if can afford
+
+                            for node in Node.NodesFound:
+                                if node.CheckBuildingInRadius(new_struct):
+                                    #conditie daca este Node
+                                    if new_struct.name == "Node":
+                                        if Nodes + 1 > Max_Nodes:   #check if can place node
+                                            break
+
+                                        Nodes += 1
+                                        new_node = Node.Node((selected_tile[0] + 0.5, selected_tile[1] + 0.5), 4.5, new_struct)
+                                        for node in Node.NodeList:
+                                            if node != new_node and new_node.CheckCollision(node):
+                                                new_node.Add(node)
+
+                                    #construieste structura
+                                    tiles[selected_tile[1]][selected_tile[0]].structure = new_struct
+                                    refresh_map([[selected_tile[0],selected_tile[1]]])
+                                    if new_struct.special_function != None:
+                                        caster_controllables_vec.append(new_struct)
+                                    controllables_vec.append(new_struct)
+                                    #scade costul
+                                    Flerovium -= new_struct.price[1]
+                                    Mithril -= new_struct.price[0]
+                                    #Adaugarea actiunii in Istoricul actiunilor
+                                    Turn_Actions.append(("new_entity",construction_tab,Element_selectat,map_locations[Pozitie],selected_tile,len(controllables_vec)-1))
+                                    break
                         del new_struct
 
                     elif construction_tab == "Units":
                         new_unit = Units.BuildUnit(Element_selectat, (selected_tile[0], selected_tile[1]), map_locations[Pozitie])
 
-                        for node in Node.NodesFound:
-                            if node.CheckBuildingInRadius(new_unit):
-                                #Se recruteaza noua unitate
-                                tiles[selected_tile[1]][selected_tile[0]].unit = new_unit
-                                refresh_map([[selected_tile[0],selected_tile[1]]])
-                                controllables_vec.append(new_unit)
-                                #se iau costurile
-                                Flerovium -= new_unit.price[1]
-                                Mithril -= new_unit.price[0]
-                                Man_power_used += new_unit.price[2]
-                                #Adaugarea actiunii in Istoricul actiunilor
-                                Turn_Actions.append(("new_entity",construction_tab,Element_selectat,map_locations[Pozitie],selected_tile,len(controllables_vec)-1))
-                                break
+                        if Flerovium - new_unit.price[1] >= 0 and Mithril >= new_unit.price[0] and Man_power_used + new_unit.price[2] > Max_Man_power: #check if can afford
+
+                            for node in Node.NodesFound:
+                                if node.CheckBuildingInRadius(new_unit):
+                                    #Se recruteaza noua unitate
+                                    tiles[selected_tile[1]][selected_tile[0]].unit = new_unit
+                                    refresh_map([[selected_tile[0],selected_tile[1]]])
+                                    controllables_vec.append(new_unit)
+                                    #se iau costurile
+                                    Flerovium -= new_unit.price[1]
+                                    Mithril -= new_unit.price[0]
+                                    Man_power_used += new_unit.price[2]
+                                    #Adaugarea actiunii in Istoricul actiunilor
+                                    Turn_Actions.append(("new_entity",construction_tab,Element_selectat,map_locations[Pozitie],selected_tile,len(controllables_vec)-1))
+                                    break
                         del new_unit
    
 
