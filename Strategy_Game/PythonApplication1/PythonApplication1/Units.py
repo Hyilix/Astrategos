@@ -22,9 +22,9 @@ def resize_textures(size):
 
 last_index = len(texture_names)
 
-predefined_Units = {   #HP, MaxHp, attack, defence, range, move_range, fog_range, price (Mithril, Flerovium)
+predefined_Units = {   #HP, MaxHp, attack, defence, range, move_range, fog_range, price (Mithril, Flerovium, Supply)
     "Marine" : [5, 5, 2, 3, 1, 4, 5, (6,0,1)],
-    "Phantom" : [5, 5, 2, 3, 1, 5, 7, (10,0,2)],
+    "Phantom" : [1, 5, 2, 3, 1, 5, 7, (10,0,2)],
     }
 
 def BuildUnit(index, position, owner):
@@ -59,6 +59,14 @@ class Unit():
         self.fog_range = vec[6]      #How much can the unit see
 
         self.price = vec[7]
+
+    def ModifyHealth(self, value):
+        if self.HP + value > self.MaxHP:
+            self.HP = self.MaxHP
+        elif self.HP + value < 0:
+            self.HP = 0
+        else:
+            self.HP += value
 
     def MoveTo(self, position, path_vec, tiles):
         if position in path_vec:

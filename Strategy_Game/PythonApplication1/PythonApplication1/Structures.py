@@ -1,11 +1,16 @@
 import pygame
 import os
 import TileClass
+import Units
+import math
 
 default_path = 'Assets/Structures/'
 texture_names = []
 textures = []
 base_textures = []
+
+#VARIABLES FOR STRUCTURES
+hospital_heal = 1
 
 for img in os.listdir(default_path):    #Load all images.
     texture_names.append(img)
@@ -21,10 +26,20 @@ def resize_textures(size):
 
 last_index = len(texture_names)
 
-predefined_structures = {   #HP, MaxHp, Area_of_effect(block radius), defence, canShareSpace, fog_range, TrueSight, Price (Mithril, Flerovium)
-    "Kernel" : [100, 100, 0, 3, False, 6, False, (0,0)],
-    "Node" : [4, 4, 0, 0, False, 3, False, (3,0)],
-    "Radar" : [10, 10, 0, 0, False, 9, True, (20, 0)]
+#Special custom functions for structures. SpecialFunction attribute must be EXACTLY the same name as the function name.
+def heal_units(val_list):
+    struct = val_list[0]
+    controllables = val_list[1]
+    for thing in controllables:
+        if type(thing) == Units.Unit:
+            if math.sqrt((struct.position[0] - thing.position[0]) ** 2 + (struct.position[1] - thing.position[1]) ** 2) <= struct.AOE:
+                thing.ModifyHealth(hospital_heal)
+
+predefined_structures = {   #HP, MaxHp, Area_of_effect(block radius), defence, canShareSpace, fog_range, TrueSight, Price (Mithril, Flerovium), SpecialFunction
+    "Healing_Point" : [15, 15, 5, 0, False, 4, False, (40, 5), "heal_units"],
+    "Kernel" : [100, 100, 0, 3, False, 6, False, (0,0), None],
+    "Node" : [4, 4, 0, 0, False, 3, False, (3,0), None],
+    "Radar" : [10, 10, 0, 0, False, 9, True, (20, 0), None],
     }
 
 def BuildStructure(index, position, owner):
@@ -56,6 +71,21 @@ class Structure():
         self.TrueSight = vec[6]     #If True, you can see trough walls.
 
         self.price = vec[7]
+
+        self.special_function = vec[8]
+
+    def call_special_function(self, value_list):    #Call the special function
+        if self.special_function != None:
+            func = globals()[self.special_function]
+            func(value_list)
+
+    def ModifyHealth(self, value):
+        if self.HP + value > self.MaxHP:
+            self.HP = self.MaxHP
+        elif self.HP + value < 0:
+            self.HP = 0
+        else:
+            self.HP += value
 
     def DrawImage(self, screen, size, colorTable, special_blit = False, visible_tuple = None):
         image = textures[texture_names.index(self.texture)].copy()

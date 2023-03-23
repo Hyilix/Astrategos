@@ -56,7 +56,8 @@ tiles_per_row = 40
 
 tiles = []
 
-controllables_vec = []  #Vector containing units and tiles.
+controllables_vec = []  #Vector containing units and structures.
+caster_controllables_vec = []   #Vector containing units and structures that call a function at each end of turn
 
 visible_tiles = []
 partially_visible_tiles = []
@@ -802,6 +803,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                 #construieste structura
                                 tiles[selected_tile[1]][selected_tile[0]].structure = new_struct
                                 refresh_map([[selected_tile[0],selected_tile[1]]])
+                                if new_struct.special_function != None:
+                                    caster_controllables_vec.append(new_struct)
                                 controllables_vec.append(new_struct)
                                 #scade costul
                                 Flerovium -= new_struct.price[1]
@@ -891,76 +894,81 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
     def load_map(map_name):
         try:
-            with open("Maps/info/" + map_name + ".txt", "rb") as infile:
-                print("STARTED")
-                tiles.clear()
-                global rows
-                global tiles_per_row
-                rows = pickle.load(infile)
-                tiles_per_row = pickle.load(infile)
-                nonlocal mapSurfaceNormal 
-                mapSurfaceNormal = pygame.Surface((int(tiles_per_row * normal_tile_length), int(rows * normal_tile_length)))
-                for x in range(rows):
-                    new_vec = []
-                    for y in range(tiles_per_row):        
-                        loaded_object = pickle.load(infile)
-                        new_unit, new_structure, new_ore = None, None, None
-                        if loaded_object["Unit"]:  
-                            new_unit = Units.Unit(loaded_object["Unit"]["Name"],
-                                                    loaded_object["Unit"]["Position"],
-                                                    loaded_object["Unit"]["Owner"]
-                                                    )
+            for i in os.listdir("Maps/info/"):
+                ch = i.find("@")
+                if map_name[0:ch] == i[0:ch]:
+                    with open("Maps/info/" + i, "rb") as infile:
+                        print("STARTED")
+                        tiles.clear()
+                        global rows
+                        global tiles_per_row
+                        rows = pickle.load(infile)
+                        tiles_per_row = pickle.load(infile)
+                        nonlocal mapSurfaceNormal 
+                        mapSurfaceNormal = pygame.Surface((int(tiles_per_row * normal_tile_length), int(rows * normal_tile_length)))
+                        for x in range(rows):
+                            new_vec = []
+                            for y in range(tiles_per_row):        
+                                loaded_object = pickle.load(infile)
+                                new_unit, new_structure, new_ore = None, None, None
+                                if loaded_object["Unit"]:  
+                                    new_unit = Units.Unit(loaded_object["Unit"]["Name"],
+                                                            loaded_object["Unit"]["Position"],
+                                                            loaded_object["Unit"]["Owner"]
+                                                            )
 
-                        if loaded_object["Structure"]:
-                            new_structure = Structures.Structure(loaded_object["Structure"]["Name"],
-                                                    loaded_object["Structure"]["Position"],
-                                                    loaded_object["Structure"]["Owner"]
-                                                    )
+                                if loaded_object["Structure"]:
+                                    new_structure = Structures.Structure(loaded_object["Structure"]["Name"],
+                                                            loaded_object["Structure"]["Position"],
+                                                            loaded_object["Structure"]["Owner"]
+                                                            )
 
-                        if loaded_object["Ore"]:
-                            new_ore = Ores.Ore(loaded_object["Ore"]["Position"],
-                                                    loaded_object["Ore"]["Name"],
-                                                    loaded_object["Ore"]["Tier"]
-                                                    )
+                                if loaded_object["Ore"]:
+                                    new_ore = Ores.Ore(loaded_object["Ore"]["Position"],
+                                                            loaded_object["Ore"]["Name"],
+                                                            loaded_object["Ore"]["Tier"]
+                                                            )
 
-                        new_tile = TileClass.Tile(loaded_object["Position"],
-                                                    loaded_object["Collidable"],
-                                                    loaded_object["Image_name"],
-                                                    new_ore,
-                                                    new_unit,
-                                                    new_structure
-                                                    )
+                                new_tile = TileClass.Tile(loaded_object["Position"],
+                                                            loaded_object["Collidable"],
+                                                            loaded_object["Image_name"],
+                                                            new_ore,
+                                                            new_unit,
+                                                            new_structure
+                                                            )
 
-                        #Detect if the structure is either Kernel or Node to populate the Node module.
-                        if new_tile.structure != None:
-                            if (new_tile.structure.name == "Kernel" or new_tile.structure.name == "Node") and new_tile.structure.owner == map_locations[Pozitie]:
-                                new_node = Node.Node((new_tile.position[0] + 0.5, new_tile.position[1] + 0.5), 4.5, new_tile.structure)
-                                if new_tile.structure.name == "Kernel":
-                                    Node.TreeRoot = new_node
-                                    new_node.Powered = True
+                                #Detect if the structure is either Kernel or Node to populate the Node module.
+                                if new_tile.structure != None:
+                                    if (new_tile.structure.name == "Kernel" or new_tile.structure.name == "Node") and new_tile.structure.owner == map_locations[Pozitie]:
+                                        new_node = Node.Node((new_tile.position[0] + 0.5, new_tile.position[1] + 0.5), 4.5, new_tile.structure)
+                                        if new_tile.structure.name == "Kernel":
+                                            Node.TreeRoot = new_node
+                                            new_node.Powered = True
 
-                                #Node.NodeList.append(new_node)
+                                        #Node.NodeList.append(new_node)
 
-                        #Save controlling units and structures
-                        if new_tile.structure != None: 
-                            #Center camera to player's Kernel at the start of the game.
-                            if new_tile.structure.name == "Kernel" and new_tile.structure.owner == map_locations[Pozitie]:
-                                CurrentCamera.x = new_tile.structure.position[0] * current_tile_length - WIDTH // 2
-                                CurrentCamera.y = new_tile.structure.position[1] * current_tile_length - HEIGHT // 2
-                                CurrentCamera.Check_Camera_Boundaries()
+                                #Save controlling units and structures
+                                if new_tile.structure != None: 
+                                    #Center camera to player's Kernel at the start of the game.
+                                    if new_tile.structure.name == "Kernel" and new_tile.structure.owner == map_locations[Pozitie]:
+                                        CurrentCamera.x = new_tile.structure.position[0] * current_tile_length - WIDTH // 2
+                                        CurrentCamera.y = new_tile.structure.position[1] * current_tile_length - HEIGHT // 2
+                                        CurrentCamera.Check_Camera_Boundaries()
 
-                            if new_tile.structure.owner == map_locations[Pozitie]:
-                                controllables_vec.append(new_tile.structure)
+                                    if new_tile.structure.owner == map_locations[Pozitie]:
+                                        controllables_vec.append(new_tile.structure)
 
-                        if new_tile.unit != None:
-                            if new_tile.unit.owner == map_locations[Pozitie]:
-                                controllables_vec.append(new_tile.unit)
+                                if new_tile.unit != None:
+                                    if new_tile.unit.owner == map_locations[Pozitie]:
+                                        controllables_vec.append(new_tile.unit)
 
-                        new_vec.append(new_tile)
-                    tiles.append(new_vec)
+                                if new_tile.structure != None and new_tile.structure.special_function != None and new_tile.structure.owner == map_locations[Pozitie]:  
+                                    caster_controllables_vec.append(new_tile.structure)
+
+                                new_vec.append(new_tile)
+                            tiles.append(new_vec)
 
             determine_visible_tiles()
-
             for x in range(rows):  #Redraw the whole map
                 for y in range(tiles_per_row):
                     tiles[x][y].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles))
@@ -1147,6 +1155,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
         if timer == 0 :
             determine_visible_tiles()
+
+            for caster in caster_controllables_vec: #For every caster, call it's function. Because of time and internal issues, the only caster is the hospital.
+                caster.call_special_function([caster, controllables_vec])
 
             for unit in controllables_vec:  #Allow each unit to make an action
                 if tiles[unit.position[1]][unit.position[0]].unit == unit:
