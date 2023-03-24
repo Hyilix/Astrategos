@@ -262,9 +262,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     s_names = []
     directory = "Assets\Structures"
     for filename in os.listdir(directory):
-        s_names.append(filename[:-4])
-        adres=os.path.join(directory, filename)
-        structures.append(pygame.transform.scale(pygame.image.load(adres),(64,64)))
+        if  filename[:-4] != "Kernel" :
+            s_names.append(filename[:-4])
+            adres=os.path.join(directory, filename)
+            structures.append(pygame.transform.scale(pygame.image.load(adres),(64,64)))
     #colorarea structurilor cu culoarea playerului
     for structure in structures :
         for i in range(structure.get_width()):
@@ -1408,11 +1409,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         else :
                             elements = len(units)
                         for i in range(math.ceil(elements/3)) :
-                             y_rand = HEIGHT*2/3 +5 + i*70 + i*10 - C_menu_scroll
+                             y_rand = HEIGHT*2/3 +10 + i*70 + i*10 - C_menu_scroll
                              if y_rand + 70 > HEIGHT*2/3 :
                                  if press_coordonaits[1] >= y_rand and press_coordonaits[1] <= y_rand+70 :
                                      for j in range(min(3,elements-i*3)) :
-                                         x_coloana = WIDTH-HEIGHT/3+10 + j*70 + j*spatiu_intre
+                                         x_coloana = WIDTH-HEIGHT/3+5 + j*70 + (j + 0.5)*spatiu_intre
                                          if press_coordonaits[0] >= x_coloana and press_coordonaits[0] <= x_coloana + 70 :
                                              Element_selectat = i*3 + j
                                              if construction_tab == "Structures" :
