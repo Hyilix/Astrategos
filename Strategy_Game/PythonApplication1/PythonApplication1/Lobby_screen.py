@@ -9,7 +9,7 @@ import time
 from Map_select_screen import Map_select
 
 DEBUG_DARK_MODE = True
-DEBUG_START_NOW = True
+DEBUG_START_NOW = False
 
 pygame.init()
 #Culori
