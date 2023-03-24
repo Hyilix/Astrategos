@@ -503,7 +503,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             lungime += 32 + 10 + MP_rect[2]
                         #afisarea costurilor
                         start_x = ButtonC_rect[0] + ButtonC_rect[2]/2 - lungime/2 
-                        y_center = ButtonC_rect[1] -26
+                        y_center = ButtonC_rect[1] -21
                         if M_cost != None :
                             WIN.blit(mithril_icon,(start_x,y_center - 16))
                             start_x += 42
@@ -554,7 +554,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                 lungime += F_rect[3]
                         #afisarea costurilor
                         start_x = ButtonC_rect[0] + ButtonC_rect[2]/2 - lungime/2 
-                        y_center = ButtonC_rect[1] -26
+                        y_center = ButtonC_rect[1] -21
                         if M_cost != None :
                             WIN.blit(mithril_icon,(start_x,y_center - 16))
                             start_x += 42
