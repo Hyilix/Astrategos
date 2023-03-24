@@ -210,6 +210,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                 if len(header) != 0 :
                     data_recv = server.recv(int(header))
                     data_recv = pickle.loads(data_recv)
+                    print(data_recv)
                     if data_recv[0] == "enter_next_stage" :
                         THE_MAP = data_recv[1]
                         Map_Locations = data_recv[2]
@@ -223,14 +224,16 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                         run = False
                         break
                     elif data_recv[0] == "verify_map" or data_recv[0] == "new_line" or data_recv[0] == "end_info_stream" or data_recv[0] == "Map_image" or data_recv[0] == "End_of_map_sync" :
-                        mapload_related_stuff.apend(data_recv)
+                        mapload_related_stuff.append(data_recv)
                     else :
                         Changes_from_server.append(data_recv)
                 else :
+                    print("iesit aici 1")
                     server.close()
                     run = False
                     break
         except :
+            print("iesit aici 2")
             server.close()
             run = False
 
@@ -328,6 +331,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                         directory = "Maps\images"
                         the_name = mapload_related_stuff[0][1]
                         try :
+                            print("start first try")
                             adres = os.path.join(directory, mapload_related_stuff[0][1] + ".jpg")
                             #da load la harta
                             Map_load_action = "Loading maps : load " + adres[12:-4] + " map"
@@ -337,9 +341,12 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                             data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                             Connection.send(data_send)
                             Map_load_action = "Loading maps : waiting for the others"
+                            print("end first try")
                         except :
                             directory = "Maps\Imported_Maps\images"
+                            print("first except")
                             try:
+                                print("start second try")
                                 adres = os.path.join(directory, mapload_related_stuff[0][1] + ".jpg")
                                 #da load la harta
                                 Map_load_action = "Loading maps : load " + adres[12:-4] + " map"
@@ -349,7 +356,9 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                                 data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                                 Connection.send(data_send)
                                 Map_load_action = "Loading maps : waiting for the others"
+                                print("end second try")
                             except:
+                                print("second except")
                                 #creaza un nou txt unde va pune map_info-ul primit de la server
                                 Map_load_action = "Loading maps : receiving map_info from the host"
                                 new_adres = "Maps\Imported_Maps\info" +"\\" 
@@ -357,6 +366,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                                 data_send = pickle.dumps(("I_don't_have_it",mapload_related_stuff[0][1]))
                                 data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                                 Connection.send(data_send)
+                                print("perfect exit")
 
                     elif mapload_related_stuff[0][0] == "new_line" :
                         #pune o noua linie in file

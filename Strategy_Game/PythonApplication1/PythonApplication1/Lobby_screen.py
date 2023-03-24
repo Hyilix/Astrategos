@@ -98,7 +98,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
             data_recv = server.recv(int(header))
             playeri = pickle.loads(data_recv)
             #serveru va trimite pozitia clientului printre playeri
-
             header = server.recv(10)
             header = header.decode("utf-8")
             data_recv = server.recv(int(header))
@@ -365,6 +364,11 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
 
     clock = pygame.time.Clock()
     run = True
+
+    if Role == "client" :
+        while Pozitie == None :
+            time.sleep(0.1)
+
     while run :
         clock.tick(FPS)
         #Creaza textul pe care il afiseaza pentru FPS-uri
