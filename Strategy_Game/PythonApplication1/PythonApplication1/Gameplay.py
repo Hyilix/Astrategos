@@ -246,9 +246,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
     #butonul de creare a unei cladiri/unitati
     x_b =HEIGHT/3 + 50 + HEIGHT/5 -50 + (WIDTH - HEIGHT*2/3 -25 -HEIGHT/5 +50)/2 - 185/2
-    Button_rect = (x_b,HEIGHT-95,185,70)
+    ButtonC_rect = (x_b,HEIGHT-95,185,70)
     Create_Button = Button((x_b+5,HEIGHT-90,175,60),Gri,None,**{"text": "Recruit","font": FontT})
-
+    x_b = HEIGHT/3 + 50 + HEIGHT/5 -50 + (WIDTH - HEIGHT/3 -25 -HEIGHT/5 +50)/2 - 185/2
+    ButtonR_rect = (x_b,HEIGHT-95,185,70)
+    Refund_Button = Button((x_b+5,HEIGHT-90,175,60),Gri,None,**{"text": "Refund","font": FontT})
     # incaracarea imaginilor structurilor si unitatilor care le poate produce playeru, cu culoarea specifica.
     grosime_outline = 5
     spatiu_intre = (HEIGHT/3 - 5 - 70*3)/3
@@ -499,8 +501,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         if MP_cost != None :
                             lungime += 32 + 10 + MP_rect[2]
                         #afisarea costurilor
-                        start_x = Button_rect[0] + Button_rect[2]/2 - lungime/2 
-                        y_center = Button_rect[1] -26
+                        start_x = ButtonC_rect[0] + ButtonC_rect[2]/2 - lungime/2 
+                        y_center = ButtonC_rect[1] -26
                         if M_cost != None :
                             WIN.blit(mithril_icon,(start_x,y_center - 16))
                             start_x += 42
@@ -550,8 +552,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             else :
                                 lungime += F_rect[3]
                         #afisarea costurilor
-                        start_x = Button_rect[0] + Button_rect[2]/2 - lungime/2 
-                        y_center = Button_rect[1] -26
+                        start_x = ButtonC_rect[0] + ButtonC_rect[2]/2 - lungime/2 
+                        y_center = ButtonC_rect[1] -26
                         if M_cost != None :
                             WIN.blit(mithril_icon,(start_x,y_center - 16))
                             start_x += 42
@@ -565,9 +567,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
 
                     if can_build == False :
-                        pygame.draw.rect(WIN,(25,25,25),Button_rect)
+                        pygame.draw.rect(WIN,(25,25,25),ButtonC_rect)
                     else :
-                        pygame.draw.rect(WIN,Light_Green,Button_rect)
+                        pygame.draw.rect(WIN,Light_Green,ButtonC_rect)
                     Create_Button.update(WIN)
             else :
                 pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3,HEIGHT*4/5-5 , WIDTH - HEIGHT/3,5))
@@ -577,6 +579,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3+20,HEIGHT*4/5+20,large_img_element_afisat.get_width()+10,large_img_element_afisat.get_width()+10))
                     pygame.draw.rect(WIN,Gri,(HEIGHT/3+25,HEIGHT*4/5+25,large_img_element_afisat.get_width(),large_img_element_afisat.get_width()))
                     WIN.blit(large_img_element_afisat,(HEIGHT/3+25,HEIGHT*4/5+25))
+                    #Afiseaza si butonul de Refund
+                    if (tiles[selected_tile[1]][selected_tile[0]].structure != None and tiles[selected_tile[1]][selected_tile[0]].structure.name == "Kernel") == 0:
+                        pygame.draw.rect(WIN,(25,25,25),ButtonR_rect)
+                        Refund_Button.update(WIN)
 
         pygame.display.update()
 
@@ -680,6 +686,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             chat_archive.append((Font.render(rand,True,color),0))
 
     def reverse_action (Action) :
+        nonlocal Flerovium
+        nonlocal Mithril
+        nonlocal Nodes
+        nonlocal Man_power_used
         #reverse unit movement
         if Action[0] == "move_unit" :
             tiles[Action[1][1]][Action[1][0]].unit = tiles[Action[2][1]][Action[2][0]].unit
@@ -693,10 +703,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             tiles[Action[1][1]][Action[1][0]].unit.canMove = True
             selected_tile_check()
         elif Action[0] == "new_entity" :
-            nonlocal Flerovium
-            nonlocal Mithril
-            nonlocal Nodes
-            nonlocal Man_power_used
             if Action[1] == "Structures":
                 new_struct = tiles[Action[4][1]][Action[4][0]].structure
                 #se reda costul
@@ -707,13 +713,13 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     Nodes -= 1
                     new_node = Node.getNodeFromObj(new_struct)
                     new_node.Kill()
+                    del new_node
                 selected_tile_check()
                 #Sterge structura
                 tiles[Action[4][1]][Action[4][0]].structure = None
                 refresh_map([[Action[4][0],Action[4][1]]])
                 controllables_vec.pop(Action[5])
                 del new_struct
-                del new_node
 
             elif Action[1] == "Units":
                 new_unit = tiles[Action[4][1]][Action[4][0]].unit
@@ -734,7 +740,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 #if the structure was a node
                 if my_struct.name == "Node" :
                     Nodes += 1
-                    new_node = Node.Node((Action[2][0] + 0.5, Action[2][1] + 0.5), 4.5, new_struct)
+                    new_node = Node.Node((Action[2][0] + 0.5, Action[2][1] + 0.5), 4.5, my_struct)
                     for node in Node.NodeList:
                         if node != new_node and new_node.CheckCollision(node):
                             new_node.Add(node)
@@ -746,16 +752,18 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 refresh_map([[Action[2][0],Action[2][1]]])
                 del my_struct
 
-            elif tiles[selected_tile[1]][selected_tile[0]].unit != None:    #Unit case
+            else  :    #Unit case
                 my_unit = Action[3]
 
                 Flerovium -= int(my_unit.price[1] * my_unit.refund_percent)
                 Mithril -= int(my_unit.price[0] * my_unit.refund_percent)
-                Man_power_used += new_unit.price[2]
+                Man_power_used += my_unit.price[2]
 
                 tiles[Action[2][1]][Action[2][0]].unit = my_unit
                 refresh_map([[Action[2][0],Action[2][1]]])
                 del my_unit
+            selected_tile_check()
+            print("end")
 
     def selected_tile_check() :
         global tile_empty
@@ -823,8 +831,19 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         nonlocal selected_tile
 
         if timer > 0 and Whos_turn == Pozitie:
-            if Element_selectat != None and tile_empty == True and (selected_tile[0], selected_tile[1]) in visible_tiles:
-                if tiles[selected_tile[1]][selected_tile[0]].structure != None and tiles[selected_tile[1]][selected_tile[0]].structure.name != "Kernel": #Structure case. Also don't refund Kernel lol
+            if (selected_tile[0], selected_tile[1]) in visible_tiles:
+                if tiles[selected_tile[1]][selected_tile[0]].unit != None:    #Unit case
+                    my_unit = tiles[selected_tile[1]][selected_tile[0]].unit
+
+                    Flerovium += int(my_unit.price[1] * my_unit.refund_percent)
+                    Mithril += int(my_unit.price[0] * my_unit.refund_percent)
+                    Man_power_used -= my_unit.price[2]
+
+                    tiles[selected_tile[1]][selected_tile[0]].unit = None
+                    refresh_map([[selected_tile[0],selected_tile[1]]])
+                    Turn_Actions.append(("refund_entity","unit",selected_tile,my_unit))
+                    del my_unit
+                elif tiles[selected_tile[1]][selected_tile[0]].structure != None and tiles[selected_tile[1]][selected_tile[0]].structure.name != "Kernel": #Structure case. Also don't refund Kernel lol
                     my_struct = tiles[selected_tile[1]][selected_tile[0]].structure
 
                     #if the structure was a node
@@ -841,18 +860,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     refresh_map([[selected_tile[0],selected_tile[1]]])
                     Turn_Actions.append(("refund_entity","structure",selected_tile,my_struct))
                     del my_struct
+        selected_tile_check()
 
-                elif tiles[selected_tile[1]][selected_tile[0]].unit != None:    #Unit case
-                    my_unit = tiles[selected_tile[1]][selected_tile[0]].unit
-
-                    Flerovium += int(my_unit.price[1] * my_unit.refund_percent)
-                    Mithril += int(my_unit.price[0] * my_unit.refund_percent)
-                    Man_power_used -= new_unit.price[2]
-
-                    tiles[selected_tile[1]][selected_tile[0]].unit = None
-                    refresh_map([[selected_tile[0],selected_tile[1]]])
-                    Turn_Actions.append(("refund_entity","unit",selected_tile,my_unit))
-                    del my_unit
 
     def Create_Building():
         nonlocal Flerovium
@@ -865,59 +874,53 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         nonlocal selected_tile
 
         if timer > 0 and Whos_turn == Pozitie:
-            if Element_selectat != None and tile_empty == True and (selected_tile[0], selected_tile[1]) in visible_tiles:
-                if tiles[selected_tile[1]][selected_tile[0]].structure == None and tiles[selected_tile[1]][selected_tile[0]].unit == None:
-                    if construction_tab == "Structures":
-                        new_struct = Structures.BuildStructure(Element_selectat, (selected_tile[0], selected_tile[1]), map_locations[Pozitie])
-
-                        if Flerovium - new_struct.price[1] >= 0 and Mithril >= new_struct.price[0]: #check if can afford
-
-                            for node in Node.NodesFound:
-                                if node.CheckBuildingInRadius(new_struct):
-                                    #conditie daca este Node
-                                    if new_struct.name == "Node":
-                                        if Nodes + 1 > Max_Nodes:   #check if can place node
-                                            break
-
-                                        Nodes += 1
-                                        new_node = Node.Node((selected_tile[0] + 0.5, selected_tile[1] + 0.5), 4.5, new_struct)
-                                        for node in Node.NodeList:
-                                            if node != new_node and new_node.CheckCollision(node):
-                                                new_node.Add(node)
-
-                                    #construieste structura
-                                    tiles[selected_tile[1]][selected_tile[0]].structure = new_struct
-                                    refresh_map([[selected_tile[0],selected_tile[1]]])
-                                    if new_struct.special_function != None:
-                                        caster_controllables_vec.append(new_struct)
-                                    controllables_vec.append(new_struct)
-                                    #scade costul
-                                    Flerovium -= new_struct.price[1]
-                                    Mithril -= new_struct.price[0]
-                                    #Adaugarea actiunii in Istoricul actiunilor
-                                    Turn_Actions.append(("new_entity",construction_tab,Element_selectat,map_locations[Pozitie],selected_tile,len(controllables_vec)-1))
+            if  (selected_tile[0], selected_tile[1]) in visible_tiles:
+                if construction_tab == "Structures":
+                    new_struct = Structures.BuildStructure(Element_selectat, (selected_tile[0], selected_tile[1]), map_locations[Pozitie])
+                    for node in Node.NodesFound:
+                        if node.CheckBuildingInRadius(new_struct):
+                            #conditie daca este Node
+                            if new_struct.name == "Node":
+                                if Nodes + 1 > Max_Nodes:   #check if can place node
                                     break
-                        del new_struct
 
-                    elif construction_tab == "Units":
-                        new_unit = Units.BuildUnit(Element_selectat, (selected_tile[0], selected_tile[1]), map_locations[Pozitie])
+                                Nodes += 1
+                                new_node = Node.Node((selected_tile[0] + 0.5, selected_tile[1] + 0.5), 4.5, new_struct)
+                                for node in Node.NodeList:
+                                    if node != new_node and new_node.CheckCollision(node):
+                                        new_node.Add(node)
 
-                        if Flerovium - new_unit.price[1] >= 0 and Mithril >= new_unit.price[0] and Man_power_used + new_unit.price[2] > Max_Man_power: #check if can afford
+                            #construieste structura
+                            tiles[selected_tile[1]][selected_tile[0]].structure = new_struct
+                            refresh_map([[selected_tile[0],selected_tile[1]]])
+                            if new_struct.special_function != None:
+                                caster_controllables_vec.append(new_struct)
+                            controllables_vec.append(new_struct)
+                            #scade costul
+                            Flerovium -= new_struct.price[1]
+                            Mithril -= new_struct.price[0]
+                            #Adaugarea actiunii in Istoricul actiunilor
+                            Turn_Actions.append(("new_entity",construction_tab,Element_selectat,map_locations[Pozitie],selected_tile,len(controllables_vec)-1))
+                            break
+                    del new_struct
 
-                            for node in Node.NodesFound:
-                                if node.CheckBuildingInRadius(new_unit):
-                                    #Se recruteaza noua unitate
-                                    tiles[selected_tile[1]][selected_tile[0]].unit = new_unit
-                                    refresh_map([[selected_tile[0],selected_tile[1]]])
-                                    controllables_vec.append(new_unit)
-                                    #se iau costurile
-                                    Flerovium -= new_unit.price[1]
-                                    Mithril -= new_unit.price[0]
-                                    Man_power_used += new_unit.price[2]
-                                    #Adaugarea actiunii in Istoricul actiunilor
-                                    Turn_Actions.append(("new_entity",construction_tab,Element_selectat,map_locations[Pozitie],selected_tile,len(controllables_vec)-1))
-                                    break
-                        del new_unit
+                elif construction_tab == "Units":
+                    new_unit = Units.BuildUnit(Element_selectat, (selected_tile[0], selected_tile[1]), map_locations[Pozitie])
+                    for node in Node.NodesFound:
+                        if node.CheckBuildingInRadius(new_unit):
+                            #Se recruteaza noua unitate
+                            tiles[selected_tile[1]][selected_tile[0]].unit = new_unit
+                            refresh_map([[selected_tile[0],selected_tile[1]]])
+                            controllables_vec.append(new_unit)
+                            #se iau costurile
+                            Flerovium -= new_unit.price[1]
+                            Mithril -= new_unit.price[0]
+                            Man_power_used += new_unit.price[2]
+                            #Adaugarea actiunii in Istoricul actiunilor
+                            Turn_Actions.append(("new_entity",construction_tab,Element_selectat,map_locations[Pozitie],selected_tile,len(controllables_vec)-1))
+                            break
+                    del new_unit
+                selected_tile_check()
    
 
     #Camera, texture resizing and load function
@@ -1421,6 +1424,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     #detecteaza daca s-a apasat butonul de Build/recruit
                     if Create_Button.on_click(event) and can_build == True :
                         Create_Building()
+                    if Refund_Button.on_click(event) and tile_empty == False :
+                        refund_entity()
                 #daca apesi click dreapta 
                 if event.button == 3:
 
