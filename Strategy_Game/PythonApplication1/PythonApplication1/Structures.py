@@ -37,12 +37,13 @@ def heal_units(val_list):
                 thing.ModifyHealth(hospital_heal)
                 val_list[2].append(thing)
 
-predefined_structures = {   #HP, MaxHp, Area_of_effect(block radius), defence, canShareSpace, fog_range, TrueSight, Price (Mithril, Flerovium), Refund_percent, SpecialFunction
-    "Healing_Point" : [15, 15, 5, 0, False, 4, False, (40, 5), 30/100, "heal_units"],
-    "Node" : [4, 4, 0, 0, False, 3, False, (3,0), 75/100, None],
-    "Radar" : [10, 10, 0, 0, False, 9, True, (20, 0), 20/100, None],
+predefined_structures = {   
+                        #HP, MaxHp, Area_of_effect(block radius), defence, canShareSpace, fog_range, TrueSight, Price (Mithril, Flerovium), Refund_percent, SpecialFunction
+    "Healing_Point" :   [15, 15, 5, 0, False, 4, False, (40, 5), 30/100, "heal_units"],
+    "Node" :            [4, 4, 0, 0, False, 3, False, (3,0), 75/100, None],
+    "Radar" :           [10, 10, 0, 0, False, 9, True, (20, 0), 20/100, None],
     #De acum kernel va trebui sa stea pe ultima pozitie
-    "Kernel" : [100, 100, 0, 3, False, 6, False, (0,0), 0, None]
+    "Kernel" :          [100, 100, 0, 3, False, 6, False, (0,0), 0, None]
     }
 
 def BuildStructure(index, position, owner):
