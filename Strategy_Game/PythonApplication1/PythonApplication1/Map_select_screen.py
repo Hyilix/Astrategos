@@ -178,6 +178,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                 if len(header) != 0 :
                     data_recv = client.recv(int(header))
                     data_recv = pickle.loads(data_recv)
+                    print("DATA_RECV", data_recv)
                     if data_recv[0] == "sa_votat" :
                         Voturi[data_recv[3]]=(data_recv[1],data_recv[2])
                         Transmit_to_all.append((("sa_votat",data_recv[1],data_recv[2],data_recv[3]),cod))
@@ -192,11 +193,13 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                 else :
                     client.close()
                     Killed_Clients.append(cod)
-                    break
+                print("else_killed")
+                break
         except :
             client.close()
             Killed_Clients.append(cod)
-    
+            print("killed_in_exception")
+            
     def reciev_thread_from_server(server) :
         global Confirmation
         global run
@@ -447,6 +450,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                         Coduri_pozitie_client[i] -= 1 
                 Killed_Clients.pop(0)
             while len(Transmit_to_all) > 0 :
+                print("TRANS_TO_ALL", Transmit_to_all[0])
                 data_send = pickle.dumps(Transmit_to_all[0][0])
                 data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                 for i in range(len(CLIENTS)) :
@@ -454,6 +458,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                         CLIENTS[i][0].send(data_send)
                 Transmit_to_all.pop(0)
             while len(Transmit_to_specific) > 0 :
+                print("SPECIFIC_TRANSFER", Transmit_to_specific[0])
                 for i in range(min(len(Transmit_to_specific),100)) :
                     data_send = pickle.dumps(Transmit_to_specific[0][0])
                     data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
