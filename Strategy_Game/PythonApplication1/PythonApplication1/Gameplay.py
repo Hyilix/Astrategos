@@ -1189,6 +1189,14 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         refresh_map([[Changes_from_clients[0][4][0],Changes_from_clients[0][4][1]]])
                         del new_unit
 
+                elif Changes_from_clients[0][0] == "refund_entity" :
+                    if Changes_from_clients[0][1] == "unit":    #Unit case
+                        tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].unit = None
+                        refresh_map([[Changes_from_clients[0][2][0],Changes_from_clients[0][2][1]]])
+                    else : #Structure case. Also don't refund Kernel lol
+                        tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].structure = None
+                        refresh_map([[Changes_from_clients[0][2][0],Changes_from_clients[0][2][1]]])
+                        del my_struct
                 Changes_from_clients.pop(0)
         else :
             #Se verifica daca serverul a trimis lucruri spre acest client
@@ -1239,6 +1247,14 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         tiles[Changes_from_server[0][4][1]][Changes_from_server[0][4][0]].unit = new_unit
                         refresh_map([[Changes_from_server[0][4][0],Changes_from_server[0][4][1]]])
                         del new_unit
+                elif Changes_from_server[0][0] == "refund_entity" :
+                    if Changes_from_server[0][1] == "unit":    #Unit case
+                        tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].unit = None
+                        refresh_map([[Changes_from_server[0][2][0],Changes_from_server[0][2][1]]])
+                    else : #Structure case. Also don't refund Kernel lol
+                        tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].structure = None
+                        refresh_map([[Changes_from_server[0][2][0],Changes_from_server[0][2][1]]])
+                        del my_struct
 
                 Changes_from_server.pop(0)
 
