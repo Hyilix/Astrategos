@@ -453,8 +453,8 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                     if Transmit_to_all[0][1] == None or Coduri_pozitie_client[Transmit_to_all[0][1]] != i :
                         CLIENTS[i][0].send(data_send)
                 Transmit_to_all.pop(0)
-            while len(Transmit_to_specific) > 100 :
-                for i in range(100) :
+            while len(Transmit_to_specific) > 0 :
+                for i in range(min(len(Transmit_to_specific),100)) :
                     data_send = pickle.dumps(Transmit_to_specific[0][0])
                     data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                     CLIENTS[Coduri_pozitie_client[Transmit_to_specific[0][1]]][0].send(data_send)
