@@ -1197,6 +1197,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].structure = None
                         refresh_map([[Changes_from_clients[0][2][0],Changes_from_clients[0][2][1]]])
                         del my_struct
+                elif Changes_from_clients[0][0] == "healed_units" :
+                    hu_vector = Changes_from_clients[0][1]
+                    for i in range(len(hu_vector)) :
+                        tiles[hu_vector[i].position[1]][hu_vector[i].position[0]].unit.ModifyHealth(Structures.hospital_heal)
                 Changes_from_clients.pop(0)
         else :
             #Se verifica daca serverul a trimis lucruri spre acest client
@@ -1255,6 +1259,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].structure = None
                         refresh_map([[Changes_from_server[0][2][0],Changes_from_server[0][2][1]]])
                         del my_struct
+                elif Changes_from_server[0][0] == "healed_units" :
+                    hu_vector = Changes_from_server[0][1]
+                    for i in range(len(hu_vector)) :
+                        tiles[hu_vector[i].position[1]][hu_vector[i].position[0]].unit.ModifyHealth(Structures.hospital_heal)
 
                 Changes_from_server.pop(0)
 
@@ -1264,6 +1272,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             units_healed = []   #a vector to store all units healed. Hospital effects don't stack
             for caster in caster_controllables_vec: #For every caster, call it's function. Because of time and internal issues, the only caster is the hospital.
                 caster.call_special_function([caster, controllables_vec, units_healed])
+            if len(units_healed) != 0 :
+                Turn_Actions.append(("healed_units",units_healed))
             del units_healed
 
             for unit in controllables_vec:  #Allow each unit to make an action
