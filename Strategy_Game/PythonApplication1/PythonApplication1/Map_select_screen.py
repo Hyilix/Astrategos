@@ -258,6 +258,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
         Client_THREADS = []
         Killed_Clients = []
         Transmit_to_all = []
+        Transmit_to_specific = []
         #restart listening threads
         for i in range(len(CLIENTS)) :
             newthread = threading.Thread(target = reciev_thread_from_client , args =(CLIENTS[i][0],CLIENTS[i][1]))
@@ -279,6 +280,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
         Map_load_action = "Loading maps : start"
         if Role == "host" :
             nonlocal Transmit_to_all
+            nonlocal Transmit_to_specific
             directory = "Maps\images"
             for filename in os.listdir(directory):
                 #load map in folder
@@ -304,19 +306,13 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                             map_info = map_info.readlines()
                             #trimite fiecare linie din map_info clientilor care nu au harta
                             for line in map_info :
-                                data_send = pickle.dumps(("new_line",line))
-                                data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
-                                CLIENTS[Coduri_pozitie_client[mapload_related_stuff[0][1]]][0].send(data_send)
+                                Transmit_to_specific.append((("new_line",line),mapload_related_stuff[0][1]))
                             #trimite ca sa terminat fisierul
-                            data_send = pickle.dumps(("end_info_stream",None))
-                            data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
-                            CLIENTS[Coduri_pozitie_client[mapload_related_stuff[0][1]]][0].send(data_send)
+                            Transmit_to_specific.append((("end_info_stream",None),mapload_related_stuff[0][1]))
                             #incepe sa trimita poza hartii
                             Map_load_action = "Loading maps : send map_image of " + adres[12:-4] + " map to the Client nr. " + str(Coduri_pozitie_client[mapload_related_stuff[0][1]]) 
                             Image = Image.open(adres)
-                            data_send = pickle.dumps(("Map_image",Image))
-                            data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
-                            CLIENTS[Coduri_pozitie_client[mapload_related_stuff[0][1]]][0].send(data_send)
+                            Transmit_to_specific.append((("Map_image",Image),mapload_related_stuff[0][1]))
                             del Image
                             Map_load_action = "Loading maps : waiting for the others"
                         mapload_related_stuff.pop(0)
@@ -454,9 +450,15 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                 data_send = pickle.dumps(Transmit_to_all[0][0])
                 data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                 for i in range(len(CLIENTS)) :
-                    if Transmit_to_all[0][1] == None or Coduri_pozitie_client[Transmit_to_all[0][1]] != i  :
+                    if Transmit_to_all[0][1] == None or Coduri_pozitie_client[Transmit_to_all[0][1]] != i :
                         CLIENTS[i][0].send(data_send)
                 Transmit_to_all.pop(0)
+            while len(Transmit_to_specific) > 100 :
+                for i in range(100) :
+                    data_send = pickle.dumps(Transmit_to_specific[0][0])
+                    data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
+                    CLIENTS[Coduri_pozitie_client[Transmit_to_specific[0][1]]][0].send(data_send)
+                    Transmit_to_specific.pop(0)
         else :
             while len(Changes_from_server) > 0 :
                 if Changes_from_server[0][0] == "leftplayer" :
