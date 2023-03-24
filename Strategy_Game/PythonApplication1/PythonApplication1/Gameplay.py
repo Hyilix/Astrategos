@@ -728,7 +728,34 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 controllables_vec.pop(Action[5])
                 selected_tile_check()
         elif Action[0] == "refund_entity":
-            print("not impemented")#TODO: Make this function undo
+            if Action[1] == "structure" : #Structure case. Also don't refund Kernel lol
+                my_struct = Action[3]
+
+                #if the structure was a node
+                if my_struct.name == "Node" :
+                    Nodes += 1
+                    new_node = Node.Node((Action[2][0] + 0.5, Action[2][1] + 0.5), 4.5, new_struct)
+                    for node in Node.NodeList:
+                        if node != new_node and new_node.CheckCollision(node):
+                            new_node.Add(node)
+
+                Flerovium -= int(my_struct.price[1] * my_struct.refund_percent)
+                Mithril -= int(my_struct.price[0] * my_struct.refund_percent)
+
+                tiles[Action[2][1]][Action[2][0]].structure = my_struct
+                refresh_map([[Action[2][0],Action[2][1]]])
+                del my_struct
+
+            elif tiles[selected_tile[1]][selected_tile[0]].unit != None:    #Unit case
+                my_unit = Action[3]
+
+                Flerovium -= int(my_unit.price[1] * my_unit.refund_percent)
+                Mithril -= int(my_unit.price[0] * my_unit.refund_percent)
+                Man_power_used += new_unit.price[2]
+
+                tiles[Action[2][1]][Action[2][0]].unit = my_unit
+                refresh_map([[Action[2][0],Action[2][1]]])
+                del my_unit
 
     def selected_tile_check() :
         global tile_empty
@@ -801,26 +828,30 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     my_struct = tiles[selected_tile[1]][selected_tile[0]].structure
 
                     #if the structure was a node
-                    my_node = Node.getNodeFromObj(my_struct)
-                    my_node.Kill()
-                    del my_node
+                    if my_struct.name == "Node" :
+                        Nodes -=1
+                        my_node = Node.getNodeFromObj(my_struct)
+                        my_node.Kill()
+                        del my_node
 
                     Flerovium += int(my_struct.price[1] * my_struct.refund_percent)
                     Mithril += int(my_struct.price[0] * my_struct.refund_percent)
 
                     tiles[selected_tile[1]][selected_tile[0]].structure = None
                     refresh_map([[selected_tile[0],selected_tile[1]]])
+                    Turn_Actions.append(("refund_entity","structure",selected_tile,my_struct))
                     del my_struct
 
                 elif tiles[selected_tile[1]][selected_tile[0]].unit != None:    #Unit case
                     my_unit = tiles[selected_tile[1]][selected_tile[0]].unit
 
-                    Flerovium += int(my_unit.price[1] * my_struct.refund_percent)
-                    Mithril += int(my_unit.price[0] * my_struct.refund_percent)
+                    Flerovium += int(my_unit.price[1] * my_unit.refund_percent)
+                    Mithril += int(my_unit.price[0] * my_unit.refund_percent)
                     Man_power_used -= new_unit.price[2]
 
                     tiles[selected_tile[1]][selected_tile[0]].unit = None
                     refresh_map([[selected_tile[0],selected_tile[1]]])
+                    Turn_Actions.append(("refund_entity","unit",selected_tile,my_unit))
                     del my_unit
 
     def Create_Building():
