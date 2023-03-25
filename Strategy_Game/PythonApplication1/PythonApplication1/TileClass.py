@@ -117,7 +117,7 @@ class Tile:
         if self.ore != None:
             self.ore.DrawImage(screen, size, special_blit, visible_tuple)
 
-        if full_bright == True or ((visible_tuple != None and self.position in visible_tuple[0]) or visible_tuple == None):  #If you can't see the tile, you can't see structures or units.
+        if (visible_tuple != None and self.position in visible_tuple[0]) or visible_tuple == None:  #If you can't see the tile, you can't see structures or units.
             if self.structure != None:
                 if colorTable[self.structure.owner] == None:
                     del self.structure

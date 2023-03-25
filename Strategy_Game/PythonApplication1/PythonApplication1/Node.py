@@ -13,12 +13,6 @@ NodesFound = []
 
 CircleColor = (204,204,0)
 
-def RemoveNodeFromList(node, ls):
-    for i, o in enumerate(ls):
-        if o.Position == node.Position:
-            del ls[i]
-            break
-
 def InitTree():     #Start from the root, find Nodes, and from these Nodes search until no Node is left out.
     global NodesFound
     NodesFound = [TreeRoot]
@@ -76,15 +70,16 @@ class Node():
             child.Unpower_Children()
 
     def Remove(self):   #Removes the node from the array and the Tree
-        RemoveNodeFromList(self, self.Parent.Children)  
+        NodesFound.remove(self)
+        self.Parent.Children.remove(self)   
         self.Parent = None
         self.Unpower_Children()
-        RemoveNodeFromList(self, NodesFound)
 
     def Kill(self):     #Removes the node from the game
+        NodeList.remove(self)
         self.Remove()
         self.obj = None
-        RemoveNodeFromList(self, NodeList)
+        del self
 
     def Add(self, target):  #Add the Node to the Tree relatively to the target Node. This function shouldn't be called on the Kernel Node.
         #Special Case for connection with Kernel Node:
