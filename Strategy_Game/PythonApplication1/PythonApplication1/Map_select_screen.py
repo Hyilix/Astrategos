@@ -176,6 +176,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
             while True :
                 header = client.recv(10)
                 header = header.decode("utf-8")
+                print("HEADER",header)
                 if len(header) != 0 :
                     data_recv = client.recv(int(header))
                     data_recv = pickle.loads(data_recv)
@@ -186,7 +187,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                     elif data_recv[0] == "I_have_it" :
                         mapload_related_stuff.append(data_recv)
                     elif data_recv[0] == "I_don't_have_it" :
-                        data_recv[1] = cod
+                        data_recv = (data_recv[0], cod)
                         mapload_related_stuff.append(data_recv)
                     elif data_recv[0] == "enter_next_stage" :
                         Confirmatii += 1 
