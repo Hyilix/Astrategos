@@ -207,40 +207,45 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
         global run
         global THE_MAP
         global Map_Locations
-        try :
-            while True :
-                header = server.recv(10)
-                header = header.decode("utf-8")
-                if len(header) != 0 :
-                    data_recv = server.recv(int(header))
-                    data_recv = pickle.loads(data_recv)
-                    if data_recv[0] == "enter_next_stage" :
-                        THE_MAP = data_recv[1]
-                        Map_Locations = data_recv[2]
-                        data_send = pickle.dumps(("enter_next_stage",None))
-                        data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
-                        server.send(data_send)
-                        Confirmation = True
-                        break
-                    elif data_recv[0] == "I_died...Fuck_off":
-                        server.close()
-                        run = False
-                        break
-                    elif data_recv[0] == "verify_map" or data_recv[0] == "new_line" or data_recv[0] == "end_info_stream" or data_recv[0] == "Map_image_part" or data_recv[0] == "Map_image_stream_end" or data_recv[0] == "End_of_map_sync" :
-                        mapload_related_stuff.append(data_recv)
-                    else :
-                        Changes_from_server.append(data_recv)
-                else :
-                    print("iesit aici 1")
-                    print(time.time())
+        #try :
+        while True :
+            header = server.recv(10)
+            header = header.decode("utf-8")
+            print(header)
+            if len(header) != 0 :
+                data_recv = server.recv(int(header))
+                print(len(data_recv))
+                while len(data_recv) != int(header) :
+                    data_recv += server.recv(int(header) - len(data_recv))
+                data_recv = pickle.loads(data_recv)
+                print(data_recv)
+                if data_recv[0] == "enter_next_stage" :
+                    THE_MAP = data_recv[1]
+                    Map_Locations = data_recv[2]
+                    data_send = pickle.dumps(("enter_next_stage",None))
+                    data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
+                    server.send(data_send)
+                    Confirmation = True
+                    break
+                elif data_recv[0] == "I_died...Fuck_off":
                     server.close()
                     run = False
                     break
-        except :
-            print("iesit aici 2")
-            print(time.time())
-            server.close()
-            run = False
+                elif data_recv[0] == "verify_map" or data_recv[0] == "new_line" or data_recv[0] == "end_info_stream" or data_recv[0] == "Map_image_part" or data_recv[0] == "Map_image_stream_end" or data_recv[0] == "End_of_map_sync" :
+                    mapload_related_stuff.append(data_recv)
+                else :
+                    Changes_from_server.append(data_recv)
+            else :
+                print("iesit aici 1")
+                print(time.time())
+                server.close()
+                run = False
+                break
+        #except :
+            #print("iesit aici 2")
+            #print(time.time())
+            #server.close()
+            #run = False
 
     cooldown = Next_stage_cooldown
 
@@ -307,7 +312,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                         elif mapload_related_stuff[0][0] == "I_don't_have_it" :
                             Map_load_action = "Loading maps : send map_info of " + adres[12:-4] + " map to the Client nr. " + str(Coduri_pozitie_client[mapload_related_stuff[0][1]]) 
                             #incepe sa trimita map_info
-                            map_info = open("Maps\info" +"\\" + adres[12:-4] + ".txt","r")
+                            map_info = open("Maps/info/"  + adres[12:-4] + ".txt","rb")
                             map_info = map_info.readlines()
                             #trimite fiecare linie din map_info clientilor care nu au harta
                             for line in map_info :
@@ -318,8 +323,8 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                             Map_load_action = "Loading maps : send map_image of " + adres[12:-4] + " map to the Client nr. " + str(Coduri_pozitie_client[mapload_related_stuff[0][1]]) 
                             image = pickle.dumps(Image.open(adres))
                             while len(image) > 0 :
-                                Transmit_to_specific.append((("Map_image_part",image[:min(4096,len(image))]),mapload_related_stuff[0][1]))
-                                image = image[min(4096,len(image)):]
+                                Transmit_to_specific.append((("Map_image_part",image[:min(2048,len(image))]),mapload_related_stuff[0][1]))
+                                image = image[min(2048,len(image)):]
                             Transmit_to_specific.append((("Map_image_stream_end",None),mapload_related_stuff[0][1]))
                             del image
                             Map_load_action = "Loading maps : waiting for the others"
@@ -355,7 +360,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                                 #da load la harta
                                 Map_load_action = "Loading maps : load " + adres[12:-4] + " map"
                                 MAPS.append(pygame.image.load(adres))
-                                map_names.append(adres[12:-4])
+                                map_names.append(adres[26:-4])
                                 data_send = pickle.dumps(("I_have_it",None))
                                 data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                                 Connection.send(data_send)
@@ -366,8 +371,8 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                                 #creaza un nou txt unde va pune map_info-ul primit de la server
                                 Map_load_action = "Loading maps : receiving map_info from the host"
                                 new_adres = "Maps\Imported_Maps\info" +"\\" 
-                                map_file = open(new_adres + mapload_related_stuff[0][1] + ".txt","w+")
-                                image = ""
+                                map_file = open(new_adres + mapload_related_stuff[0][1] + ".txt","wb")
+                                image = b''
                                 data_send = pickle.dumps(("I_don't_have_it",mapload_related_stuff[0][1]))
                                 data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                                 Connection.send(data_send)
@@ -385,7 +390,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                     elif mapload_related_stuff[0][0] == "Map_image_part" :
                         #obtinerea imaginii
                         Map_load_action = "Loading maps : load " + the_name + " map"
-                        image += mapload_related_stuff[0][1]
+                        image += mapload_related_stuff[0][1][0:len(mapload_related_stuff[0][1])]
                     elif mapload_related_stuff[0][0] == "Map_image_stream_end" :
                         new_adres = "Maps\Imported_Maps\images" +"\\" 
                         #da load la imagine

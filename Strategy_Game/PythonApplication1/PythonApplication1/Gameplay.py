@@ -898,7 +898,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         global tiles_per_row
         nonlocal mapSurfaceNormal 
         nonlocal mapSurface
-
+        infile = None
+        print(map_name)
         try:
             infile = open("Maps/info/" + map_name + ".txt", "rb")
         except:
