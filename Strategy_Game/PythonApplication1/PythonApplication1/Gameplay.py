@@ -459,6 +459,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     WIN.blit(large_img_element_afisat,(HEIGHT/3+25,HEIGHT*4/5+25))
                     nonlocal can_build
                     can_build = True
+                    #afisarea caracteristicilor elementului selectat
                     #desenarea butonului de Build sau recruit
                     if construction_tab == "Units" :
                         Create_Button.text = FontT.render("Recruit",True,(0,0,0))
