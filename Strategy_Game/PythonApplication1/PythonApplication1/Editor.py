@@ -180,7 +180,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
         print(map_name)
         now = datetime.datetime.now()
         add_str = now.strftime("%Y_%m_%d_%H_%M_%S")
-        pygame.image.save(mapSurfaceNormal, "Maps/images/" + map_name + "@" + add_str + ".jpg")
+        pygame.image.save(pygame.transform.scale(mapSurfaceNormal,(320,320)), "Maps/images/" + map_name + "@" + add_str + ".jpg")
         used_textures = []
         with open("Maps/info/" + map_name + "@" + add_str + ".txt", "wb") as outfile:   #Saves the map into the file.
             pickle.dump(rows, outfile)
