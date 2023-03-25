@@ -179,8 +179,9 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                 header = header.decode("utf-8")
                 if len(header) != 0 :
                     data_recv = client.recv(int(header))
+                    while len(data_recv) != int(header) :
+                        data_recv += client.recv(int(header) - len(data_recv))
                     data_recv = pickle.loads(data_recv)
-                    print("DATA_RECV", data_recv)
                     if data_recv[0] == "sa_votat" :
                         Voturi[data_recv[3]]=(data_recv[1],data_recv[2])
                         Transmit_to_all.append((("sa_votat",data_recv[1],data_recv[2],data_recv[3]),cod))
@@ -195,57 +196,48 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                 else :
                     client.close()
                     Killed_Clients.append(cod)
-                    print("else_killed")
                     break
         except :
             client.close()
             Killed_Clients.append(cod)
-            print("killed_in_exception")
             
     def reciev_thread_from_server(server) :
         global Confirmation
         global run
         global THE_MAP
         global Map_Locations
-        #try :
-        while True :
-            header = server.recv(10)
-            header = header.decode("utf-8")
-            print(header)
-            if len(header) != 0 :
-                data_recv = server.recv(int(header))
-                print(len(data_recv))
-                while len(data_recv) != int(header) :
-                    data_recv += server.recv(int(header) - len(data_recv))
-                data_recv = pickle.loads(data_recv)
-                print(data_recv)
-                if data_recv[0] == "enter_next_stage" :
-                    THE_MAP = data_recv[1]
-                    Map_Locations = data_recv[2]
-                    data_send = pickle.dumps(("enter_next_stage",None))
-                    data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
-                    server.send(data_send)
-                    Confirmation = True
-                    break
-                elif data_recv[0] == "I_died...Fuck_off":
+        try :
+            while True :
+                header = server.recv(10)
+                header = header.decode("utf-8")
+                if len(header) != 0 :
+                    data_recv = server.recv(int(header))
+                    while len(data_recv) != int(header) :
+                        data_recv += server.recv(int(header) - len(data_recv))
+                    data_recv = pickle.loads(data_recv)
+                    if data_recv[0] == "enter_next_stage" :
+                        THE_MAP = data_recv[1]
+                        Map_Locations = data_recv[2]
+                        data_send = pickle.dumps(("enter_next_stage",None))
+                        data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
+                        server.send(data_send)
+                        Confirmation = True
+                        break
+                    elif data_recv[0] == "I_died...Fuck_off":
+                        server.close()
+                        run = False
+                        break
+                    elif data_recv[0] == "verify_map" or data_recv[0] == "new_line" or data_recv[0] == "end_info_stream" or data_recv[0] == "Map_image_part" or data_recv[0] == "Map_image_stream_end" or data_recv[0] == "End_of_map_sync" :
+                        mapload_related_stuff.append(data_recv)
+                    else :
+                        Changes_from_server.append(data_recv)
+                else :
                     server.close()
                     run = False
                     break
-                elif data_recv[0] == "verify_map" or data_recv[0] == "new_line" or data_recv[0] == "end_info_stream" or data_recv[0] == "Map_image_part" or data_recv[0] == "Map_image_stream_end" or data_recv[0] == "End_of_map_sync" :
-                    mapload_related_stuff.append(data_recv)
-                else :
-                    Changes_from_server.append(data_recv)
-            else :
-                print("iesit aici 1")
-                print(time.time())
-                server.close()
-                run = False
-                break
-        #except :
-            #print("iesit aici 2")
-            #print(time.time())
-            #server.close()
-            #run = False
+        except :
+            server.close()
+            run = False
 
     cooldown = Next_stage_cooldown
 
@@ -340,7 +332,6 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                         directory = "Maps\images"
                         the_name = mapload_related_stuff[0][1]
                         try :
-                            print("start first try")
                             adres = os.path.join(directory, mapload_related_stuff[0][1] + ".jpg")
                             #da load la harta
                             Map_load_action = "Loading maps : load " + adres[12:-4] + " map"
@@ -350,12 +341,9 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                             data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                             Connection.send(data_send)
                             Map_load_action = "Loading maps : waiting for the others"
-                            print("end first try")
                         except :
                             directory = "Maps\Imported_Maps\images"
-                            print("first except")
                             try:
-                                print("start second try")
                                 adres = os.path.join(directory, mapload_related_stuff[0][1] + ".jpg")
                                 #da load la harta
                                 Map_load_action = "Loading maps : load " + adres[12:-4] + " map"
@@ -365,9 +353,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                                 data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                                 Connection.send(data_send)
                                 Map_load_action = "Loading maps : waiting for the others"
-                                print("end second try")
                             except:
-                                print("second except")
                                 #creaza un nou txt unde va pune map_info-ul primit de la server
                                 Map_load_action = "Loading maps : receiving map_info from the host"
                                 new_adres = "Maps\Imported_Maps\info" +"\\" 
@@ -376,7 +362,6 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                                 data_send = pickle.dumps(("I_don't_have_it",mapload_related_stuff[0][1]))
                                 data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                                 Connection.send(data_send)
-                                print("perfect exit")
 
                     elif mapload_related_stuff[0][0] == "new_line" :
                         #pune o noua linie in file
@@ -463,7 +448,6 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                         Coduri_pozitie_client[i] -= 1 
                 Killed_Clients.pop(0)
             while len(Transmit_to_all) > 0 :
-                print("TRANS_TO_ALL", Transmit_to_all[0])
                 data_send = pickle.dumps(Transmit_to_all[0][0])
                 data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                 for i in range(len(CLIENTS)) :
@@ -471,7 +455,6 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                         CLIENTS[i][0].send(data_send)
                 Transmit_to_all.pop(0)
             while len(Transmit_to_specific) > 0 :
-                print("SPECIFIC_TRANSFER", Transmit_to_specific[0])
                 for i in range(min(len(Transmit_to_specific),100)) :
                     data_send = pickle.dumps(Transmit_to_specific[0][0])
                     data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send

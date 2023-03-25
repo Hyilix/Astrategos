@@ -124,6 +124,8 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
 
                 if len(header) != 0 :
                     data_recv = server.recv(int(header))
+                    while len(data_recv) != int(header) :
+                        data_recv += server.recv(int(header) - len(data_recv))
                     data_recv = pickle.loads(data_recv)
                     if data_recv[0] == "enter_next_stage" :
                         data_send = pickle.dumps(("enter_next_stage",None))
@@ -194,6 +196,8 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                 header = header.decode("utf-8")
                 if len(header) != 0 :
                     data_recv = client.recv(int(header))
+                    while len(data_recv) != int(header) :
+                        data_recv += client.recv(int(header) - len(data_recv))
                     data_recv = pickle.loads(data_recv)
                     if data_recv[0] == "want_change_color" :
                         if Selected_Colors[data_recv[1]] == 0 :

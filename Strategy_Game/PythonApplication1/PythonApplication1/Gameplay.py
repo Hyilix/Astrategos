@@ -596,6 +596,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 header = header.decode("utf-8")
                 if len(header) != 0 :
                     data_recv = client.recv(int(header))
+                    while len(data_recv) != int(header) :
+                        data_recv += client.recv(int(header) - len(data_recv))
                     data_recv = pickle.loads(data_recv)
                     #se va proceseaza mesajul de la clinet
                     if data_recv[0] == "timer is zero" :
@@ -626,6 +628,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 header = header.decode("utf-8")
                 if len(header) != 0 :
                     data_recv = server.recv(int(header))
+                    while len(data_recv) != int(header) :
+                        data_recv += server.recv(int(header) - len(data_recv))
                     data_recv = pickle.loads(data_recv)
                     if data_recv[0] == "I_died...Fuck_off":
                         server.close()
