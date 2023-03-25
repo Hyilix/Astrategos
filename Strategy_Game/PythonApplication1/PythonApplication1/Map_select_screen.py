@@ -141,6 +141,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
             text = Font.render(Map_load_action,True,(0,0,0))
             text_rect = text.get_rect()
             text_rect.center = (WIDTH/2, HEIGHT - HEIGHT/50 -12)
+            pygame.draw.rect(WIN, (255, 255, 255), text_rect)
             WIN.blit(text,text_rect)
             pygame.display.update(text_rect[0],text_rect[1],text_rect[2],text_rect[3])
 
@@ -176,7 +177,6 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
             while True :
                 header = client.recv(10)
                 header = header.decode("utf-8")
-                print("HEADER",header)
                 if len(header) != 0 :
                     data_recv = client.recv(int(header))
                     data_recv = pickle.loads(data_recv)
@@ -211,11 +211,9 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
             while True :
                 header = server.recv(10)
                 header = header.decode("utf-8")
-
                 if len(header) != 0 :
                     data_recv = server.recv(int(header))
                     data_recv = pickle.loads(data_recv)
-                    print(data_recv)
                     if data_recv[0] == "enter_next_stage" :
                         THE_MAP = data_recv[1]
                         Map_Locations = data_recv[2]
@@ -228,7 +226,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                         server.close()
                         run = False
                         break
-                    elif data_recv[0] == "verify_map" or data_recv[0] == "new_line" or data_recv[0] == "end_info_stream" or data_recv[0] == "Map_image" or data_recv[0] == "End_of_map_sync" :
+                    elif data_recv[0] == "verify_map" or data_recv[0] == "new_line" or data_recv[0] == "end_info_stream" or data_recv[0] == "Map_image_part" or data_recv[0] == "Map_image_stream_end" or data_recv[0] == "End_of_map_sync" :
                         mapload_related_stuff.append(data_recv)
                     else :
                         Changes_from_server.append(data_recv)
@@ -318,8 +316,11 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                             Transmit_to_specific.append((("end_info_stream",None),mapload_related_stuff[0][1]))
                             #incepe sa trimita poza hartii
                             Map_load_action = "Loading maps : send map_image of " + adres[12:-4] + " map to the Client nr. " + str(Coduri_pozitie_client[mapload_related_stuff[0][1]]) 
-                            image = Image.open(adres)
-                            Transmit_to_specific.append((("Map_image",image),mapload_related_stuff[0][1]))
+                            image = pickle.dumps(Image.open(adres))
+                            while len(image) > 0 :
+                                Transmit_to_specific.append((("Map_image_part",image[:min(4096,len(image))]),mapload_related_stuff[0][1]))
+                                image = image[min(4096,len(image)):]
+                            Transmit_to_specific.append((("Map_image_stream_end",None),mapload_related_stuff[0][1]))
                             del image
                             Map_load_action = "Loading maps : waiting for the others"
                         mapload_related_stuff.pop(0)
@@ -366,6 +367,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                                 Map_load_action = "Loading maps : receiving map_info from the host"
                                 new_adres = "Maps\Imported_Maps\info" +"\\" 
                                 map_file = open(new_adres + mapload_related_stuff[0][1] + ".txt","w+")
+                                image = ""
                                 data_send = pickle.dumps(("I_don't_have_it",mapload_related_stuff[0][1]))
                                 data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                                 Connection.send(data_send)
@@ -380,15 +382,17 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                         map_file.close()
                         Map_load_action = "Loading maps : receiving map_image from the host"
 
-                    elif mapload_related_stuff[0][0] == "Map_image" :
+                    elif mapload_related_stuff[0][0] == "Map_image_part" :
                         #obtinerea imaginii
-                        image = mapload_related_stuff[0][1]
+                        Map_load_action = "Loading maps : load " + the_name + " map"
+                        image += mapload_related_stuff[0][1]
+                    elif mapload_related_stuff[0][0] == "Map_image_stream_end" :
                         new_adres = "Maps\Imported_Maps\images" +"\\" 
                         #da load la imagine
-                        Map_load_action = "Loading maps : load " + the_name + " map"
-                        MAPS.append(image)
+                        image = pickle.loads(image)
                         image = image.save(new_adres + the_name + ".jpg" )
                         del image
+                        MAPS.append(pygame.image.load(new_adres+the_name+".jpg"))
                         map_names.append(the_name)
                         #trimiterea serverului ca acum are imaginea
                         data_send = pickle.dumps(("I_have_it",None))
