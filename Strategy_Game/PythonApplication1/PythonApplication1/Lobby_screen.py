@@ -41,7 +41,7 @@ Text_draw = []
 HEADERSIZE = 10
 SPACE = "          "
 
-Next_stage_cooldown = 3
+Next_stage_cooldown = 3*60
 
 Confirmation = False
 Confirmatii = 0
@@ -98,6 +98,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
             data_recv = server.recv(int(header))
             playeri = pickle.loads(data_recv)
             #serveru va trimite pozitia clientului printre playeri
+
             header = server.recv(10)
             header = header.decode("utf-8")
             data_recv = server.recv(int(header))
@@ -124,8 +125,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
 
                 if len(header) != 0 :
                     data_recv = server.recv(int(header))
-                    while len(data_recv) != int(header) :
-                        data_recv += server.recv(int(header) - len(data_recv))
                     data_recv = pickle.loads(data_recv)
                     if data_recv[0] == "enter_next_stage" :
                         data_send = pickle.dumps(("enter_next_stage",None))
@@ -196,8 +195,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                 header = header.decode("utf-8")
                 if len(header) != 0 :
                     data_recv = client.recv(int(header))
-                    while len(data_recv) != int(header) :
-                        data_recv += client.recv(int(header) - len(data_recv))
                     data_recv = pickle.loads(data_recv)
                     if data_recv[0] == "want_change_color" :
                         if Selected_Colors[data_recv[1]] == 0 :
@@ -302,22 +299,13 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
 
         pygame.display.update()
     
-    def timer_thread ():
-        nonlocal cooldown
-        global run
-        while run :
-            time.sleep(0.05)
-            if All_Readied == True and started_cooldown == True and cooldown > 0 :
-                cooldown -=0.05
-
     #variabilele necesare chiar pentru ambele roluri
     global Pozitie
     Costumization_Tab = False
     All_Readied = False
     started_cooldown = False
     cooldown = -1
-    time_thread = threading.Thread(target = timer_thread)
-    time_thread.start() 
+
     #Se creaza toate variabilele de care are nevoie Hostul
     if Role == "host" :
         Pozitie = 0
@@ -368,11 +356,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
 
     clock = pygame.time.Clock()
     run = True
-
-    if Role == "client" :
-        while Pozitie == None :
-            time.sleep(0.1)
-
     while run :
         clock.tick(FPS)
         #Creaza textul pe care il afiseaza pentru FPS-uri
@@ -459,9 +442,11 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                 #Incepe timerul pentru intrarea in urmatorul stage
                 started_cooldown = True
                 cooldown = Next_stage_cooldown
+            elif All_Readied == True and started_cooldown == True and cooldown > 0 :
+                cooldown -= 1
             elif All_Readied == False and started_cooldown == True :
                 started_cooldown = False
-            if DEBUG_START_NOW == True or cooldown <= 0 and  started_cooldown == True:
+            if DEBUG_START_NOW == True or cooldown == 0 and  started_cooldown == True:
                 if Role == "host" :
                     if sent_reaquest == False :
                         In_next_stage = True
@@ -603,7 +588,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                             CLIENTS[i][0].close()
                     Connection.close()
                     break
-                    time_thread.join()
                     
 
 

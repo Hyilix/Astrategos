@@ -6,11 +6,10 @@ import threading
 import math
 import time
 import random
-from PIL import Image
 
 from Gameplay import gameplay
 
-DEBUG_START_NOW = False
+DEBUG_START_NOW = True
 
 pygame.init()
 
@@ -39,11 +38,17 @@ run = False
 
 Confirmation = False
 Confirmatii = 0
-Next_stage_cooldown = 15
+Next_stage_cooldown = 15*60
 
 MAPS = []
 map_names =[]
-
+directory = "Maps\images"
+print("Loading maps")
+for filename in os.listdir(directory):
+    adres=os.path.join(directory, filename)
+    print(adres)
+    MAPS.append(pygame.image.load(adres))
+    map_names.append(adres[12:-4])
 
 resized = False
 THE_MAP = -1
@@ -55,17 +60,12 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
     global resized
     global THE_MAP
     global Map_Locations 
-    global map_names
-
     THE_MAP = -1
-    nr_harti = 0
     Map_Locations = []
-    MAPS = []
-    map_names = []
 
-    Loaded_maps = False
     WIN.fill((255,255,255))
     pygame.display.update()
+
 
     # determinarea marimilor icon-urilor playerilor
     diametru = (HEIGHT - 5*50 - HEIGHT/25)/4
@@ -76,19 +76,24 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
 
     #dimensiunea hartilor afisate
     scroll = 0
-    latura = 320
+    latura = 300
     pe_rand = 6
     while (pe_rand >4) and (Map_part-50-latura*pe_rand)/(pe_rand-1)<20 :
         pe_rand -= 1
     while (Map_part-50-latura*pe_rand)/(pe_rand-1)<20 and latura >200 :
-        latura -= 32
+        latura -= 25
     spatiu_intre = (Map_part-50-latura*pe_rand)/(pe_rand-1)
+    #incarcarea hartiilor
+    nr_harti = len(MAPS)
+    if resized == False :
+        for i in range(nr_harti):
+            MAPS[i] = pygame.transform.scale(MAPS[i], (latura, latura))
+        resized = True
 
+    #stabilirea limitei de scroll
     limita_scroll =  100  + HEIGHT/25 + math.ceil(nr_harti/pe_rand) *latura + math.ceil(nr_harti/pe_rand) *25 - HEIGHT
     if limita_scroll <0 :
         limita_scroll = 0
-
-    Map_load_action = ""
     def draw_window () :
         #afisarea hartilor
         pygame.draw.rect(WIN,(80, 82, 81),(50,75,Map_part,HEIGHT- 100 - HEIGHT/25))
@@ -131,20 +136,10 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
             text_rect.center = (WIDTH-diametru/2-50,y+diametru/2+25)
             WIN.blit(text,text_rect)
         pygame.display.update((50 + Map_part,50,diametru + 100,HEIGHT-50 - HEIGHT/25))
-        if Loaded_maps == True :
-            #desenarea barii de cooldown 
-            pygame.draw.rect(WIN, (255, 255, 255), pygame.Rect(0, HEIGHT - HEIGHT/25 , WIDTH,HEIGHT/25 ))
-            pygame.draw.rect(WIN, (230, 0, 0), pygame.Rect(0, HEIGHT - HEIGHT/25 , cooldown*WIDTH/Next_stage_cooldown,HEIGHT/25 ))
-            pygame.display.update(0,HEIGHT-HEIGHT/25,WIDTH,HEIGHT/25)
-        else :
-            #afiseaza ce actiune se face la loading maps
-            text = Font.render(Map_load_action,True,(0,0,0))
-            text_rect = text.get_rect()
-            text_rect.center = (WIDTH/2, HEIGHT - HEIGHT/50 -12)
-            pygame.draw.rect(WIN, (255, 255, 255), text_rect)
-            WIN.blit(text,text_rect)
-            pygame.display.update(text_rect[0],text_rect[1],text_rect[2],text_rect[3])
-
+        #desenarea barii de cooldown 
+        pygame.draw.rect(WIN, (255, 255, 255), pygame.Rect(0, HEIGHT - HEIGHT/25 , WIDTH,HEIGHT/25 ))
+        pygame.draw.rect(WIN, (230, 0, 0), pygame.Rect(0, HEIGHT - HEIGHT/25 , cooldown*WIDTH/Next_stage_cooldown,HEIGHT/25 ))
+        pygame.display.update(0,HEIGHT-HEIGHT/25,WIDTH,HEIGHT/25)
     #functia care  determina ce harta castiga dupa vot
     def rezultat_voturi () :
         harti_voturi = {}
@@ -172,24 +167,16 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
 
     def reciev_thread_from_client(client,cod) :
         global Confirmatii
-        nonlocal mapload_related_stuff
         try :
             while True :
                 header = client.recv(10)
                 header = header.decode("utf-8")
                 if len(header) != 0 :
                     data_recv = client.recv(int(header))
-                    while len(data_recv) != int(header) :
-                        data_recv += client.recv(int(header) - len(data_recv))
                     data_recv = pickle.loads(data_recv)
                     if data_recv[0] == "sa_votat" :
                         Voturi[data_recv[3]]=(data_recv[1],data_recv[2])
                         Transmit_to_all.append((("sa_votat",data_recv[1],data_recv[2],data_recv[3]),cod))
-                    elif data_recv[0] == "I_have_it" :
-                        mapload_related_stuff.append(data_recv)
-                    elif data_recv[0] == "I_don't_have_it" :
-                        data_recv = (data_recv[0], cod)
-                        mapload_related_stuff.append(data_recv)
                     elif data_recv[0] == "enter_next_stage" :
                         Confirmatii += 1 
                         break
@@ -200,7 +187,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
         except :
             client.close()
             Killed_Clients.append(cod)
-            
+    
     def reciev_thread_from_server(server) :
         global Confirmation
         global run
@@ -210,10 +197,9 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
             while True :
                 header = server.recv(10)
                 header = header.decode("utf-8")
+
                 if len(header) != 0 :
                     data_recv = server.recv(int(header))
-                    while len(data_recv) != int(header) :
-                        data_recv += server.recv(int(header) - len(data_recv))
                     data_recv = pickle.loads(data_recv)
                     if data_recv[0] == "enter_next_stage" :
                         THE_MAP = data_recv[1]
@@ -227,8 +213,6 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                         server.close()
                         run = False
                         break
-                    elif data_recv[0] == "verify_map" or data_recv[0] == "new_line" or data_recv[0] == "end_info_stream" or data_recv[0] == "Map_image_part" or data_recv[0] == "Map_image_stream_end" or data_recv[0] == "End_of_map_sync" :
-                        mapload_related_stuff.append(data_recv)
                     else :
                         Changes_from_server.append(data_recv)
                 else :
@@ -239,19 +223,6 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
             server.close()
             run = False
 
-    cooldown = Next_stage_cooldown
-
-    def timer_thread ():
-        nonlocal cooldown
-        while cooldown > 0 :
-            time.sleep(0.1)
-            if cooldown > 0 and Loaded_maps == True :
-                if All_voted :
-                    cooldown -=0.3
-                else :
-                    cooldown -=0.1
-
-    mapload_related_stuff = []
     #declararea variabilelor rolurilor specifice
     if Role == "host" :
         global Confirmatii
@@ -260,7 +231,6 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
         Client_THREADS = []
         Killed_Clients = []
         Transmit_to_all = []
-        Transmit_to_specific = []
         #restart listening threads
         for i in range(len(CLIENTS)) :
             newthread = threading.Thread(target = reciev_thread_from_client , args =(CLIENTS[i][0],CLIENTS[i][1]))
@@ -271,164 +241,16 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
         recv_from_server = threading.Thread(target = reciev_thread_from_server, args = (Connection,))
         recv_from_server.start()
         Changes_from_server = []
-
-    def sync_maps() :
-        nonlocal Loaded_maps
-        nonlocal Map_load_action
-        nonlocal mapload_related_stuff
-        global MAPS
-        global map_names
-        #incepe procesul de sincronizare a hartilor
-        Map_load_action = "Loading maps : start"
-        if Role == "host" :
-            nonlocal Transmit_to_all
-            nonlocal Transmit_to_specific
-            directory = "Maps\images"
-            for filename in os.listdir(directory):
-                #load map in folder
-                adres=os.path.join(directory, filename)
-                Map_load_action = "Loading maps : load " + adres[12:-4] + " map"
-                MAPS.append(pygame.image.load(adres))
-                map_names.append(adres[12:-4])
-                #send verifications to clients
-                Map_load_action = "Loading maps : send verification for " + adres[12:-4] + " map"
-                Transmit_to_all.append((("verify_map",adres[12:-4]),None))
-                verified = 0
-                Map_load_action = "Loading maps : waiting for the others"
-                #wait for confirmation/errors
-                while verified != len(playeri) -1 :
-                    time.sleep(0.1)
-                    while len(mapload_related_stuff) > 0 :
-                        if mapload_related_stuff[0][0] == "I_have_it" :
-                            verified += 1
-                        elif mapload_related_stuff[0][0] == "I_don't_have_it" :
-                            Map_load_action = "Loading maps : send map_info of " + adres[12:-4] + " map to the Client nr. " + str(Coduri_pozitie_client[mapload_related_stuff[0][1]]) 
-                            #incepe sa trimita map_info
-                            map_info = open("Maps/info/"  + adres[12:-4] + ".txt","rb")
-                            map_info = map_info.readlines()
-                            #trimite fiecare linie din map_info clientilor care nu au harta
-                            for line in map_info :
-                                Transmit_to_specific.append((("new_line",line),mapload_related_stuff[0][1]))
-                            #trimite ca sa terminat fisierul
-                            Transmit_to_specific.append((("end_info_stream",None),mapload_related_stuff[0][1]))
-                            #incepe sa trimita poza hartii
-                            Map_load_action = "Loading maps : send map_image of " + adres[12:-4] + " map to the Client nr. " + str(Coduri_pozitie_client[mapload_related_stuff[0][1]]) 
-                            image = pickle.dumps(Image.open(adres))
-                            while len(image) > 0 :
-                                Transmit_to_specific.append((("Map_image_part",image[:min(2048,len(image))]),mapload_related_stuff[0][1]))
-                                image = image[min(2048,len(image)):]
-                            Transmit_to_specific.append((("Map_image_stream_end",None),mapload_related_stuff[0][1]))
-                            del image
-                            Map_load_action = "Loading maps : waiting for the others"
-                        mapload_related_stuff.pop(0)
-            Transmit_to_all.append((("End_of_map_sync",None),None))
-        else :
-            r = True
-            while r :
-                time.sleep(0.1)
-                while len(mapload_related_stuff) > 0 :
-
-                    if mapload_related_stuff[0][0] == "verify_map" :
-                        directory = "Maps\images"
-                        the_name = mapload_related_stuff[0][1]
-                        try :
-                            adres = os.path.join(directory, mapload_related_stuff[0][1] + ".jpg")
-                            #da load la harta
-                            Map_load_action = "Loading maps : load " + adres[12:-4] + " map"
-                            MAPS.append(pygame.image.load(adres))
-                            map_names.append(adres[12:-4])
-                            data_send = pickle.dumps(("I_have_it",None))
-                            data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
-                            Connection.send(data_send)
-                            Map_load_action = "Loading maps : waiting for the others"
-                        except :
-                            directory = "Maps\Imported_Maps\images"
-                            try:
-                                adres = os.path.join(directory, mapload_related_stuff[0][1] + ".jpg")
-                                #da load la harta
-                                Map_load_action = "Loading maps : load " + adres[12:-4] + " map"
-                                MAPS.append(pygame.image.load(adres))
-                                map_names.append(adres[26:-4])
-                                data_send = pickle.dumps(("I_have_it",None))
-                                data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
-                                Connection.send(data_send)
-                                Map_load_action = "Loading maps : waiting for the others"
-                            except:
-                                #creaza un nou txt unde va pune map_info-ul primit de la server
-                                Map_load_action = "Loading maps : receiving map_info from the host"
-                                new_adres = "Maps\Imported_Maps\info" +"\\" 
-                                map_file = open(new_adres + mapload_related_stuff[0][1] + ".txt","wb")
-                                image = b''
-                                data_send = pickle.dumps(("I_don't_have_it",mapload_related_stuff[0][1]))
-                                data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
-                                Connection.send(data_send)
-
-                    elif mapload_related_stuff[0][0] == "new_line" :
-                        #pune o noua linie in file
-                        map_file.write(mapload_related_stuff[0][1])
-
-                    elif mapload_related_stuff[0][0] == "end_info_stream" :
-                        #inchide fisierul in care am salvat map_info
-                        map_file.close()
-                        Map_load_action = "Loading maps : receiving map_image from the host"
-
-                    elif mapload_related_stuff[0][0] == "Map_image_part" :
-                        #obtinerea imaginii
-                        Map_load_action = "Loading maps : load " + the_name + " map"
-                        image += mapload_related_stuff[0][1][0:len(mapload_related_stuff[0][1])]
-                    elif mapload_related_stuff[0][0] == "Map_image_stream_end" :
-                        new_adres = "Maps\Imported_Maps\images" +"\\" 
-                        #da load la imagine
-                        image = pickle.loads(image)
-                        image = image.save(new_adres + the_name + ".jpg" )
-                        del image
-                        MAPS.append(pygame.image.load(new_adres+the_name+".jpg"))
-                        map_names.append(the_name)
-                        #trimiterea serverului ca acum are imaginea
-                        data_send = pickle.dumps(("I_have_it",None))
-                        data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
-                        Connection.send(data_send)
-                        Map_load_action = "Loading maps : waiting for the others"
-                    elif mapload_related_stuff[0][0] == "End_of_map_sync" :
-                        r = False
-                    mapload_related_stuff.pop(0)
-
-        Loaded_maps = True
-
     #variabile de care au nevoie amandoi 
     Voturi = [None,None,None,None]
     All_voted = False
 
     clock = pygame.time.Clock()
     run=True
-
-    thread_smt_on = True
-    sync_maps_thread = threading.Thread(target = sync_maps)
-    sync_maps_thread.start()
-
-
-    time_thread = threading.Thread(target = timer_thread)
-    time_thread.start() 
+    cooldown = Next_stage_cooldown
     while run==True :
         clock.tick(FPS)
         draw_window()
-
-        if thread_smt_on == True :
-            #incarcarea hartiilor
-            nr_harti = len(MAPS)
-            if resized == False :
-                for i in range(nr_harti):
-                    MAPS[i] = pygame.transform.scale(MAPS[i], (latura, latura))
-                resized = True
-            #stabilirea limitei de scroll
-            limita_scroll =  100  + HEIGHT/25 + math.ceil(nr_harti/pe_rand) *latura + math.ceil(nr_harti/pe_rand) *25 - HEIGHT
-            if limita_scroll <0 :
-                limita_scroll = 0
-
-        #se verifica daca se poate inchide threadul de load maps
-        if Loaded_maps == True and thread_smt_on == True :
-            sync_maps_thread.join()
-            thread_smt_on = False
 
         if Role == "host":
             while len(Killed_Clients) > 0 :
@@ -451,15 +273,9 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                 data_send = pickle.dumps(Transmit_to_all[0][0])
                 data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                 for i in range(len(CLIENTS)) :
-                    if Transmit_to_all[0][1] == None or Coduri_pozitie_client[Transmit_to_all[0][1]] != i :
+                    if Transmit_to_all[0][1] == None or Coduri_pozitie_client[Transmit_to_all[0][1]] != i  :
                         CLIENTS[i][0].send(data_send)
                 Transmit_to_all.pop(0)
-            while len(Transmit_to_specific) > 0 :
-                for i in range(min(len(Transmit_to_specific),100)) :
-                    data_send = pickle.dumps(Transmit_to_specific[0][0])
-                    data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
-                    CLIENTS[Coduri_pozitie_client[Transmit_to_specific[0][1]]][0].send(data_send)
-                    Transmit_to_specific.pop(0)
         else :
             while len(Changes_from_server) > 0 :
                 if Changes_from_server[0][0] == "leftplayer" :
@@ -475,23 +291,20 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
 
         # se verifica daca toti au votat si se modifica timerul in functie de asta
         if All_voted == False :
-            if len(playeri) == 1 :
-                if Voturi[0] !=None :
-                    All_voted = True
-            elif len(playeri) == 2  :
-                if Voturi[0] !=None and Voturi[1] != None :
-                    All_voted = True
-            elif len(playeri) == 3  :
-                if Voturi[0] !=None and Voturi[1] != None and Voturi[2] != None :
-                    All_voted = True
+            All_voted = True
+            for i in range(len(playeri)) :
+                if Voturi[i] == None :
+                    All_voted = False
+                    break
+        if cooldown>0 :
+            if DEBUG_START_NOW == True and All_voted:
+                cooldown = 0
+
+            if All_voted :
+                cooldown -=3
             else :
-                if Voturi[0] !=None and Voturi[1] != None and Voturi[2] != None and Voturi[3] != None :
-                    All_voted = True
-
-        elif  DEBUG_START_NOW == True :
-            cooldown = 0
-
-        if cooldown <= 0 :
+                cooldown -=1
+        else :
             if Role == "host" :
                 if sent_reaquest == False :
                     #DETERMINA CARE ESTE HARTA CARE A CASTIGAT VOTUL 
@@ -528,7 +341,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
             if event.type == pygame.QUIT :
                 pygame.quit()
                 os._exit(0)
-            elif event.type == pygame.MOUSEBUTTONDOWN and Loaded_maps == True :
+            elif event.type == pygame.MOUSEBUTTONDOWN :
                 if event.button == 4 :
                     scroll = scroll - 50
                     if scroll<0 :
@@ -560,9 +373,10 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                                              break
                                      break
 
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE :
+                run =False
 
     #Returnarea variabilelor necesare care s-ar fi putut schimba si motivul intoarceri in lobby
-    time_thread.join()
     if Role == "host" :
         return playeri, CLIENTS, Coduri_pozitie_client
     else :
