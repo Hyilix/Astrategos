@@ -1,4 +1,5 @@
 from ctypes import Structure
+from select import select
 import pygame 
 import os 
 import socket
@@ -161,6 +162,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     global selected_controllable
     global enlighted_surface
     can_build = False
+
+    enlighted_surface = None
 
     def draw_path_star(length, y, x):
         visited_vec = []
@@ -818,9 +821,19 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
     def selected_tile_check() :
         global tile_empty
+        global enlighted_surface
         if tiles[selected_tile[1]][selected_tile[0]].unit == None and tiles[selected_tile[1]][selected_tile[0]].structure == None and tiles[selected_tile[1]][selected_tile[0]].ore == None :
             tile_empty = True
         else :
+            nonlocal Element_selectat
+            global selected_controllable
+            if tiles[selected_tile[1]][selected_tile[0]].unit != None and tiles[selected_tile[1]][selected_tile[0]].unit.owner == map_locations[Pozitie] and (selected_tile[0], selected_tile[1]) in visible_tiles:
+                enlighted_surface = draw_enlighted_tiles()
+                selected_controllable = tiles[selected_tile[1]][selected_tile[0]].unit
+                if selected_controllable.canMove == True:
+                    determine_enlighted_tiles()
+                    enlighted_surface = draw_enlighted_tiles(True)
+                    Element_selectat = None
             tile_empty = False
 
 
