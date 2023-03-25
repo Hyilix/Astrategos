@@ -466,6 +466,14 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         nonlocal can_build
                         can_build = True
                         #afisarea caracteristicilor elementului selectat
+                        if construction_tab == "Units" :
+                            text = Font.render("HP: "+str(Units.predefined_Units[u_names[Element_selectat]][1]) + "   DEF: " + str(Units.predefined_Units[u_names[Element_selectat]][3]) +"   ATK: " +str(Units.predefined_Units[u_names[Element_selectat]][2])+"   Range: " +str(Units.predefined_Units[u_names[Element_selectat]][4])+"   MRange: " +str(Units.predefined_Units[u_names[Element_selectat]][5]) ,True,(0,0,0))
+                        elif construction_tab == "Structures" :
+                            text = Font.render("HP: "+str(Structures.predefined_structures[s_names[Element_selectat]][1]) + "   DEF: " + str(Structures.predefined_structures[s_names[Element_selectat]][3]) ,True,(0,0,0))
+                        y_center  = (HEIGHT*4/5 + ButtonR_rect[1])/2
+                        text_rect = text.get_rect()
+                        x_afis = HEIGHT/3 + HEIGHT/5 + (WIDTH-HEIGHT*2/3 - HEIGHT/5 - text_rect[2])/2
+                        WIN.blit(text,(x_afis,y_center-text_rect[3]/2))
                         #desenarea butonului de Build sau recruit
                         if construction_tab == "Units" :
                             Create_Button.text = FontT.render("Recruit",True,(0,0,0))
