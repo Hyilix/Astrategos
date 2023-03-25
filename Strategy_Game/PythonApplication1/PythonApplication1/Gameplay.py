@@ -225,7 +225,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     4 : None
     }
 
-    TileClass.full_bright = False  #if full_bright == True, player can see the whole map at any time, like in editor.
+    TileClass.full_bright = True  #if full_bright == True, player can see the whole map at any time, like in editor.
 
     index = 0
     for player in playeri:  #assign colors to structures and units. Any structure/unit with 
@@ -580,6 +580,51 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3+20,HEIGHT*4/5+20,large_img_element_afisat.get_width()+10,large_img_element_afisat.get_width()+10))
                     pygame.draw.rect(WIN,Gri,(HEIGHT/3+25,HEIGHT*4/5+25,large_img_element_afisat.get_width(),large_img_element_afisat.get_width()))
                     WIN.blit(large_img_element_afisat,(HEIGHT/3+25,HEIGHT*4/5+25))
+                    if tiles[selected_tile[1]][selected_tile[0]].unit != None :
+                        type = "unit"
+                        entity =  tiles[selected_tile[1]][selected_tile[0]].unit
+                    else :
+                        type = "structure"
+                        entity =  tiles[selected_tile[1]][selected_tile[0]].structure
+                    #Afisarea caracteristicilor structurii/unitatii selectate
+                    x_afis = HEIGHT/3 + HEIGHT/5
+                    y_center  = (HEIGHT*4/5 + ButtonR_rect[1])/2
+                    text = Font.render("HP:",True,(0,0,0))
+                    text_rect = text.get_rect()
+                    text_rect.center = (x_afis + text_rect[2]/2,y_center)
+                    WIN.blit(text,text_rect)
+                    x_afis += text_rect[2] + 5
+                    #Healthbar
+                    pygame.draw.rect(WIN,(25,25,25),(x_afis,y_center-18,256,36))
+                    pygame.draw.rect(WIN,Gri,(x_afis+3,y_center-15,250,30))
+                    pygame.draw.rect(WIN,Light_Green,(x_afis+3,y_center-15,250*entity.HP/entity.MaxHP,30))
+                    text = Font.render(str(entity.HP)+"/"+str(entity.MaxHP),True,(0,0,0))
+                    text_rect = text.get_rect()
+                    WIN.blit(text,(x_afis + 10,y_center-text_rect[3]/2))
+                    x_afis += 250 + 25
+                    #Afisare defence
+                    text = Font.render("DEFENCE: "+ str(entity.defence),True,(0,0,0))
+                    text_rect = text.get_rect()
+                    text_rect.center = (x_afis + text_rect[2]/2,y_center)
+                    WIN.blit(text,text_rect)
+                    x_afis += text_rect[2] + 25
+                    if type != "structure" :
+                        text = Font.render("DAMAGE: "+ str(entity.attack),True,(0,0,0))
+                        text_rect = text.get_rect()
+                        text_rect.center = (x_afis + text_rect[2]/2,y_center)
+                        WIN.blit(text,text_rect)
+                        x_afis += text_rect[2] + 25
+                        text = Font.render("RANGE: "+ str(entity.range),True,(0,0,0))
+                        text_rect = text.get_rect()
+                        text_rect.center = (x_afis + text_rect[2]/2,y_center)
+                        WIN.blit(text,text_rect)
+                        x_afis += text_rect[2] + 25
+                        text = Font.render("Movement: "+ str(entity.move_range),True,(0,0,0))
+                        text_rect = text.get_rect()
+                        text_rect.center = (x_afis + text_rect[2]/2,y_center)
+                        WIN.blit(text,text_rect)
+                        x_afis += text_rect[2] + 25
+
                     #Afiseaza si butonul de Refund
                     if (tiles[selected_tile[1]][selected_tile[0]].structure != None and tiles[selected_tile[1]][selected_tile[0]].structure.name == "Kernel") == 0 and ((tiles[selected_tile[1]][selected_tile[0]].structure != None and tiles[selected_tile[1]][selected_tile[0]].structure.owner == map_locations[Pozitie]) or (tiles[selected_tile[1]][selected_tile[0]].unit != None and tiles[selected_tile[1]][selected_tile[0]].unit.owner == map_locations[Pozitie])) :
                         pygame.draw.rect(WIN,(25,25,25),ButtonR_rect)
