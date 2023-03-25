@@ -331,314 +331,315 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             pygame.draw.rect(WIN,Light_Green,(x_tile+current_tile_length-math.ceil(grosime_outline*CurrentCamera.zoom),y_tile,math.ceil(grosime_outline*CurrentCamera.zoom),current_tile_length))
 
         #desenarea Ui - ului 
+        if SHOW_UI == True :
         #chat windowul daca este deschis
-        if Chat_window :
-            pygame.draw.rect(WIN,(25,25,25),((WIDTH-260)/2 + 260,0,5,HEIGHT))
-            pygame.draw.rect(WIN,(225, 223, 240),((WIDTH-260)/2 + 260 + 5,0,(WIDTH-260)/2-5,HEIGHT))
-            #writing box
-            if writing_in_chat == False :
-                pygame.draw.rect(WIN,(25,25,25),((WIDTH-260)/2 + 265,HEIGHT -55,(WIDTH-260)/2 - 5,5))
-            else :
-                pygame.draw.rect(WIN,Light_Green,((WIDTH-260)/2 + 265,HEIGHT -55,(WIDTH-260)/2 - 5,5))
-                pygame.draw.rect(WIN,Light_Green,((WIDTH-260)/2 + 260,HEIGHT-55,5,55))
-            #mesajul care se scrie 
-            litere_afisate = 70
-            text = Font.render(message[-litere_afisate:],True,Player_Colors[playeri[Pozitie][1]])
-            text_rect = text.get_rect()
-            while text_rect[2] > (WIDTH-260)/2 -15 :
-                litere_afisate -= 1
+            if Chat_window :
+                pygame.draw.rect(WIN,(25,25,25),((WIDTH-260)/2 + 260,0,5,HEIGHT))
+                pygame.draw.rect(WIN,(225, 223, 240),((WIDTH-260)/2 + 260 + 5,0,(WIDTH-260)/2-5,HEIGHT))
+                #writing box
+                if writing_in_chat == False :
+                    pygame.draw.rect(WIN,(25,25,25),((WIDTH-260)/2 + 265,HEIGHT -55,(WIDTH-260)/2 - 5,5))
+                else :
+                    pygame.draw.rect(WIN,Light_Green,((WIDTH-260)/2 + 265,HEIGHT -55,(WIDTH-260)/2 - 5,5))
+                    pygame.draw.rect(WIN,Light_Green,((WIDTH-260)/2 + 260,HEIGHT-55,5,55))
+                #mesajul care se scrie 
+                litere_afisate = 70
                 text = Font.render(message[-litere_afisate:],True,Player_Colors[playeri[Pozitie][1]])
                 text_rect = text.get_rect()
+                while text_rect[2] > (WIDTH-260)/2 -15 :
+                    litere_afisate -= 1
+                    text = Font.render(message[-litere_afisate:],True,Player_Colors[playeri[Pozitie][1]])
+                    text_rect = text.get_rect()
 
-            WIN.blit(text,((WIDTH-260)/2 + 270,HEIGHT-35))
-            #mesajele scrise pana acum
-            x = (WIDTH-260)/2 + 270
-            y = HEIGHT - 90
-            for i in range(len(chat_archive)-1 - chat_scroll,-1,-1) :
-                WIN.blit(chat_archive[i][0],(x,y))
-                if chat_archive[i][1] == 0 :
-                    y  -= 20
-                else :
-                    y -= 30
-                if  y < HEIGHT/25 + 5 - 10 :
-                    break
+                WIN.blit(text,((WIDTH-260)/2 + 270,HEIGHT-35))
+                #mesajele scrise pana acum
+                x = (WIDTH-260)/2 + 270
+                y = HEIGHT - 90
+                for i in range(len(chat_archive)-1 - chat_scroll,-1,-1) :
+                    WIN.blit(chat_archive[i][0],(x,y))
+                    if chat_archive[i][1] == 0 :
+                        y  -= 20
+                    else :
+                        y -= 30
+                    if  y < HEIGHT/25 + 5 - 10 :
+                        break
                 
-        #Partea de sus
-        pygame.draw.rect(WIN,(225, 223, 240),(0,0,WIDTH,HEIGHT/25))
-        pygame.draw.rect(WIN,(25,25,25),(0,HEIGHT/25,WIDTH,5))
-        #Afisarea resurselor detinute
-        x_coord = 5
-        WIN.blit(mithril_icon,(x_coord,(HEIGHT/25-32)/2))
-        x_coord = x_coord +32 + 10
-        mit_count = Font.render(str(Mithril),True,(75, 91, 248))
-        mit_rect = mit_count.get_rect()
-        WIN.blit(mit_count,(x_coord,(HEIGHT/25-mit_rect[3])/2))
-        x_coord = mit_rect[2] + 10 + x_coord
-        fle_count = Font.render(str(Flerovium),True,(152, 65, 182))
-        fle_rect = fle_count.get_rect()
-        WIN.blit(flerovium_icon,(x_coord,(HEIGHT/25-32)/2))
-        x_coord = x_coord + 10 + 32
-        WIN.blit(fle_count,(x_coord,(HEIGHT/25-fle_rect[3])/2))
-        x_coord = x_coord + fle_rect[2]+10
-        man_power_count = Font.render(("  " + str(Man_power_used))[-3:]+' / '+ str(Max_Man_power),True,(0,0,0))
-        man_rect = man_power_count.get_rect()
-        WIN.blit(man_power_icon,(x_coord,(HEIGHT/25-32)/2))
-        x_coord = x_coord + 32 + 10
-        WIN.blit(man_power_count,(x_coord,(HEIGHT/25-man_rect[3])/2))
-        x_coord = x_coord + man_rect[2] + 10
-        nodes_count = Font.render(("  " + str(Nodes))[-2:] + " / " + str(Max_Nodes),True,(0,0,0))
-        nodes_rect = nodes_count.get_rect()
-        WIN.blit(nodes_icon,(x_coord,(HEIGHT/25-32)/2))
-        x_coord = x_coord + 10 + 32
-        WIN.blit(nodes_count,(x_coord,(HEIGHT/25-nodes_rect[3])/2))
-        #turn part
-        pygame.draw.rect(WIN,Player_Colors[playeri[Whos_turn][1]],((WIDTH-260)/2,0,260,HEIGHT*2/25 + 5))
-        pygame.draw.rect(WIN,(225, 223, 240),((WIDTH-250)/2,0,250,HEIGHT*2/25 ))
-        text = Font.render(playeri[Whos_turn][0]+"'s TURN", True, (0,0,0))
-        text_rect = text.get_rect()
-        text_rect.center = (WIDTH/2,20)
-        WIN.blit(text,text_rect)
-        text = Font.render("Timer: "+("  "+str(timer))[-3:], True, (0,0,0))
-        text_rect = text.get_rect()
-        text_rect.center = (WIDTH/2,60)
-        WIN.blit(text,text_rect)
-        #butonul de end Turn
-        if Whos_turn == Pozitie :
-            pygame.draw.rect(WIN,Player_Colors[playeri[Whos_turn][1]],((WIDTH-260)/2,HEIGHT*2/25 + 5,260,35))
-            pygame.draw.rect(WIN,(225, 223, 240),((WIDTH-250)/2,HEIGHT*2/25 + 5,250,30))
-            text = Font.render("End Turn", True, (150,0,0))
+            #Partea de sus
+            pygame.draw.rect(WIN,(225, 223, 240),(0,0,WIDTH,HEIGHT/25))
+            pygame.draw.rect(WIN,(25,25,25),(0,HEIGHT/25,WIDTH,5))
+            #Afisarea resurselor detinute
+            x_coord = 5
+            WIN.blit(mithril_icon,(x_coord,(HEIGHT/25-32)/2))
+            x_coord = x_coord +32 + 10
+            mit_count = Font.render(str(Mithril),True,(75, 91, 248))
+            mit_rect = mit_count.get_rect()
+            WIN.blit(mit_count,(x_coord,(HEIGHT/25-mit_rect[3])/2))
+            x_coord = mit_rect[2] + 10 + x_coord
+            fle_count = Font.render(str(Flerovium),True,(152, 65, 182))
+            fle_rect = fle_count.get_rect()
+            WIN.blit(flerovium_icon,(x_coord,(HEIGHT/25-32)/2))
+            x_coord = x_coord + 10 + 32
+            WIN.blit(fle_count,(x_coord,(HEIGHT/25-fle_rect[3])/2))
+            x_coord = x_coord + fle_rect[2]+10
+            man_power_count = Font.render(("  " + str(Man_power_used))[-3:]+' / '+ str(Max_Man_power),True,(0,0,0))
+            man_rect = man_power_count.get_rect()
+            WIN.blit(man_power_icon,(x_coord,(HEIGHT/25-32)/2))
+            x_coord = x_coord + 32 + 10
+            WIN.blit(man_power_count,(x_coord,(HEIGHT/25-man_rect[3])/2))
+            x_coord = x_coord + man_rect[2] + 10
+            nodes_count = Font.render(("  " + str(Nodes))[-2:] + " / " + str(Max_Nodes),True,(0,0,0))
+            nodes_rect = nodes_count.get_rect()
+            WIN.blit(nodes_icon,(x_coord,(HEIGHT/25-32)/2))
+            x_coord = x_coord + 10 + 32
+            WIN.blit(nodes_count,(x_coord,(HEIGHT/25-nodes_rect[3])/2))
+            #turn part
+            pygame.draw.rect(WIN,Player_Colors[playeri[Whos_turn][1]],((WIDTH-260)/2,0,260,HEIGHT*2/25 + 5))
+            pygame.draw.rect(WIN,(225, 223, 240),((WIDTH-250)/2,0,250,HEIGHT*2/25 ))
+            text = Font.render(playeri[Whos_turn][0]+"'s TURN", True, (0,0,0))
             text_rect = text.get_rect()
-            text_rect.center = (WIDTH/2,HEIGHT*2/25 + 20)
+            text_rect.center = (WIDTH/2,20)
             WIN.blit(text,text_rect)
-        #butonul de chat din dreapta sus
-        pygame.draw.rect(WIN,(25,25,25),(WIDTH-80,0,80,80))
-        pygame.draw.rect(WIN,(225, 223, 240),(WIDTH-75,0,75,75))
-        WIN.blit(chat_icon,(WIDTH - 68,8))
-        if chat_notification == True :
-            pygame.draw.circle(WIN,Red,(WIDTH-10,20),8)
-        #Partea de jos a UI-ului
-        # draw mini_map part
-        pygame.draw.rect(WIN,(25,25,25),(0,HEIGHT-HEIGHT/3,HEIGHT/3,HEIGHT/3))
-        #desenarea chenarului su informatiile despre ce este selectat
-        if selected_tile[0] !=None :
-            if tile_empty == True :
-                pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3,HEIGHT*4/5-5 , WIDTH - HEIGHT*2/3,5))
-                pygame.draw.rect(WIN,(225, 223, 240),(HEIGHT/3,HEIGHT*4/5 , WIDTH - HEIGHT*2/3,HEIGHT/5))
-                #se afiseaza meniul de constructie daca tile-ul este empty
-                pygame.draw.rect(WIN,(25,25,25),(WIDTH- HEIGHT/3, HEIGHT - HEIGHT/3 -55,5,HEIGHT/3 + 55))
-                pygame.draw.rect(WIN,(25,25,25),(WIDTH- HEIGHT/3, HEIGHT - HEIGHT/3 -5,HEIGHT/3,5))
-                pygame.draw.rect(WIN,(25,25,25),(WIDTH- HEIGHT/3, HEIGHT - HEIGHT/3 -60,HEIGHT/3,5))
-                pygame.draw.rect(WIN,(225, 223, 240),(WIDTH- HEIGHT/3 +5, HEIGHT - HEIGHT/3,HEIGHT/3-5,HEIGHT/3))
-                pygame.draw.rect(WIN,(225, 223, 240),(WIDTH- HEIGHT/3 +5, HEIGHT - HEIGHT/3-55,HEIGHT/3-5,50))
-                #draw the name of the menu
-                text = FontT.render(construction_tab,True,(0,0,0))
+            text = Font.render("Timer: "+("  "+str(timer))[-3:], True, (0,0,0))
+            text_rect = text.get_rect()
+            text_rect.center = (WIDTH/2,60)
+            WIN.blit(text,text_rect)
+            #butonul de end Turn
+            if Whos_turn == Pozitie :
+                pygame.draw.rect(WIN,Player_Colors[playeri[Whos_turn][1]],((WIDTH-260)/2,HEIGHT*2/25 + 5,260,35))
+                pygame.draw.rect(WIN,(225, 223, 240),((WIDTH-250)/2,HEIGHT*2/25 + 5,250,30))
+                text = Font.render("End Turn", True, (150,0,0))
                 text_rect = text.get_rect()
-                text_rect.center = (WIDTH - (HEIGHT/3 -5)/2,HEIGHT*2/3 - 30)
+                text_rect.center = (WIDTH/2,HEIGHT*2/25 + 20)
                 WIN.blit(text,text_rect)
-                # afisarea lucrurilor din meniul de constructii
-                if construction_tab == "Structures" :
-                    elements = len(structures)
-                elif construction_tab == "Units" :
-                    elements = len(units)
-                else :
-                    elements = 0
-                for i in range(construction_tab_scroll,math.ceil(elements/3)) :
-                    y_rand = HEIGHT*2/3 +10 + i*70 + i*10 - C_menu_scroll
-                    if y_rand+35 > HEIGHT*2/3 and y_rand < HEIGHT  :
-                        for j in range(min(elements-i*3,3)) :
-                            x_coloana = WIDTH-HEIGHT/3+5 + j*70 + (j+0.5)*spatiu_intre
-                            if  Element_selectat != i*3 + j :
-                                pygame.draw.rect(WIN,(57, 56, 57),(x_coloana,y_rand,70,70))
-                            else :
-                                pygame.draw.rect(WIN,Light_Green,(x_coloana,y_rand,70,70))
-                            pygame.draw.rect(WIN,Gri,(x_coloana+2,y_rand+2,66,66))
-                            if construction_tab == "Structures" :
-                                WIN.blit(structures[i*3+j],(x_coloana+3,y_rand+3))
-                            elif construction_tab == "Units" :
-                                WIN.blit(units[i*3+j],(x_coloana+3,y_rand+3))
-                #Afisarea imaginii si informatiilor elementului selectat din meniul de structuri
-                if Element_selectat != None :
-                    #desenare chenarul in care sa se incadreze imaginea
-                    pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3+20,HEIGHT*4/5+20,large_img_element_afisat.get_width()+10,large_img_element_afisat.get_width()+10))
-                    pygame.draw.rect(WIN,Gri,(HEIGHT/3+25,HEIGHT*4/5+25,large_img_element_afisat.get_width(),large_img_element_afisat.get_width()))
-                    WIN.blit(large_img_element_afisat,(HEIGHT/3+25,HEIGHT*4/5+25))
-                    nonlocal can_build
-                    can_build = True
-                    #afisarea caracteristicilor elementului selectat
-                    #desenarea butonului de Build sau recruit
-                    if construction_tab == "Units" :
-                        Create_Button.text = FontT.render("Recruit",True,(0,0,0))
-                        #desenarea resurselor necesare construirii 
-                        cost = Units.predefined_Units[u_names[Element_selectat]][7]
-                        lungime = 0
-                        M_cost = None
-                        F_cost = None
-                        MP_cost = None
-                        if cost[0] != None and cost[0] != 0 :
-                            if Mithril >= cost[0] :
-                                M_cost = Font.render(str(cost[0]),True,Green)
-                            else :
-                                can_build = False
-                                M_cost = Font.render(str(cost[0]),True,Red)
-                            M_rect =  M_cost.get_rect()
-                        if cost[1] != None and cost[1] != 0 :
-                            if Flerovium >= cost[1] :
-                                F_cost = Font.render(str(cost[1]),True,Green)
-                            else :
-                                can_build = False
-                                F_cost = Font.render(str(cost[1]),True,Red)
-                            F_rect = F_cost.get_rect()
-                        if cost[2] != None and cost[2] != 0 :
-                            if Max_Man_power - Man_power_used >= cost[2] :
-                                MP_cost = Font.render(str(cost[2]),True,Green)
-                            else :
-                                can_build = False
-                                MP_cost = Font.render(str(cost[2]),True,Red)
-                            MP_rect = MP_cost.get_rect()
-                        #determinarea lungimii costului cand e afisat
-                        if M_cost != None :
-                            lungime += 32 + 10 + M_rect[2]
-                            if F_cost !=None or MP_cost !=None :
-                                lungime += 10
-                        if F_cost != None :
-                            lungime += 32 + 10 + F_rect[2]
-                            if  MP_cost !=None :
-                                lungime += 10
-                        if MP_cost != None :
-                            lungime += 32 + 10 + MP_rect[2]
-                        #afisarea costurilor
-                        start_x = ButtonC_rect[0] + ButtonC_rect[2]/2 - lungime/2 
-                        y_center = ButtonC_rect[1] -21
-                        if M_cost != None :
-                            WIN.blit(mithril_icon,(start_x,y_center - 16))
-                            start_x += 42
-                            WIN.blit(M_cost,(start_x,y_center - M_rect[3]/2)) 
-                            start_x += M_rect[2] + 10
-                        if F_cost != None :
-                            WIN.blit(flerovium_icon,(start_x,y_center - 16))
-                            start_x += 42
-                            WIN.blit(F_cost,(start_x,y_center - F_rect[3]/2)) 
-                            start_x += F_rect[2] + 10
-                        if MP_cost != None :
-                            WIN.blit(man_power_icon,(start_x,y_center - 16))
-                            start_x += 42
-                            WIN.blit(MP_cost,(start_x,y_center - MP_rect[3]/2)) 
+            #butonul de chat din dreapta sus
+            pygame.draw.rect(WIN,(25,25,25),(WIDTH-80,0,80,80))
+            pygame.draw.rect(WIN,(225, 223, 240),(WIDTH-75,0,75,75))
+            WIN.blit(chat_icon,(WIDTH - 68,8))
+            if chat_notification == True :
+                pygame.draw.circle(WIN,Red,(WIDTH-10,20),8)
+            #Partea de jos a UI-ului
+            # draw mini_map part
+            pygame.draw.rect(WIN,(25,25,25),(0,HEIGHT-HEIGHT/3,HEIGHT/3,HEIGHT/3))
+            #desenarea chenarului su informatiile despre ce este selectat
+            if selected_tile[0] !=None :
+                if tile_empty == True :
+                    pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3,HEIGHT*4/5-5 , WIDTH - HEIGHT*2/3,5))
+                    pygame.draw.rect(WIN,(225, 223, 240),(HEIGHT/3,HEIGHT*4/5 , WIDTH - HEIGHT*2/3,HEIGHT/5))
+                    #se afiseaza meniul de constructie daca tile-ul este empty
+                    pygame.draw.rect(WIN,(25,25,25),(WIDTH- HEIGHT/3, HEIGHT - HEIGHT/3 -55,5,HEIGHT/3 + 55))
+                    pygame.draw.rect(WIN,(25,25,25),(WIDTH- HEIGHT/3, HEIGHT - HEIGHT/3 -5,HEIGHT/3,5))
+                    pygame.draw.rect(WIN,(25,25,25),(WIDTH- HEIGHT/3, HEIGHT - HEIGHT/3 -60,HEIGHT/3,5))
+                    pygame.draw.rect(WIN,(225, 223, 240),(WIDTH- HEIGHT/3 +5, HEIGHT - HEIGHT/3,HEIGHT/3-5,HEIGHT/3))
+                    pygame.draw.rect(WIN,(225, 223, 240),(WIDTH- HEIGHT/3 +5, HEIGHT - HEIGHT/3-55,HEIGHT/3-5,50))
+                    #draw the name of the menu
+                    text = FontT.render(construction_tab,True,(0,0,0))
+                    text_rect = text.get_rect()
+                    text_rect.center = (WIDTH - (HEIGHT/3 -5)/2,HEIGHT*2/3 - 30)
+                    WIN.blit(text,text_rect)
+                    # afisarea lucrurilor din meniul de constructii
+                    if construction_tab == "Structures" :
+                        elements = len(structures)
+                    elif construction_tab == "Units" :
+                        elements = len(units)
                     else :
-                        Create_Button.text = FontT.render("Build",True,(0,0,0))
-                        #desenarea resurselor necesare construirii 
-                        cost = Structures.predefined_structures[s_names[Element_selectat]][7]
-                        lungime = 0
-                        M_cost = None
-                        F_cost = None
-                        if cost[0] != None and cost[0] != 0 :
-                            if Mithril >= cost[0] :
-                                M_cost = Font.render(str(cost[0]),True,Green)
-                            else :
-                                can_build = False
-                                M_cost = Font.render(str(cost[0]),True,Red)
-                            M_rect =  M_cost.get_rect()
-                        if cost[1] != None and cost[1] != 0 :
-                            if Flerovium >= cost[1] :
-                                F_cost = Font.render(str(cost[1]),True,Green)
-                            else :
-                                can_build = False
-                                F_cost = Font.render(str(cost[1]),True,Red)
-                            F_rect = F_cost.get_rect()
-
-                        if s_names[Element_selectat] == "Node" and Max_Nodes == Nodes :
-                            can_build = False
-
-                        #determinarea lungimii costului cand e afisat
-                        if M_cost !=None and F_cost !=None  :
-                            lungime = 64 + 30 + M_rect[2] + F_rect[2]
-                        elif M_cost !=None or F_cost !=None :
-                            lungime = 32 +  10 
+                        elements = 0
+                    for i in range(construction_tab_scroll,math.ceil(elements/3)) :
+                        y_rand = HEIGHT*2/3 +10 + i*70 + i*10 - C_menu_scroll
+                        if y_rand+35 > HEIGHT*2/3 and y_rand < HEIGHT  :
+                            for j in range(min(elements-i*3,3)) :
+                                x_coloana = WIDTH-HEIGHT/3+5 + j*70 + (j+0.5)*spatiu_intre
+                                if  Element_selectat != i*3 + j :
+                                    pygame.draw.rect(WIN,(57, 56, 57),(x_coloana,y_rand,70,70))
+                                else :
+                                    pygame.draw.rect(WIN,Light_Green,(x_coloana,y_rand,70,70))
+                                pygame.draw.rect(WIN,Gri,(x_coloana+2,y_rand+2,66,66))
+                                if construction_tab == "Structures" :
+                                    WIN.blit(structures[i*3+j],(x_coloana+3,y_rand+3))
+                                elif construction_tab == "Units" :
+                                    WIN.blit(units[i*3+j],(x_coloana+3,y_rand+3))
+                    #Afisarea imaginii si informatiilor elementului selectat din meniul de structuri
+                    if Element_selectat != None :
+                        #desenare chenarul in care sa se incadreze imaginea
+                        pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3+20,HEIGHT*4/5+20,large_img_element_afisat.get_width()+10,large_img_element_afisat.get_width()+10))
+                        pygame.draw.rect(WIN,Gri,(HEIGHT/3+25,HEIGHT*4/5+25,large_img_element_afisat.get_width(),large_img_element_afisat.get_width()))
+                        WIN.blit(large_img_element_afisat,(HEIGHT/3+25,HEIGHT*4/5+25))
+                        nonlocal can_build
+                        can_build = True
+                        #afisarea caracteristicilor elementului selectat
+                        #desenarea butonului de Build sau recruit
+                        if construction_tab == "Units" :
+                            Create_Button.text = FontT.render("Recruit",True,(0,0,0))
+                            #desenarea resurselor necesare construirii 
+                            cost = Units.predefined_Units[u_names[Element_selectat]][7]
+                            lungime = 0
+                            M_cost = None
+                            F_cost = None
+                            MP_cost = None
+                            if cost[0] != None and cost[0] != 0 :
+                                if Mithril >= cost[0] :
+                                    M_cost = Font.render(str(cost[0]),True,Green)
+                                else :
+                                    can_build = False
+                                    M_cost = Font.render(str(cost[0]),True,Red)
+                                M_rect =  M_cost.get_rect()
+                            if cost[1] != None and cost[1] != 0 :
+                                if Flerovium >= cost[1] :
+                                    F_cost = Font.render(str(cost[1]),True,Green)
+                                else :
+                                    can_build = False
+                                    F_cost = Font.render(str(cost[1]),True,Red)
+                                F_rect = F_cost.get_rect()
+                            if cost[2] != None and cost[2] != 0 :
+                                if Max_Man_power - Man_power_used >= cost[2] :
+                                    MP_cost = Font.render(str(cost[2]),True,Green)
+                                else :
+                                    can_build = False
+                                    MP_cost = Font.render(str(cost[2]),True,Red)
+                                MP_rect = MP_cost.get_rect()
+                            #determinarea lungimii costului cand e afisat
                             if M_cost != None :
-                                lungime += M_rect[3] 
-                            else :
-                                lungime += F_rect[3]
-                        #afisarea costurilor
-                        start_x = ButtonC_rect[0] + ButtonC_rect[2]/2 - lungime/2 
-                        y_center = ButtonC_rect[1] -21
-                        if M_cost != None :
-                            WIN.blit(mithril_icon,(start_x,y_center - 16))
-                            start_x += 42
-                            WIN.blit(M_cost,(start_x,y_center - M_rect[3]/2)) 
-                            start_x += M_rect[2] +10
-                        if F_cost != None :
-                            WIN.blit(flerovium_icon,(start_x,y_center - 16))
-                            start_x += 42
-                            WIN.blit(F_cost,(start_x,y_center - F_rect[3]/2)) 
-                            start_x += F_rect[2]
+                                lungime += 32 + 10 + M_rect[2]
+                                if F_cost !=None or MP_cost !=None :
+                                    lungime += 10
+                            if F_cost != None :
+                                lungime += 32 + 10 + F_rect[2]
+                                if  MP_cost !=None :
+                                    lungime += 10
+                            if MP_cost != None :
+                                lungime += 32 + 10 + MP_rect[2]
+                            #afisarea costurilor
+                            start_x = ButtonC_rect[0] + ButtonC_rect[2]/2 - lungime/2 
+                            y_center = ButtonC_rect[1] -21
+                            if M_cost != None :
+                                WIN.blit(mithril_icon,(start_x,y_center - 16))
+                                start_x += 42
+                                WIN.blit(M_cost,(start_x,y_center - M_rect[3]/2)) 
+                                start_x += M_rect[2] + 10
+                            if F_cost != None :
+                                WIN.blit(flerovium_icon,(start_x,y_center - 16))
+                                start_x += 42
+                                WIN.blit(F_cost,(start_x,y_center - F_rect[3]/2)) 
+                                start_x += F_rect[2] + 10
+                            if MP_cost != None :
+                                WIN.blit(man_power_icon,(start_x,y_center - 16))
+                                start_x += 42
+                                WIN.blit(MP_cost,(start_x,y_center - MP_rect[3]/2)) 
+                        else :
+                            Create_Button.text = FontT.render("Build",True,(0,0,0))
+                            #desenarea resurselor necesare construirii 
+                            cost = Structures.predefined_structures[s_names[Element_selectat]][7]
+                            lungime = 0
+                            M_cost = None
+                            F_cost = None
+                            if cost[0] != None and cost[0] != 0 :
+                                if Mithril >= cost[0] :
+                                    M_cost = Font.render(str(cost[0]),True,Green)
+                                else :
+                                    can_build = False
+                                    M_cost = Font.render(str(cost[0]),True,Red)
+                                M_rect =  M_cost.get_rect()
+                            if cost[1] != None and cost[1] != 0 :
+                                if Flerovium >= cost[1] :
+                                    F_cost = Font.render(str(cost[1]),True,Green)
+                                else :
+                                    can_build = False
+                                    F_cost = Font.render(str(cost[1]),True,Red)
+                                F_rect = F_cost.get_rect()
+
+                            if s_names[Element_selectat] == "Node" and Max_Nodes == Nodes :
+                                can_build = False
+
+                            #determinarea lungimii costului cand e afisat
+                            if M_cost !=None and F_cost !=None  :
+                                lungime = 64 + 30 + M_rect[2] + F_rect[2]
+                            elif M_cost !=None or F_cost !=None :
+                                lungime = 32 +  10 
+                                if M_cost != None :
+                                    lungime += M_rect[3] 
+                                else :
+                                    lungime += F_rect[3]
+                            #afisarea costurilor
+                            start_x = ButtonC_rect[0] + ButtonC_rect[2]/2 - lungime/2 
+                            y_center = ButtonC_rect[1] -21
+                            if M_cost != None :
+                                WIN.blit(mithril_icon,(start_x,y_center - 16))
+                                start_x += 42
+                                WIN.blit(M_cost,(start_x,y_center - M_rect[3]/2)) 
+                                start_x += M_rect[2] +10
+                            if F_cost != None :
+                                WIN.blit(flerovium_icon,(start_x,y_center - 16))
+                                start_x += 42
+                                WIN.blit(F_cost,(start_x,y_center - F_rect[3]/2)) 
+                                start_x += F_rect[2]
 
 
-                    if can_build == False :
-                        pygame.draw.rect(WIN,(25,25,25),ButtonC_rect)
-                    else :
-                        pygame.draw.rect(WIN,Light_Green,ButtonC_rect)
-                    Create_Button.update(WIN)
-            else :
-                pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3,HEIGHT*4/5-5 , WIDTH - HEIGHT/3,5))
-                pygame.draw.rect(WIN,(225, 223, 240),(HEIGHT/3,HEIGHT*4/5, WIDTH - HEIGHT/3,HEIGHT/5))
-                #daca este selectata o unitate sau cladire o afiseaza :
-                if tile_empty == False and (tiles[selected_tile[1]][selected_tile[0]].structure != None or tiles[selected_tile[1]][selected_tile[0]].unit != None) :
-                    pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3+20,HEIGHT*4/5+20,large_img_element_afisat.get_width()+10,large_img_element_afisat.get_width()+10))
-                    pygame.draw.rect(WIN,Gri,(HEIGHT/3+25,HEIGHT*4/5+25,large_img_element_afisat.get_width(),large_img_element_afisat.get_width()))
-                    WIN.blit(large_img_element_afisat,(HEIGHT/3+25,HEIGHT*4/5+25))
-                    if tiles[selected_tile[1]][selected_tile[0]].unit != None :
-                        type = "unit"
-                        entity =  tiles[selected_tile[1]][selected_tile[0]].unit
-                    else :
-                        type = "structure"
-                        entity =  tiles[selected_tile[1]][selected_tile[0]].structure
-                    #determinarea lungimii afisarii caracteristicilor
-                    y_center  = (HEIGHT*4/5 + ButtonR_rect[1])/2
-                    l_afis = 0
-                    HP = Font.render("HP:",True,(0,0,0))
-                    HP_rect = HP.get_rect()
-                    l_afis += HP_rect[2] + 5
-                    H_value = Font.render(str(entity.HP)+"/"+str(entity.MaxHP),True,(0,0,0))
-                    H_value_rect = H_value.get_rect()
-                    l_afis += 256 + 25
-                    #Afisare defence
-                    Dtext = Font.render("DEFENCE: "+ str(entity.defence),True,(0,0,0))
-                    Dtext_rect = Dtext.get_rect()
-                    l_afis += Dtext_rect[2] + 25
-                    if type == "unit" :
-                        DMtext = Font.render("DAMAGE: "+ str(entity.attack),True,(0,0,0))
-                        DMtext_rect = DMtext.get_rect()
-                        l_afis += DMtext_rect[2] + 25
-                        Rtext = Font.render("RANGE: "+ str(entity.range),True,(0,0,0))
-                        Rtext_rect = Rtext.get_rect()
-                        l_afis += Rtext_rect[2] + 25
-                        Mtext = Font.render("Movement: "+ str(entity.move_range),True,(0,0,0))
-                        Mtext_rect = Mtext.get_rect()
-                        l_afis += Mtext_rect[2]
-                    #Afisarea caracteristicilor
-                    x_afis = HEIGHT/3 + HEIGHT/5 +(WIDTH - HEIGHT/3 - HEIGHT/5 - l_afis)/2
-                    WIN.blit(HP,(x_afis,y_center -HP_rect[3]/2))
-                    x_afis += HP_rect[2] + 5
-                    #Healthbar
-                    pygame.draw.rect(WIN,(25,25,25),(x_afis,y_center-18,256,36))
-                    pygame.draw.rect(WIN,Gri,(x_afis+3,y_center-15,250,30))
-                    pygame.draw.rect(WIN,Light_Green,(x_afis+3,y_center-15,250*entity.HP/entity.MaxHP,30))
-                    WIN.blit(H_value,(x_afis + 10,y_center-H_value_rect[3]/2))
-                    x_afis += 256 + 25
-                    WIN.blit(Dtext,(x_afis,y_center-Dtext_rect[3]/2))
-                    x_afis += Dtext_rect[2] + 25
-                    if type == "unit" :
-                        WIN.blit(DMtext,(x_afis,y_center - DMtext_rect[3]/2))
-                        x_afis += DMtext_rect[2] + 25
-                        WIN.blit(Rtext,(x_afis,y_center - Rtext_rect[3]/2))
-                        x_afis += Rtext_rect[2] + 25
-                        WIN.blit(Mtext,(x_afis,y_center - Mtext_rect[3]/2))
+                        if can_build == False :
+                            pygame.draw.rect(WIN,(25,25,25),ButtonC_rect)
+                        else :
+                            pygame.draw.rect(WIN,Light_Green,ButtonC_rect)
+                        Create_Button.update(WIN)
+                else :
+                    pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3,HEIGHT*4/5-5 , WIDTH - HEIGHT/3,5))
+                    pygame.draw.rect(WIN,(225, 223, 240),(HEIGHT/3,HEIGHT*4/5, WIDTH - HEIGHT/3,HEIGHT/5))
+                    #daca este selectata o unitate sau cladire o afiseaza :
+                    if tile_empty == False and (tiles[selected_tile[1]][selected_tile[0]].structure != None or tiles[selected_tile[1]][selected_tile[0]].unit != None) :
+                        pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3+20,HEIGHT*4/5+20,large_img_element_afisat.get_width()+10,large_img_element_afisat.get_width()+10))
+                        pygame.draw.rect(WIN,Gri,(HEIGHT/3+25,HEIGHT*4/5+25,large_img_element_afisat.get_width(),large_img_element_afisat.get_width()))
+                        WIN.blit(large_img_element_afisat,(HEIGHT/3+25,HEIGHT*4/5+25))
+                        if tiles[selected_tile[1]][selected_tile[0]].unit != None :
+                            type = "unit"
+                            entity =  tiles[selected_tile[1]][selected_tile[0]].unit
+                        else :
+                            type = "structure"
+                            entity =  tiles[selected_tile[1]][selected_tile[0]].structure
+                        #determinarea lungimii afisarii caracteristicilor
+                        y_center  = (HEIGHT*4/5 + ButtonR_rect[1])/2
+                        l_afis = 0
+                        HP = Font.render("HP:",True,(0,0,0))
+                        HP_rect = HP.get_rect()
+                        l_afis += HP_rect[2] + 5
+                        H_value = Font.render(str(entity.HP)+"/"+str(entity.MaxHP),True,(0,0,0))
+                        H_value_rect = H_value.get_rect()
+                        l_afis += 256 + 25
+                        #Afisare defence
+                        Dtext = Font.render("DEFENCE: "+ str(entity.defence),True,(0,0,0))
+                        Dtext_rect = Dtext.get_rect()
+                        l_afis += Dtext_rect[2] + 25
+                        if type == "unit" :
+                            DMtext = Font.render("DAMAGE: "+ str(entity.attack),True,(0,0,0))
+                            DMtext_rect = DMtext.get_rect()
+                            l_afis += DMtext_rect[2] + 25
+                            Rtext = Font.render("RANGE: "+ str(entity.range),True,(0,0,0))
+                            Rtext_rect = Rtext.get_rect()
+                            l_afis += Rtext_rect[2] + 25
+                            Mtext = Font.render("Movement: "+ str(entity.move_range),True,(0,0,0))
+                            Mtext_rect = Mtext.get_rect()
+                            l_afis += Mtext_rect[2]
+                        #Afisarea caracteristicilor
+                        x_afis = HEIGHT/3 + HEIGHT/5 +(WIDTH - HEIGHT/3 - HEIGHT/5 - l_afis)/2
+                        WIN.blit(HP,(x_afis,y_center -HP_rect[3]/2))
+                        x_afis += HP_rect[2] + 5
+                        #Healthbar
+                        pygame.draw.rect(WIN,(25,25,25),(x_afis,y_center-18,256,36))
+                        pygame.draw.rect(WIN,Gri,(x_afis+3,y_center-15,250,30))
+                        pygame.draw.rect(WIN,Light_Green,(x_afis+3,y_center-15,250*entity.HP/entity.MaxHP,30))
+                        WIN.blit(H_value,(x_afis + 10,y_center-H_value_rect[3]/2))
+                        x_afis += 256 + 25
+                        WIN.blit(Dtext,(x_afis,y_center-Dtext_rect[3]/2))
+                        x_afis += Dtext_rect[2] + 25
+                        if type == "unit" :
+                            WIN.blit(DMtext,(x_afis,y_center - DMtext_rect[3]/2))
+                            x_afis += DMtext_rect[2] + 25
+                            WIN.blit(Rtext,(x_afis,y_center - Rtext_rect[3]/2))
+                            x_afis += Rtext_rect[2] + 25
+                            WIN.blit(Mtext,(x_afis,y_center - Mtext_rect[3]/2))
 
 
 
-                    #Afiseaza si butonul de Refund
-                    if (tiles[selected_tile[1]][selected_tile[0]].structure != None and tiles[selected_tile[1]][selected_tile[0]].structure.name == "Kernel") == 0 and ((tiles[selected_tile[1]][selected_tile[0]].structure != None and tiles[selected_tile[1]][selected_tile[0]].structure.owner == map_locations[Pozitie]) or (tiles[selected_tile[1]][selected_tile[0]].unit != None and tiles[selected_tile[1]][selected_tile[0]].unit.owner == map_locations[Pozitie])) :
-                        pygame.draw.rect(WIN,(25,25,25),ButtonR_rect)
-                        Refund_Button.update(WIN)
+                        #Afiseaza si butonul de Refund
+                        if (tiles[selected_tile[1]][selected_tile[0]].structure != None and tiles[selected_tile[1]][selected_tile[0]].structure.name == "Kernel") == 0 and ((tiles[selected_tile[1]][selected_tile[0]].structure != None and tiles[selected_tile[1]][selected_tile[0]].structure.owner == map_locations[Pozitie]) or (tiles[selected_tile[1]][selected_tile[0]].unit != None and tiles[selected_tile[1]][selected_tile[0]].unit.owner == map_locations[Pozitie])) :
+                            pygame.draw.rect(WIN,(25,25,25),ButtonR_rect)
+                            Refund_Button.update(WIN)
 
         pygame.display.update()
 
