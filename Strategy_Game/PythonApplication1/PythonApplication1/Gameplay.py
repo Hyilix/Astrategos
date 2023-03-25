@@ -1,4 +1,5 @@
 from ctypes import Structure
+from select import select
 import pygame 
 import os 
 import socket
@@ -57,19 +58,18 @@ tiles_per_row = 40
 
 tiles = []
 
-controllables_vec = []  #Vector containing units and tiles.
+controllables_vec = []  #Vector containing units and structures.
+caster_controllables_vec = []   #Vector containing units and structures that call a function at each end of turn
 
 visible_tiles = []
 partially_visible_tiles = []
 path_tiles = [] #Tiles that a selected unit can move to
 
-visited_vec = []
-
 DEBUG_FORCED_POSITION = None
 
 def draw_star(length, y, x, TrueSight = False):    #Determine what tiles the player currently sees.
     First = True
-    visited_vec.clear()
+    visited_vec = []
     queued_tiles = [(y,x)]
 
     directions = [
@@ -165,6 +165,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     can_build = False
     SHOW_UI = True 
 
+    enlighted_surface = None
+
     def draw_path_star(length, y, x):
         visited_vec = []
         queued_tiles = [(y,x)]
@@ -240,11 +242,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     WIN.fill((255,255,255))
     pygame.display.update()
 
-    if TileClass.full_bright == True:
-        for y in range(rows):
-            for x in range(tiles_per_row):
-                visible_tiles.append((x,y))
-                partially_visible_tiles.append((x,y))
 
     chat_icon = pygame.transform.scale(pygame.image.load('Assets/Gameplay_UI/chatbox-icon.png'),(60,60))
     mithril_icon = pygame.transform.scale(pygame.image.load('Assets/Gameplay_UI/mars-mithril-bar-1.png'),(32,32))
@@ -254,9 +251,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
     #butonul de creare a unei cladiri/unitati
     x_b =HEIGHT/3 + 50 + HEIGHT/5 -50 + (WIDTH - HEIGHT*2/3 -25 -HEIGHT/5 +50)/2 - 185/2
-    Button_rect = (x_b,HEIGHT-95,185,70)
+    ButtonC_rect = (x_b,HEIGHT-95,185,70)
     Create_Button = Button((x_b+5,HEIGHT-90,175,60),Gri,None,**{"text": "Recruit","font": FontT})
-
+    x_b = HEIGHT/3 + 50 + HEIGHT/5 -50 + (WIDTH - HEIGHT/3 -25 -HEIGHT/5 +50)/2 - 185/2
+    ButtonR_rect = (x_b,HEIGHT-95,185,70)
+    Refund_Button = Button((x_b+5,HEIGHT-90,175,60),Gri,None,**{"text": "Refund","font": FontT})
     # incaracarea imaginilor structurilor si unitatilor care le poate produce playeru, cu culoarea specifica.
     grosime_outline = 5
     spatiu_intre = (HEIGHT/3 - 5 - 70*3)/3
@@ -268,9 +267,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     s_names = []
     directory = "Assets\Structures"
     for filename in os.listdir(directory):
-        s_names.append(filename[:-4])
-        adres=os.path.join(directory, filename)
-        structures.append(pygame.transform.scale(pygame.image.load(adres),(64,64)))
+        if  filename[:-4] != "Kernel" :
+            s_names.append(filename[:-4])
+            adres=os.path.join(directory, filename)
+            structures.append(pygame.transform.scale(pygame.image.load(adres),(64,64)))
     #colorarea structurilor cu culoarea playerului
     for structure in structures :
         for i in range(structure.get_width()):
@@ -407,9 +407,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 pygame.draw.rect(WIN,Player_Colors[playeri[Whos_turn][1]],((WIDTH-260)/2,HEIGHT*2/25 + 5,260,35))
                 pygame.draw.rect(WIN,(225, 223, 240),((WIDTH-250)/2,HEIGHT*2/25 + 5,250,30))
                 text = Font.render("End Turn", True, (150,0,0))
-                text_rect = text.get_rect()
-                text_rect.center = (WIDTH/2,HEIGHT*2/25 + 20)
-                WIN.blit(text,text_rect)
             #butonul de chat din dreapta sus
             pygame.draw.rect(WIN,(25,25,25),(WIDTH-80,0,80,80))
             pygame.draw.rect(WIN,(225, 223, 240),(WIDTH-75,0,75,75))
@@ -429,18 +426,100 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     pygame.draw.rect(WIN,(25,25,25),(WIDTH- HEIGHT/3, HEIGHT - HEIGHT/3 -5,HEIGHT/3,5))
                     pygame.draw.rect(WIN,(25,25,25),(WIDTH- HEIGHT/3, HEIGHT - HEIGHT/3 -60,HEIGHT/3,5))
                     pygame.draw.rect(WIN,(225, 223, 240),(WIDTH- HEIGHT/3 +5, HEIGHT - HEIGHT/3,HEIGHT/3-5,HEIGHT/3))
-
                     pygame.draw.rect(WIN,(225, 223, 240),(WIDTH- HEIGHT/3 +5, HEIGHT - HEIGHT/3-55,HEIGHT/3-5,50))
                     #draw the name of the menu
                     text = FontT.render(construction_tab,True,(0,0,0))
                     text_rect = text.get_rect()
-                    text_rect.center = (WIDTH - (HEIGHT/3 -5)/2,HEIGHT*2/3 - 30)
+                    text_rect.center = (WIDTH/2,HEIGHT*2/25 + 20)
                     WIN.blit(text,text_rect)
                     # afisarea lucrurilor din meniul de constructii
                     if construction_tab == "Structures" :
                         elements = len(structures)
                     elif construction_tab == "Units" :
                         elements = len(units)
+                    else :
+                        elements = 0
+                    for i in range(construction_tab_scroll,math.ceil(elements/3)) :
+                        y_rand = HEIGHT*2/3 +10 + i*70 + i*10 - C_menu_scroll
+                        if y_rand+35 > HEIGHT*2/3 and y_rand < HEIGHT  :
+                            for j in range(min(elements-i*3,3)) :
+                                x_coloana = WIDTH-HEIGHT/3+5 + j*70 + (j+0.5)*spatiu_intre
+                                if  Element_selectat != i*3 + j :
+                                    pygame.draw.rect(WIN,(57, 56, 57),(x_coloana,y_rand,70,70))
+                                else :
+                                    pygame.draw.rect(WIN,Light_Green,(x_coloana,y_rand,70,70))
+                                pygame.draw.rect(WIN,Gri,(x_coloana+2,y_rand+2,66,66))
+                                if construction_tab == "Structures" :
+                                    WIN.blit(structures[i*3+j],(x_coloana+3,y_rand+3))
+                                elif construction_tab == "Units" :
+                                    WIN.blit(units[i*3+j],(x_coloana+3,y_rand+3))
+                    #Afisarea imaginii si informatiilor elementului selectat din meniul de structuri
+                    if Element_selectat != None :
+                        #desenare chenarul in care sa se incadreze imaginea
+                        pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3+20,HEIGHT*4/5+20,large_img_element_afisat.get_width()+10,large_img_element_afisat.get_width()+10))
+                        pygame.draw.rect(WIN,Gri,(HEIGHT/3+25,HEIGHT*4/5+25,large_img_element_afisat.get_width(),large_img_element_afisat.get_width()))
+                        WIN.blit(large_img_element_afisat,(HEIGHT/3+25,HEIGHT*4/5+25))
+                        nonlocal can_build
+                        can_build = True
+                        #afisarea caracteristicilor elementului selectat
+                        #desenarea butonului de Build sau recruit
+                        if construction_tab == "Units" :
+                            Create_Button.text = FontT.render("Recruit",True,(0,0,0))
+                            #desenarea resurselor necesare construirii 
+                            cost = Units.predefined_Units[u_names[Element_selectat]][7]
+                            lungime = 0
+                            M_cost = None
+                            F_cost = None
+                            MP_cost = None
+                            if cost[0] != None and cost[0] != 0 :
+                                if Mithril >= cost[0] :
+                                    M_cost = Font.render(str(cost[0]),True,Green)
+                                else :
+                                    can_build = False
+                                    M_cost = Font.render(str(cost[0]),True,Red)
+                                M_rect =  M_cost.get_rect()
+                            if cost[1] != None and cost[1] != 0 :
+                                if Flerovium >= cost[1] :
+                                    F_cost = Font.render(str(cost[1]),True,Green)
+                                else :
+                                    can_build = False
+                                    F_cost = Font.render(str(cost[1]),True,Red)
+                                F_rect = F_cost.get_rect()
+                            if cost[2] != None and cost[2] != 0 :
+                                if Max_Man_power - Man_power_used >= cost[2] :
+                                    MP_cost = Font.render(str(cost[2]),True,Green)
+                                else :
+                                    can_build = False
+                                    MP_cost = Font.render(str(cost[2]),True,Red)
+                                MP_rect = MP_cost.get_rect()
+                            #determinarea lungimii costului cand e afisat
+                            if M_cost != None :
+                                lungime += 32 + 10 + M_rect[2]
+                                if F_cost !=None or MP_cost !=None :
+                                    lungime += 10
+                            if F_cost != None :
+                                lungime += 32 + 10 + F_rect[2]
+                                if  MP_cost !=None :
+                                    lungime += 10
+                            if MP_cost != None :
+                                lungime += 32 + 10 + MP_rect[2]
+                            #afisarea costurilor
+                            start_x = ButtonC_rect[0] + ButtonC_rect[2]/2 - lungime/2 
+                            y_center = ButtonC_rect[1] -21
+                            if M_cost != None :
+                                WIN.blit(mithril_icon,(start_x,y_center - 16))
+                                start_x += 42
+                                WIN.blit(M_cost,(start_x,y_center - M_rect[3]/2)) 
+                                start_x += M_rect[2] + 10
+                            if F_cost != None :
+                                WIN.blit(flerovium_icon,(start_x,y_center - 16))
+                                start_x += 42
+                                WIN.blit(F_cost,(start_x,y_center - F_rect[3]/2)) 
+                                start_x += F_rect[2] + 10
+                            if MP_cost != None :
+                                WIN.blit(man_power_icon,(start_x,y_center - 16))
+                                start_x += 42
+                                WIN.blit(MP_cost,(start_x,y_center - MP_rect[3]/2)) 
                     else :
                         elements = 0
                     for i in range(construction_tab_scroll,math.ceil(elements/3)) :
@@ -561,29 +640,91 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             start_x = Button_rect[0] + Button_rect[2]/2 - lungime/2 
                             y_center = Button_rect[1] -26
                             if M_cost != None :
-                                WIN.blit(mithril_icon,(start_x,y_center - 16))
-                                start_x += 42
-                                WIN.blit(M_cost,(start_x,y_center - M_rect[3]/2)) 
-                                start_x += M_rect[2] +10
-                            if F_cost != None :
-                                WIN.blit(flerovium_icon,(start_x,y_center - 16))
-                                start_x += 42
-                                WIN.blit(F_cost,(start_x,y_center - F_rect[3]/2)) 
-                                start_x += F_rect[2]
+                                lungime += M_rect[3] 
+                            else :
+                                lungime += F_rect[3]
+                        #afisarea costurilor
+                        start_x = ButtonC_rect[0] + ButtonC_rect[2]/2 - lungime/2 
+                        y_center = ButtonC_rect[1] -21
+                        if M_cost != None :
+                            WIN.blit(mithril_icon,(start_x,y_center - 16))
+                            start_x += 42
+                            WIN.blit(M_cost,(start_x,y_center - M_rect[3]/2)) 
+                            start_x += M_rect[2] +10
+                        if F_cost != None :
+                            WIN.blit(flerovium_icon,(start_x,y_center - 16))
+                            start_x += 42
+                            WIN.blit(F_cost,(start_x,y_center - F_rect[3]/2)) 
+                            start_x += F_rect[2]
 
-                        if can_build == False :
-                            pygame.draw.rect(WIN,(25,25,25),Button_rect)
-                        else :
-                            pygame.draw.rect(WIN,Light_Green,Button_rect)
-                        Create_Button.update(WIN)
-                else :
-                    pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3,HEIGHT*4/5-5 , WIDTH - HEIGHT/3,5))
-                    pygame.draw.rect(WIN,(225, 223, 240),(HEIGHT/3,HEIGHT*4/5, WIDTH - HEIGHT/3,HEIGHT/5))
-                    #daca este selectata o unitate sau cladire o afiseaza :
-                    if tile_empty == False and (tiles[selected_tile[1]][selected_tile[0]].structure != None or tiles[selected_tile[1]][selected_tile[0]].unit != None) :
-                        pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3+20,HEIGHT*4/5+20,large_img_element_afisat.get_width()+10,large_img_element_afisat.get_width()+10))
-                        pygame.draw.rect(WIN,Gri,(HEIGHT/3+25,HEIGHT*4/5+25,large_img_element_afisat.get_width(),large_img_element_afisat.get_width()))
-                        WIN.blit(large_img_element_afisat,(HEIGHT/3+25,HEIGHT*4/5+25))
+
+                    if can_build == False :
+                        pygame.draw.rect(WIN,(25,25,25),ButtonC_rect)
+                    else :
+                        pygame.draw.rect(WIN,Light_Green,ButtonC_rect)
+                    Create_Button.update(WIN)
+            else :
+                pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3,HEIGHT*4/5-5 , WIDTH - HEIGHT/3,5))
+                pygame.draw.rect(WIN,(225, 223, 240),(HEIGHT/3,HEIGHT*4/5, WIDTH - HEIGHT/3,HEIGHT/5))
+                #daca este selectata o unitate sau cladire o afiseaza :
+                if tile_empty == False and (tiles[selected_tile[1]][selected_tile[0]].structure != None or tiles[selected_tile[1]][selected_tile[0]].unit != None) :
+                    pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3+20,HEIGHT*4/5+20,large_img_element_afisat.get_width()+10,large_img_element_afisat.get_width()+10))
+                    pygame.draw.rect(WIN,Gri,(HEIGHT/3+25,HEIGHT*4/5+25,large_img_element_afisat.get_width(),large_img_element_afisat.get_width()))
+                    WIN.blit(large_img_element_afisat,(HEIGHT/3+25,HEIGHT*4/5+25))
+                    if tiles[selected_tile[1]][selected_tile[0]].unit != None :
+                        type = "unit"
+                        entity =  tiles[selected_tile[1]][selected_tile[0]].unit
+                    else :
+                        type = "structure"
+                        entity =  tiles[selected_tile[1]][selected_tile[0]].structure
+                    #determinarea lungimii afisarii caracteristicilor
+                    y_center  = (HEIGHT*4/5 + ButtonR_rect[1])/2
+                    l_afis = 0
+                    HP = Font.render("HP:",True,(0,0,0))
+                    HP_rect = HP.get_rect()
+                    l_afis += HP_rect[2] + 5
+                    H_value = Font.render(str(entity.HP)+"/"+str(entity.MaxHP),True,(0,0,0))
+                    H_value_rect = H_value.get_rect()
+                    l_afis += 256 + 25
+                    #Afisare defence
+                    Dtext = Font.render("DEFENCE: "+ str(entity.defence),True,(0,0,0))
+                    Dtext_rect = Dtext.get_rect()
+                    l_afis += Dtext_rect[2] + 25
+                    if type == "unit" :
+                        DMtext = Font.render("DAMAGE: "+ str(entity.attack),True,(0,0,0))
+                        DMtext_rect = DMtext.get_rect()
+                        l_afis += DMtext_rect[2] + 25
+                        Rtext = Font.render("RANGE: "+ str(entity.range),True,(0,0,0))
+                        Rtext_rect = Rtext.get_rect()
+                        l_afis += Rtext_rect[2] + 25
+                        Mtext = Font.render("Movement: "+ str(entity.move_range),True,(0,0,0))
+                        Mtext_rect = Mtext.get_rect()
+                        l_afis += Mtext_rect[2]
+                    #Afisarea caracteristicilor
+                    x_afis = HEIGHT/3 + HEIGHT/5 +(WIDTH - HEIGHT/3 - HEIGHT/5 - l_afis)/2
+                    WIN.blit(HP,(x_afis,y_center -HP_rect[3]/2))
+                    x_afis += HP_rect[2] + 5
+                    #Healthbar
+                    pygame.draw.rect(WIN,(25,25,25),(x_afis,y_center-18,256,36))
+                    pygame.draw.rect(WIN,Gri,(x_afis+3,y_center-15,250,30))
+                    pygame.draw.rect(WIN,Light_Green,(x_afis+3,y_center-15,250*entity.HP/entity.MaxHP,30))
+                    WIN.blit(H_value,(x_afis + 10,y_center-H_value_rect[3]/2))
+                    x_afis += 256 + 25
+                    WIN.blit(Dtext,(x_afis,y_center-Dtext_rect[3]/2))
+                    x_afis += Dtext_rect[2] + 25
+                    if type == "unit" :
+                        WIN.blit(DMtext,(x_afis,y_center - DMtext_rect[3]/2))
+                        x_afis += DMtext_rect[2] + 25
+                        WIN.blit(Rtext,(x_afis,y_center - Rtext_rect[3]/2))
+                        x_afis += Rtext_rect[2] + 25
+                        WIN.blit(Mtext,(x_afis,y_center - Mtext_rect[3]/2))
+
+
+
+                    #Afiseaza si butonul de Refund
+                    if (tiles[selected_tile[1]][selected_tile[0]].structure != None and tiles[selected_tile[1]][selected_tile[0]].structure.name == "Kernel") == 0 and ((tiles[selected_tile[1]][selected_tile[0]].structure != None and tiles[selected_tile[1]][selected_tile[0]].structure.owner == map_locations[Pozitie]) or (tiles[selected_tile[1]][selected_tile[0]].unit != None and tiles[selected_tile[1]][selected_tile[0]].unit.owner == map_locations[Pozitie])) :
+                        pygame.draw.rect(WIN,(25,25,25),ButtonR_rect)
+                        Refund_Button.update(WIN)
 
         pygame.display.update()
 
@@ -691,6 +832,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             chat_archive.append((Font.render(rand,True,color),0))
 
     def reverse_action (Action) :
+        nonlocal Flerovium
+        nonlocal Mithril
+        nonlocal Nodes
+        nonlocal Man_power_used
         #reverse unit movement
         if Action[0] == "move_unit" :
             tiles[Action[1][1]][Action[1][0]].unit = tiles[Action[2][1]][Action[2][0]].unit
@@ -703,44 +848,84 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
             tiles[Action[1][1]][Action[1][0]].unit.canMove = True
         elif Action[0] == "new_entity" :
-            nonlocal Flerovium
-            nonlocal Mithril
-            nonlocal Nodes
-            nonlocal Man_power_used
             if Action[1] == "Structures":
-                new_struct = Structures.BuildStructure(Action[2], (Action[4][0], Action[4][1]), Action[3])
-                #Sterge structura
-                tiles[Action[4][1]][Action[4][0]].structure = None
-                refresh_map([[Action[4][0],Action[4][1]]])
-                controllables_vec.pop(Action[5])
+                new_struct = tiles[Action[4][1]][Action[4][0]].structure
                 #se reda costul
                 Flerovium += new_struct.price[1]
                 Mithril += new_struct.price[0]
                 #conditie daca este Node
                 if new_struct.name == "Node":
                     Nodes -= 1
-                    new_node = Node.Node((Action[4][0] + 0.5, Action[4][1] + 0.5), 4.5, new_struct)
+                    new_node = Node.getNodeFromObj(new_struct)
                     new_node.Kill()
+                    del new_node
+                selected_tile_check()
+                #Sterge structura
+                tiles[Action[4][1]][Action[4][0]].structure = None
+                refresh_map([[Action[4][0],Action[4][1]]])
+                controllables_vec.pop(Action[5])
                 del new_struct
 
             elif Action[1] == "Units":
-                new_unit = Units.BuildUnit(Action[2], (Action[4][0], Action[4][1]), Action[3])
-                #Se sterge unitate
-                tiles[Action[4][1]][Action[4][0]].unit = None
-                refresh_map([[Action[4][0],Action[4][1]]])
-                controllables_vec.pop(Action[5])
+                new_unit = tiles[Action[4][1]][Action[4][0]].unit
                 #se redau costurile
                 Flerovium += new_unit.price[1]
                 Mithril += new_unit.price[0]
                 Man_power_used -= new_unit.price[2]
                 del new_unit
-        selected_tile_check()
+                #Se sterge unitatea
+                tiles[Action[4][1]][Action[4][0]].unit = None
+                refresh_map([[Action[4][0],Action[4][1]]])
+                controllables_vec.pop(Action[5])
+                selected_tile_check()
+        elif Action[0] == "refund_entity":
+            if Action[1] == "structure" : #Structure case. Also don't refund Kernel lol
+                my_struct = Action[3]
+
+                #if the structure was a node
+                if my_struct.name == "Node" :
+                    Nodes += 1
+                    new_node = Node.Node((Action[2][0] + 0.5, Action[2][1] + 0.5), 4.5, my_struct)
+                    for node in Node.NodeList:
+                        if node != new_node and new_node.CheckCollision(node):
+                            new_node.Add(node)
+
+                Flerovium -= int(my_struct.price[1] * my_struct.refund_percent)
+                Mithril -= int(my_struct.price[0] * my_struct.refund_percent)
+
+                tiles[Action[2][1]][Action[2][0]].structure = my_struct
+                refresh_map([[Action[2][0],Action[2][1]]])
+                del my_struct
+
+            else  :    #Unit case
+                my_unit = Action[3]
+
+                Flerovium -= int(my_unit.price[1] * my_unit.refund_percent)
+                Mithril -= int(my_unit.price[0] * my_unit.refund_percent)
+                Man_power_used += my_unit.price[2]
+
+                tiles[Action[2][1]][Action[2][0]].unit = my_unit
+                refresh_map([[Action[2][0],Action[2][1]]])
+                del my_unit
+            selected_tile_check()
+            print("end")
+
 
     def selected_tile_check() :
         global tile_empty
+        global enlighted_surface
         if tiles[selected_tile[1]][selected_tile[0]].unit == None and tiles[selected_tile[1]][selected_tile[0]].structure == None and tiles[selected_tile[1]][selected_tile[0]].ore == None :
             tile_empty = True
         else :
+            nonlocal Element_selectat
+            global selected_controllable
+            if tiles[selected_tile[1]][selected_tile[0]].unit != None and tiles[selected_tile[1]][selected_tile[0]].unit.owner == map_locations[Pozitie] and (selected_tile[0], selected_tile[1]) in visible_tiles:
+                enlighted_surface = draw_enlighted_tiles()
+                selected_controllable = tiles[selected_tile[1]][selected_tile[0]].unit
+                if selected_controllable.canMove == True:
+                    determine_enlighted_tiles()
+                    enlighted_surface = draw_enlighted_tiles(True)
+                    Element_selectat = None
             tile_empty = False
 
 
@@ -792,7 +977,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         timer_notification_sent = False
         next_turn = False
 
-    def Create_Building():
+    def refund_entity():
         nonlocal Flerovium
         nonlocal Mithril
         nonlocal Nodes
@@ -802,25 +987,74 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         nonlocal selected_tile
 
         if timer > 0 and Whos_turn == Pozitie:
-            if Element_selectat != None and tile_empty == True and (selected_tile[0], selected_tile[1]) in visible_tiles:
+            if (selected_tile[0], selected_tile[1]) in visible_tiles:
+                if tiles[selected_tile[1]][selected_tile[0]].unit != None:    #Unit case
+                    my_unit = tiles[selected_tile[1]][selected_tile[0]].unit
+
+                    Flerovium += int(my_unit.price[1] * my_unit.refund_percent)
+                    Mithril += int(my_unit.price[0] * my_unit.refund_percent)
+                    Man_power_used -= my_unit.price[2]
+
+                    tiles[selected_tile[1]][selected_tile[0]].unit = None
+                    refresh_map([[selected_tile[0],selected_tile[1]]])
+                    Turn_Actions.append(("refund_entity","unit",selected_tile,my_unit))
+                    del my_unit
+                elif tiles[selected_tile[1]][selected_tile[0]].structure != None and tiles[selected_tile[1]][selected_tile[0]].structure.name != "Kernel": #Structure case. Also don't refund Kernel lol
+                    my_struct = tiles[selected_tile[1]][selected_tile[0]].structure
+
+                    #if the structure was a node
+                    if my_struct.name == "Node" :
+                        Nodes -=1
+                        my_node = Node.getNodeFromObj(my_struct)
+                        my_node.Kill()
+                        del my_node
+
+                    Flerovium += int(my_struct.price[1] * my_struct.refund_percent)
+                    Mithril += int(my_struct.price[0] * my_struct.refund_percent)
+
+                    tiles[selected_tile[1]][selected_tile[0]].structure = None
+                    refresh_map([[selected_tile[0],selected_tile[1]]])
+                    Turn_Actions.append(("refund_entity","structure",selected_tile,my_struct))
+                    del my_struct
+        selected_tile_check()
+
+
+    def Create_Building():
+        nonlocal Flerovium
+        nonlocal Mithril
+        nonlocal Nodes
+        nonlocal Man_power_used
+        nonlocal Max_Man_power
+        nonlocal Whos_turn
+        nonlocal Element_selectat
+        nonlocal selected_tile
+
+        if timer > 0 and Whos_turn == Pozitie:
+            if  (selected_tile[0], selected_tile[1]) in visible_tiles:
                 if construction_tab == "Structures":
                     new_struct = Structures.BuildStructure(Element_selectat, (selected_tile[0], selected_tile[1]), map_locations[Pozitie])
                     for node in Node.NodesFound:
                         if node.CheckBuildingInRadius(new_struct):
-                            #construieste structura
-                            tiles[selected_tile[1]][selected_tile[0]].structure = new_struct
-                            refresh_map([[selected_tile[0],selected_tile[1]]])
-                            controllables_vec.append(new_struct)
-                            #scade costul
-                            Flerovium -= new_struct.price[1]
-                            Mithril -= new_struct.price[0]
                             #conditie daca este Node
                             if new_struct.name == "Node":
+                                if Nodes + 1 > Max_Nodes:   #check if can place node
+                                    break
+
                                 Nodes += 1
                                 new_node = Node.Node((selected_tile[0] + 0.5, selected_tile[1] + 0.5), 4.5, new_struct)
                                 for node in Node.NodeList:
                                     if node != new_node and new_node.CheckCollision(node):
                                         new_node.Add(node)
+
+                            #construieste structura
+                            tiles[selected_tile[1]][selected_tile[0]].structure = new_struct
+                            refresh_map([[selected_tile[0],selected_tile[1]]])
+                            if new_struct.special_function != None:
+                                caster_controllables_vec.append(new_struct)
+                            controllables_vec.append(new_struct)
+                            #scade costul
+                            Flerovium -= new_struct.price[1]
+                            Mithril -= new_struct.price[0]
                             #Adaugarea actiunii in Istoricul actiunilor
                             Turn_Actions.append(("new_entity",construction_tab,Element_selectat,map_locations[Pozitie],selected_tile,len(controllables_vec)-1))
                             break
@@ -828,7 +1062,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
                 elif construction_tab == "Units":
                     new_unit = Units.BuildUnit(Element_selectat, (selected_tile[0], selected_tile[1]), map_locations[Pozitie])
-
                     for node in Node.NodesFound:
                         if node.CheckBuildingInRadius(new_unit):
                             #Se recruteaza noua unitate
@@ -843,6 +1076,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             Turn_Actions.append(("new_entity",construction_tab,Element_selectat,map_locations[Pozitie],selected_tile,len(controllables_vec)-1))
                             break
                     del new_unit
+                selected_tile_check()
    
 
     #Camera, texture resizing and load function
@@ -983,6 +1217,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
 
         Node.InitTree()
+        
+        if TileClass.full_bright == True:
+            for y in range(rows):
+                for x in range(tiles_per_row):
+                    visible_tiles.append((x,y))
+                    partially_visible_tiles.append((x,y))
 
     #functia asta face refresh la harta 
     def refresh_map(specific_vector = None):
@@ -1096,6 +1336,18 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         refresh_map([[Changes_from_clients[0][4][0],Changes_from_clients[0][4][1]]])
                         del new_unit
 
+                elif Changes_from_clients[0][0] == "refund_entity" :
+                    if Changes_from_clients[0][1] == "unit":    #Unit case
+                        tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].unit = None
+                        refresh_map([[Changes_from_clients[0][2][0],Changes_from_clients[0][2][1]]])
+                    else : #Structure case. Also don't refund Kernel lol
+                        tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].structure = None
+                        refresh_map([[Changes_from_clients[0][2][0],Changes_from_clients[0][2][1]]])
+                        del my_struct
+                elif Changes_from_clients[0][0] == "healed_units" :
+                    hu_vector = Changes_from_clients[0][1]
+                    for i in range(len(hu_vector)) :
+                        tiles[hu_vector[i].position[1]][hu_vector[i].position[0]].unit.ModifyHealth(Structures.hospital_heal)
                 Changes_from_clients.pop(0)
         else :
             #Se verifica daca serverul a trimis lucruri spre acest client
@@ -1146,11 +1398,30 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         tiles[Changes_from_server[0][4][1]][Changes_from_server[0][4][0]].unit = new_unit
                         refresh_map([[Changes_from_server[0][4][0],Changes_from_server[0][4][1]]])
                         del new_unit
+                elif Changes_from_server[0][0] == "refund_entity" :
+                    if Changes_from_server[0][1] == "unit":    #Unit case
+                        tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].unit = None
+                        refresh_map([[Changes_from_server[0][2][0],Changes_from_server[0][2][1]]])
+                    else : #Structure case. Also don't refund Kernel lol
+                        tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].structure = None
+                        refresh_map([[Changes_from_server[0][2][0],Changes_from_server[0][2][1]]])
+                        del my_struct
+                elif Changes_from_server[0][0] == "healed_units" :
+                    hu_vector = Changes_from_server[0][1]
+                    for i in range(len(hu_vector)) :
+                        tiles[hu_vector[i].position[1]][hu_vector[i].position[0]].unit.ModifyHealth(Structures.hospital_heal)
 
                 Changes_from_server.pop(0)
 
         if timer == 0 :
             determine_visible_tiles()
+
+            units_healed = []   #a vector to store all units healed. Hospital effects don't stack
+            for caster in caster_controllables_vec: #For every caster, call it's function. Because of time and internal issues, the only caster is the hospital.
+                caster.call_special_function([caster, controllables_vec, units_healed])
+            if len(units_healed) != 0 :
+                Turn_Actions.append(("healed_units",units_healed))
+            del units_healed
 
             for unit in controllables_vec:  #Allow each unit to make an action
                 if tiles[unit.position[1]][unit.position[0]].unit == unit:
@@ -1311,11 +1582,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         else :
                             elements = len(units)
                         for i in range(math.ceil(elements/3)) :
-                             y_rand = HEIGHT*2/3 +5 + i*70 + i*10 - C_menu_scroll
+                             y_rand = HEIGHT*2/3 +10 + i*70 + i*10 - C_menu_scroll
                              if y_rand + 70 > HEIGHT*2/3 :
                                  if press_coordonaits[1] >= y_rand and press_coordonaits[1] <= y_rand+70 :
                                      for j in range(min(3,elements-i*3)) :
-                                         x_coloana = WIDTH-HEIGHT/3+10 + j*70 + j*spatiu_intre
+                                         x_coloana = WIDTH-HEIGHT/3+5 + j*70 + (j + 0.5)*spatiu_intre
                                          if press_coordonaits[0] >= x_coloana and press_coordonaits[0] <= x_coloana + 70 :
                                              Element_selectat = i*3 + j
                                              if construction_tab == "Structures" :
@@ -1327,6 +1598,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     #detecteaza daca s-a apasat butonul de Build/recruit
                     if SHOW_UI == True and Create_Button.on_click(event) and can_build == True :
                         Create_Building()
+                        selected_tile_check()
+                    if Refund_Button.on_click(event) and tile_empty == False and ((tiles[selected_tile[1]][selected_tile[0]].structure != None and tiles[selected_tile[1]][selected_tile[0]].structure.owner == map_locations[Pozitie]) or (tiles[selected_tile[1]][selected_tile[0]].unit != None and tiles[selected_tile[1]][selected_tile[0]].unit.owner == map_locations[Pozitie])) :
+                        refund_entity()
                         selected_tile_check()
                 #daca apesi click dreapta 
                 if event.button == 3:
