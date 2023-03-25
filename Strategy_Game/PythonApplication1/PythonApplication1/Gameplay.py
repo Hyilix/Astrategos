@@ -424,7 +424,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 pygame.draw.rect(WIN,(25,25,25),(WIDTH- HEIGHT/3, HEIGHT - HEIGHT/3 -5,HEIGHT/3,5))
                 pygame.draw.rect(WIN,(25,25,25),(WIDTH- HEIGHT/3, HEIGHT - HEIGHT/3 -60,HEIGHT/3,5))
                 pygame.draw.rect(WIN,(225, 223, 240),(WIDTH- HEIGHT/3 +5, HEIGHT - HEIGHT/3,HEIGHT/3-5,HEIGHT/3))
-
                 pygame.draw.rect(WIN,(225, 223, 240),(WIDTH- HEIGHT/3 +5, HEIGHT - HEIGHT/3-55,HEIGHT/3-5,50))
                 #draw the name of the menu
                 text = FontT.render(construction_tab,True,(0,0,0))
@@ -586,44 +585,49 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     else :
                         type = "structure"
                         entity =  tiles[selected_tile[1]][selected_tile[0]].structure
-                    #Afisarea caracteristicilor structurii/unitatii selectate
-                    x_afis = HEIGHT/3 + HEIGHT/5
+                    #determinarea lungimii afisarii caracteristicilor
                     y_center  = (HEIGHT*4/5 + ButtonR_rect[1])/2
-                    text = Font.render("HP:",True,(0,0,0))
-                    text_rect = text.get_rect()
-                    text_rect.center = (x_afis + text_rect[2]/2,y_center)
-                    WIN.blit(text,text_rect)
-                    x_afis += text_rect[2] + 5
+                    l_afis = 0
+                    HP = Font.render("HP:",True,(0,0,0))
+                    HP_rect = HP.get_rect()
+                    l_afis += HP_rect[2] + 5
+                    H_value = Font.render(str(entity.HP)+"/"+str(entity.MaxHP),True,(0,0,0))
+                    H_value_rect = H_value.get_rect()
+                    l_afis += 256 + 25
+                    #Afisare defence
+                    Dtext = Font.render("DEFENCE: "+ str(entity.defence),True,(0,0,0))
+                    Dtext_rect = Dtext.get_rect()
+                    l_afis += Dtext_rect[2] + 25
+                    if type == "unit" :
+                        DMtext = Font.render("DAMAGE: "+ str(entity.attack),True,(0,0,0))
+                        DMtext_rect = DMtext.get_rect()
+                        l_afis += DMtext_rect[2] + 25
+                        Rtext = Font.render("RANGE: "+ str(entity.range),True,(0,0,0))
+                        Rtext_rect = Rtext.get_rect()
+                        l_afis += Rtext_rect[2] + 25
+                        Mtext = Font.render("Movement: "+ str(entity.move_range),True,(0,0,0))
+                        Mtext_rect = Mtext.get_rect()
+                        l_afis += Mtext_rect[2]
+                    #Afisarea caracteristicilor
+                    x_afis = HEIGHT/3 + HEIGHT/5 +(WIDTH - HEIGHT/3 - HEIGHT/5 - l_afis)/2
+                    WIN.blit(HP,(x_afis,y_center -HP_rect[3]/2))
+                    x_afis += HP_rect[2] + 5
                     #Healthbar
                     pygame.draw.rect(WIN,(25,25,25),(x_afis,y_center-18,256,36))
                     pygame.draw.rect(WIN,Gri,(x_afis+3,y_center-15,250,30))
                     pygame.draw.rect(WIN,Light_Green,(x_afis+3,y_center-15,250*entity.HP/entity.MaxHP,30))
-                    text = Font.render(str(entity.HP)+"/"+str(entity.MaxHP),True,(0,0,0))
-                    text_rect = text.get_rect()
-                    WIN.blit(text,(x_afis + 10,y_center-text_rect[3]/2))
-                    x_afis += 250 + 25
-                    #Afisare defence
-                    text = Font.render("DEFENCE: "+ str(entity.defence),True,(0,0,0))
-                    text_rect = text.get_rect()
-                    text_rect.center = (x_afis + text_rect[2]/2,y_center)
-                    WIN.blit(text,text_rect)
-                    x_afis += text_rect[2] + 25
-                    if type != "structure" :
-                        text = Font.render("DAMAGE: "+ str(entity.attack),True,(0,0,0))
-                        text_rect = text.get_rect()
-                        text_rect.center = (x_afis + text_rect[2]/2,y_center)
-                        WIN.blit(text,text_rect)
-                        x_afis += text_rect[2] + 25
-                        text = Font.render("RANGE: "+ str(entity.range),True,(0,0,0))
-                        text_rect = text.get_rect()
-                        text_rect.center = (x_afis + text_rect[2]/2,y_center)
-                        WIN.blit(text,text_rect)
-                        x_afis += text_rect[2] + 25
-                        text = Font.render("Movement: "+ str(entity.move_range),True,(0,0,0))
-                        text_rect = text.get_rect()
-                        text_rect.center = (x_afis + text_rect[2]/2,y_center)
-                        WIN.blit(text,text_rect)
-                        x_afis += text_rect[2] + 25
+                    WIN.blit(H_value,(x_afis + 10,y_center-H_value_rect[3]/2))
+                    x_afis += 256 + 25
+                    WIN.blit(Dtext,(x_afis,y_center-Dtext_rect[3]/2))
+                    x_afis += Dtext_rect[2] + 25
+                    if type == "unit" :
+                        WIN.blit(DMtext,(x_afis,y_center - DMtext_rect[3]/2))
+                        x_afis += DMtext_rect[2] + 25
+                        WIN.blit(Rtext,(x_afis,y_center - Rtext_rect[3]/2))
+                        x_afis += Rtext_rect[2] + 25
+                        WIN.blit(Mtext,(x_afis,y_center - Mtext_rect[3]/2))
+
+
 
                     #Afiseaza si butonul de Refund
                     if (tiles[selected_tile[1]][selected_tile[0]].structure != None and tiles[selected_tile[1]][selected_tile[0]].structure.name == "Kernel") == 0 and ((tiles[selected_tile[1]][selected_tile[0]].structure != None and tiles[selected_tile[1]][selected_tile[0]].structure.owner == map_locations[Pozitie]) or (tiles[selected_tile[1]][selected_tile[0]].unit != None and tiles[selected_tile[1]][selected_tile[0]].unit.owner == map_locations[Pozitie])) :
