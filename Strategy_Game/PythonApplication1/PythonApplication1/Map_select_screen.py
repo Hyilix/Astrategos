@@ -6,6 +6,7 @@ import threading
 import math
 import time
 import random
+from PIL import Image
 
 from Gameplay import gameplay
 
@@ -193,8 +194,8 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                 else :
                     client.close()
                     Killed_Clients.append(cod)
-                print("else_killed")
-                break
+                    print("else_killed")
+                    break
         except :
             client.close()
             Killed_Clients.append(cod)
@@ -232,11 +233,13 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                         Changes_from_server.append(data_recv)
                 else :
                     print("iesit aici 1")
+                    print(time.time())
                     server.close()
                     run = False
                     break
         except :
             print("iesit aici 2")
+            print(time.time())
             server.close()
             run = False
 
@@ -314,9 +317,9 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                             Transmit_to_specific.append((("end_info_stream",None),mapload_related_stuff[0][1]))
                             #incepe sa trimita poza hartii
                             Map_load_action = "Loading maps : send map_image of " + adres[12:-4] + " map to the Client nr. " + str(Coduri_pozitie_client[mapload_related_stuff[0][1]]) 
-                            Image = Image.open(adres)
-                            Transmit_to_specific.append((("Map_image",Image),mapload_related_stuff[0][1]))
-                            del Image
+                            image = Image.open(adres)
+                            Transmit_to_specific.append((("Map_image",image),mapload_related_stuff[0][1]))
+                            del image
                             Map_load_action = "Loading maps : waiting for the others"
                         mapload_related_stuff.pop(0)
             Transmit_to_all.append((("End_of_map_sync",None),None))
@@ -378,13 +381,13 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
 
                     elif mapload_related_stuff[0][0] == "Map_image" :
                         #obtinerea imaginii
-                        Image = mapload_related_stuff[0][1]
+                        image = mapload_related_stuff[0][1]
                         new_adres = "Maps\Imported_Maps\images" +"\\" 
                         #da load la imagine
                         Map_load_action = "Loading maps : load " + the_name + " map"
-                        MAPS.append(Image)
-                        Image = Image.save(new_adres + the_name + ".jpg" )
-                        del Image
+                        MAPS.append(image)
+                        image = image.save(new_adres + the_name + ".jpg" )
+                        del image
                         map_names.append(the_name)
                         #trimiterea serverului ca acum are imaginea
                         data_send = pickle.dumps(("I_have_it",None))

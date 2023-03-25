@@ -6,7 +6,7 @@ import pickle
 import threading
 import time
 import math
-from PIL import Image
+
 
 import TileClass
 import Structures
