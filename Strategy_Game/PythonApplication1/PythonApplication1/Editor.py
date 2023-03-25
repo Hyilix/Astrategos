@@ -7,7 +7,6 @@ import math
 import os
 import pickle
 import numpy
-import datetime
 
 import button
 import pygame
@@ -104,51 +103,48 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
     #Editor functions
     def load_map(map_name):
         try:
-            for i in os.listdir("Maps/info/"):
-                ch = i.find("@")
-                if map_name[0:ch] == i[0:ch]:
-                    with open("Maps/info/" + i, "rb") as infile:
-                        print("STARTED")
-                        tiles.clear()
-                        nonlocal rows
-                        nonlocal tiles_per_row
-                        rows = pickle.load(infile)
-                        tiles_per_row = pickle.load(infile)
-                        nonlocal mapSurfaceNormal 
-                        mapSurfaceNormal = pygame.Surface((int(tiles_per_row * normal_tile_length), int(rows * normal_tile_length)))
-                        for x in range(rows):
-                            new_vec = []
-                            for y in range(tiles_per_row):        
-                                loaded_object = pickle.load(infile)
-                                new_unit, new_structure, new_ore = None, None, None
-                                if loaded_object["Unit"]:  
-                                    new_unit = Units.Unit(loaded_object["Unit"]["Name"],
-                                                            loaded_object["Unit"]["Position"],
-                                                            loaded_object["Unit"]["Owner"]
-                                                            )
+            with open("Maps/info/" + map_name + ".txt", "rb") as infile:
+                print("STARTED")
+                tiles.clear()
+                nonlocal rows
+                nonlocal tiles_per_row
+                rows = pickle.load(infile)
+                tiles_per_row = pickle.load(infile)
+                nonlocal mapSurfaceNormal 
+                mapSurfaceNormal = pygame.Surface((int(tiles_per_row * normal_tile_length), int(rows * normal_tile_length)))
+                for x in range(rows):
+                    new_vec = []
+                    for y in range(tiles_per_row):        
+                        loaded_object = pickle.load(infile)
+                        new_unit, new_structure, new_ore = None, None, None
+                        if loaded_object["Unit"]:  
+                            new_unit = Units.Unit(loaded_object["Unit"]["Name"],
+                                                    loaded_object["Unit"]["Position"],
+                                                    loaded_object["Unit"]["Owner"]
+                                                    )
 
-                                if loaded_object["Structure"]:
-                                    new_structure = Structures.Structure(loaded_object["Structure"]["Name"],
-                                                            loaded_object["Structure"]["Position"],
-                                                            loaded_object["Structure"]["Owner"]
-                                                            )
+                        if loaded_object["Structure"]:
+                            new_structure = Structures.Structure(loaded_object["Structure"]["Name"],
+                                                    loaded_object["Structure"]["Position"],
+                                                    loaded_object["Structure"]["Owner"]
+                                                    )
 
-                                if loaded_object["Ore"]:
-                                    new_ore = Ores.Ore(loaded_object["Ore"]["Position"],
-                                                            loaded_object["Ore"]["Name"],
-                                                            loaded_object["Ore"]["Tier"]
-                                                            )
+                        if loaded_object["Ore"]:
+                            new_ore = Ores.Ore(loaded_object["Ore"]["Position"],
+                                                    loaded_object["Ore"]["Name"],
+                                                    loaded_object["Ore"]["Tier"]
+                                                    )
 
-                                new_tile = TileClass.Tile(loaded_object["Position"],
-                                                            loaded_object["Collidable"],
-                                                            loaded_object["Image_name"],
-                                                            new_ore,
-                                                            new_unit,
-                                                            new_structure
-                                                            )
+                        new_tile = TileClass.Tile(loaded_object["Position"],
+                                                    loaded_object["Collidable"],
+                                                    loaded_object["Image_name"],
+                                                    new_ore,
+                                                    new_unit,
+                                                    new_structure
+                                                    )
 
-                                new_vec.append(new_tile)
-                            tiles.append(new_vec)
+                        new_vec.append(new_tile)
+                    tiles.append(new_vec)
 
             for x in range(rows):  #Redraw the whole map
                 for y in range(tiles_per_row):
@@ -169,20 +165,14 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
     def save_map(map_name):
         try:
             print("Overwrite warning!")
-            for i in os.listdir("Maps/images/"):
-                ch = i.find("@")
-                if map_name == i[0:ch]:
-                    new_map_name = i[:-4]
-                    os.remove("Maps/images/" + new_map_name + ".jpg")
-                    os.remove("Maps/info/" + new_map_name + ".txt")
+            os.remove("Maps/images/" + map_name + ".jpg")
+            os.remove("Maps/info/" + map_name + ".txt")
         except:
             print("No overwrite found.")
         print(map_name)
-        now = datetime.datetime.now()
-        add_str = now.strftime("%Y_%m_%d_%H_%M_%S")
-        pygame.image.save(mapSurfaceNormal, "Maps/images/" + map_name + "@" + add_str + ".jpg")
+        pygame.image.save(pygame.transform.scale(mapSurfaceNormal,(320,320)), "Maps/images/" + map_name + ".jpg")
         used_textures = []
-        with open("Maps/info/" + map_name + "@" + add_str + ".txt", "wb") as outfile:   #Saves the map into the file.
+        with open("Maps/info/" + map_name + ".txt", "wb") as outfile:   #Saves the map into the file.
             pickle.dump(rows, outfile)
             pickle.dump(tiles_per_row, outfile)
             for x in range(rows):
