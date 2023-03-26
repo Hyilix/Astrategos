@@ -22,6 +22,8 @@ def resize_textures(size):
 
 last_index = len(texture_names)
 
+unit_attack_range_color = (235, 0, 0)
+
 predefined_Units = {   
                 #HP, MaxHp, attack, defence, range, move_range, fog_range, price (Mithril, Flerovium, Supply), Refund_percent
     "Marine" :  [5, 5, 2, 0, 2, 4, 5, (6,0,1), 60/100],
@@ -63,6 +65,10 @@ class Unit():
 
         self.price = vec[7]
         self.refund_percent = vec[8]
+
+    def Draw_AOE(self, screen, size, offset):   #Draw the area range
+        if self.range != 0:
+            pygame.draw.circle(screen, unit_attack_range_color, ((self.position[0] + 0.5) * size - offset[0], (self.position[1] + 0.5) * size - offset[1]), self.range * size, 2)
 
     def ModifyHealth(self, value):
         if self.HP + value > self.MaxHP:

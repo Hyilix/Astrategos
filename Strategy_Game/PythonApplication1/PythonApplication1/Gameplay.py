@@ -65,7 +65,7 @@ visible_tiles = []
 partially_visible_tiles = []
 path_tiles = [] #Tiles that a selected unit can move to
 
-DEBUG_FORCED_POSITION = 4
+DEBUG_FORCED_POSITION = None
 
 def draw_star(length, y, x, TrueSight = False):    #Determine what tiles the player currently sees.
     First = True
@@ -292,6 +292,18 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 if unit.get_at((i,j)) == (1,1,1):
                     unit.set_at((i,j), Player_Colors[playeri[Pozitie][1]])
 
+    def draw_selected_controllable_radius():
+        if selected_tile[0] != None:
+            examined_struct = tiles[selected_tile[1]][selected_tile[0]].structure
+            examined_unit = tiles[selected_tile[1]][selected_tile[0]].unit
+
+            if examined_struct != None and examined_struct in controllables_vec:
+                if examined_struct.owner == map_locations[Pozitie]:
+                    examined_struct.Draw_AOE(WIN, current_tile_length, (CurrentCamera.x, CurrentCamera.y))
+
+            elif examined_unit != None and examined_unit in controllables_vec:
+                if examined_unit.owner == map_locations[Pozitie]:
+                    examined_unit.Draw_AOE(WIN, current_tile_length, (CurrentCamera.x, CurrentCamera.y))
 
     def draw_nodes():
         if selected_tile[0] != None:
@@ -320,7 +332,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
         #Draw Nodes circles
         draw_nodes()
-
+        draw_selected_controllable_radius()
         #draw selected tile outline
         if selected_tile[0] != None : 
             x_tile=selected_tile[0]* current_tile_length - CurrentCamera.x

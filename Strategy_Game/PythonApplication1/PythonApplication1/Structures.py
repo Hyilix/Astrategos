@@ -94,7 +94,7 @@ class Structure():
 
     def Draw_AOE(self, screen, size, offset):   #Draw the area of efect of a structure
         if self.AOE != 0:
-            pygame.draw.circle(screen, hospital_circle_color, (self.position[0] * size - offset[0], self.position[1] * size - offset[1]), self.AOE * size, 1)
+            pygame.draw.circle(screen, hospital_circle_color, ((self.position[0] + 0.5) * size - offset[0], (self.position[1] + 0.5) * size - offset[1]), self.AOE * size, 1)
 
     def DrawImage(self, screen, size, colorTable, special_blit = False, visible_tuple = None):
         image = textures[texture_names.index(self.texture)].copy()
