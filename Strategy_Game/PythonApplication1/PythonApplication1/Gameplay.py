@@ -259,6 +259,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     refund_bool = False
     Repair_Button = Button((x_b+5,HEIGHT-90,175,60),Gri,None,**{"text": "Repair","font": FontT})
     repair_bool = False
+    aford_repair = False
     # incaracarea imaginilor structurilor si unitatilor care le poate produce playeru, cu culoarea specifica.
     grosime_outline = 5
     spatiu_intre = (HEIGHT/3 - 5 - 70*3)/3
@@ -313,6 +314,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         nonlocal ButtonR_rect
         nonlocal refund_bool
         nonlocal repair_bool
+        nonlocal aford_repair
         WIN.fill((255,255,255))
 
         #Draw map
@@ -651,11 +653,46 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         #Afiseaza  butonul de Refund si butonulde repair
                         refund_bool = False
                         repair_bool = False
-                        if (tiles[selected_tile[1]][selected_tile[0]].structure != None and tiles[selected_tile[1]][selected_tile[0]].structure.name == "Kernel") == 0 and ((tiles[selected_tile[1]][selected_tile[0]].structure != None and tiles[selected_tile[1]][selected_tile[0]].structure.owner == map_locations[Pozitie]) or (tiles[selected_tile[1]][selected_tile[0]].unit != None and tiles[selected_tile[1]][selected_tile[0]].unit.owner == map_locations[Pozitie])) :
+                        aford_repair = True
+                        if (tiles[selected_tile[1]][selected_tile[0]].structure != None and tiles[selected_tile[1]][selected_tile[0]].structure.name == "Kernel") == 0 and ((tiles[selected_tile[1]][selected_tile[0]].structure != None and tiles[selected_tile[1]][selected_tile[0]].structure.owner == map_locations[Pozitie] and tiles[selected_tile[1]][selected_tile[0]].structure.HP == tiles[selected_tile[1]][selected_tile[0]].structure.MaxHP) or (tiles[selected_tile[1]][selected_tile[0]].unit != None and tiles[selected_tile[1]][selected_tile[0]].unit.owner == map_locations[Pozitie] and tiles[selected_tile[1]][selected_tile[0]].unit.HP == tiles[selected_tile[1]][selected_tile[0]].unit.MaxHP)) :
                             refund_bool = True
-                        if tiles[selected_tile[1]][selected_tile[0]].structure != None  and tiles[selected_tile[1]][selected_tile[0]].unit == None and  tiles[selected_tile[1]][selected_tile[0]].structure.HP < tiles[selected_tile[1]][selected_tile[0]].structure.MaxHP :
+                        if tiles[selected_tile[1]][selected_tile[0]].structure != None  and tiles[selected_tile[1]][selected_tile[0]].unit == None and  tiles[selected_tile[1]][selected_tile[0]].structure.HP < math.ceil(tiles[selected_tile[1]][selected_tile[0]].structure.MaxHP *0.65) :
                             repair_bool = True
-
+                            #determinare pret
+                            cost = tiles[selected_tile[1]][selected_tile[0]].structure.price
+                            if tiles[selected_tile[1]][selected_tile[0]].structure.HP < math.ceil(tiles[selected_tile[1]][selected_tile[0]].structure.MaxHP *0.2) :
+                                cost = (math.ceil(cost[0]/2),math.ceil(cost[1]/2))
+                            elif tiles[selected_tile[1]][selected_tile[0]].structure.HP < math.ceil(tiles[selected_tile[1]][selected_tile[0]].structure.MaxHP *0.45) :
+                                cost = (math.ceil(cost[0]*0.3),math.ceil(cost[1]*0.3))
+                            else :
+                                cost = (math.ceil(cost[0]*0.2),math.ceil(cost[1]*0.2))
+                            lungime = 0
+                            M_cost = None
+                            F_cost = None
+                            if cost[0] > 0 :
+                                if Mithril >= cost[0] :
+                                    M_cost = Font.render(str(cost[0]),True,Green)
+                                else :
+                                    aford_repair = False
+                                    M_cost = Font.render(str(cost[0]),True,Red)
+                                M_rect = M_cost.get_rect()
+                                lungime += M_rect[2] + 42
+                                if cost[1] > 0 :
+                                    if Flerovium >= cost[1] :
+                                        F_cost = Font.render(str(cost[1]),True,Green)
+                                    else :
+                                        aford_repair = False
+                                        F_cost = Font.render(str(cost[1]),True,Red)
+                                    F_rect = F_cost.get_rect()
+                                    lungime += F_rect[2] + 52
+                            elif cost[1] > 0 :
+                                if Flerovium >= cost[1] :
+                                    F_cost = Font.render(str(cost[1]),True,Green)
+                                else :
+                                    aford_repair = False
+                                    F_cost = Font.render(str(cost[1]),True,Red)
+                                F_rect = F_cost.get_rect()
+                                lungime += F_rect[2] + 42
                         #afisarea butoanelor 
                         if refund_bool == True and repair_bool == True :
                             #ButtonR_rect = (ButtonR_rect[0] -ButtonR_rect[2]/2 - 50,ButtonR_rect[1],ButtonR_rect[2],ButtonR_rect[3])
@@ -665,15 +702,42 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             Refund_Button.rect = pygame.Rect(Refund_Button.rect[0] +ButtonR_rect[2]/2 + 50,Refund_Button.rect[1],Refund_Button.rect[2],Refund_Button.rect[3])
                             ButtonR_rect = (ButtonR_rect[0] +ButtonR_rect[2]/2 + 50,ButtonR_rect[1],ButtonR_rect[2],ButtonR_rect[3])
                             Repair_Button.rect =pygame.Rect(Repair_Button.rect[0] +ButtonR_rect[2]/2 + 50,Repair_Button.rect[1],Repair_Button.rect[2],Repair_Button.rect[3])
+                            #Afisare costuri repairs
+                            start_x = ButtonR_rect[0] + ButtonR_rect[2]/2 - lungime/2 
+                            y_center = ButtonR_rect[1] -21
+                            if M_cost != None :
+                                WIN.blit(mithril_icon,(start_x,y_center - 16))
+                                start_x += 42
+                                WIN.blit(M_cost,(start_x,y_center - M_rect[3]/2)) 
+                                start_x += M_rect[2] +10
+                            if F_cost != None :
+                                WIN.blit(flerovium_icon,(start_x,y_center - 16))
+                                start_x += 42
+                                WIN.blit(F_cost,(start_x,y_center - F_rect[3]/2)) 
                             pygame.draw.rect(WIN,(25,25,25),ButtonR_rect)
                             Repair_Button.update(WIN)
                             ButtonR_rect = (ButtonR_rect[0] -ButtonR_rect[2]/2 - 50,ButtonR_rect[1],ButtonR_rect[2],ButtonR_rect[3])
                             Repair_Button.rect =pygame.Rect(Repair_Button.rect[0] -ButtonR_rect[2]/2 - 50,Repair_Button.rect[1],Repair_Button.rect[2],Repair_Button.rect[3])
                         elif  (refund_bool == True or repair_bool == True) and (refund_bool == True and repair_bool == True)==False :
-                            pygame.draw.rect(WIN,(25,25,25),ButtonR_rect)
                             if refund_bool == True :
+                                pygame.draw.rect(WIN,(25,25,25),ButtonR_rect)
                                 Refund_Button.update(WIN)
                             else :
+                                start_x = ButtonR_rect[0] + ButtonR_rect[2]/2 - lungime/2 
+                                y_center = ButtonR_rect[1] -21
+                                if M_cost != None :
+                                    WIN.blit(mithril_icon,(start_x,y_center - 16))
+                                    start_x += 42
+                                    WIN.blit(M_cost,(start_x,y_center - M_rect[3]/2)) 
+                                    start_x += M_rect[2] +10
+                                if F_cost != None :
+                                    WIN.blit(flerovium_icon,(start_x,y_center - 16))
+                                    start_x += 42
+                                    WIN.blit(F_cost,(start_x,y_center - F_rect[3]/2)) 
+                                if aford_repair == True :
+                                    pygame.draw.rect(WIN,Green,ButtonR_rect)
+                                else :
+                                    pygame.draw.rect(WIN,Red,ButtonR_rect)
                                 Repair_Button.update(WIN)
 
         pygame.display.update()
@@ -797,6 +861,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             refresh_map([Action[1], Action[2]])
 
             tiles[Action[1][1]][Action[1][0]].unit.canMove = True
+            selected_tile_check()
         elif Action[0] == "new_entity" :
             if Action[1] == "Structures":
                 new_struct = tiles[Action[4][1]][Action[4][0]].structure
@@ -858,6 +923,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 refresh_map([[Action[2][0],Action[2][1]]])
                 del my_unit
             selected_tile_check()
+
+        elif Action[0] == "repair_entity":
+            #scaderea pretului
+            Mithril += Action[3][0]
+            Flerovium += Action[3][1]
+            tiles[Action[1][1]][Action[1][0]].structure.ModifyHealth(-Action[2])
 
 
     def selected_tile_check() :
@@ -932,8 +1003,21 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         nonlocal Whos_turn
 
         if timer > 0 and Whos_turn == Pozitie:
-            #trebuie facuta
-            x=10
+            #determinare pret
+            cost = tiles[selected_tile[1]][selected_tile[0]].structure.price
+            if tiles[selected_tile[1]][selected_tile[0]].structure.HP < math.ceil(tiles[selected_tile[1]][selected_tile[0]].structure.MaxHP *0.2) :
+                cost = (math.ceil(cost[0]/2),math.ceil(cost[1]/2))
+            elif tiles[selected_tile[1]][selected_tile[0]].structure.HP < math.ceil(tiles[selected_tile[1]][selected_tile[0]].structure.MaxHP *0.45) :
+                cost = (math.ceil(cost[0]*0.3),math.ceil(cost[1]*0.3))
+            else :
+                cost = (math.ceil(cost[0]*0.2),math.ceil(cost[1]*0.2))
+            #scaderea pretului
+            Mithril -= cost[0]
+            Flerovium -= cost[1]
+            modify_value = tiles[selected_tile[1]][selected_tile[0]].structure.MaxHP - tiles[selected_tile[1]][selected_tile[0]].structure.HP
+            tiles[selected_tile[1]][selected_tile[0]].structure.ModifyHealth(modify_value)
+            Turn_Actions.append(("repair_entity",selected_tile,modify_value,cost))
+            
 
     def refund_entity():
         nonlocal Flerovium
@@ -1290,7 +1374,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         tiles[Changes_from_clients[0][4][1]][Changes_from_clients[0][4][0]].unit = new_unit
                         refresh_map([[Changes_from_clients[0][4][0],Changes_from_clients[0][4][1]]])
                         del new_unit
-
                 elif Changes_from_clients[0][0] == "refund_entity" :
                     if Changes_from_clients[0][1] == "unit":    #Unit case
                         tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].unit = None
@@ -1299,6 +1382,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].structure = None
                         refresh_map([[Changes_from_clients[0][2][0],Changes_from_clients[0][2][1]]])
                         del my_struct
+                elif Changes_from_clients[0][0] == "repair_entity" :
+                    tiles[Changes_from_clients[0][1][1]][Changes_from_clients[0][1][0]].structure.ModifyHealth(Changes_from_clients[0][2])
                 elif Changes_from_clients[0][0] == "healed_units" :
                     hu_vector = Changes_from_clients[0][1]
                     for i in range(len(hu_vector)) :
@@ -1361,6 +1446,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].structure = None
                         refresh_map([[Changes_from_server[0][2][0],Changes_from_server[0][2][1]]])
                         del my_struct
+                elif Changes_from_server[0][0] == "repair_entity" :
+                    tiles[Changes_from_server[0][1][1]][Changes_from_server[0][1][0]].structure.ModifyHealth(Changes_from_server[0][2])
                 elif Changes_from_server[0][0] == "healed_units" :
                     hu_vector = Changes_from_server[0][1]
                     for i in range(len(hu_vector)) :
@@ -1560,7 +1647,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     elif Refund_Button.on_click(event) and tile_empty == False and refund_bool :
                         refund_entity()
                         selected_tile_check()
-                    elif Repair_Button.on_click(event) and tile_empty == False and repair_bool :
+                    elif Repair_Button.on_click(event) and tile_empty == False and repair_bool and aford_repair == True :
                         repair_building()
                 #daca apesi click dreapta 
                 if event.button == 3:
