@@ -73,8 +73,6 @@ class Unit():
     def ModifyHealth(self, value):
         if self.HP + value > self.MaxHP:
             self.HP = self.MaxHP
-        elif self.HP + value < 0:
-            self.HP = 0
         else:
             self.HP += value
 
@@ -87,7 +85,6 @@ class Unit():
         return False
 
     def DrawImage(self, screen, size, colorTable, special_blit = False, visible_tuple = None):
-
         image = textures[texture_names.index(self.texture)].copy()
         dark = pygame.Surface(image.get_size()).convert_alpha()
         dark.fill((0, 0, 0, 0))

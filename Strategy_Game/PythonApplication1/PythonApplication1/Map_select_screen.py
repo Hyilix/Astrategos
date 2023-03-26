@@ -10,7 +10,7 @@ from PIL import Image
 
 from Gameplay import gameplay
 
-DEBUG_START_NOW = True
+DEBUG_START_NOW = False
 
 pygame.init()
 

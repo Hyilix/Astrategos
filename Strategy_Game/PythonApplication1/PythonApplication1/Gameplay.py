@@ -8,7 +8,6 @@ import threading
 import time
 import math
 
-
 import TileClass
 import Structures
 import Units
@@ -30,6 +29,12 @@ Pink = (255, 0, 255)
 Cyan = (60, 160, 255)
 Light_Green = (0, 255, 0)
 Player_Colors = [White,Blue,Red,Green,Yellow,Orange,Purple,Pink,Cyan]
+
+def RemoveObjectFromList(obj, ls):
+    for i, o in enumerate(ls):
+        if o.position == obj.position and type(o) == type(obj):
+            del ls[i]
+            break
 
 colorTable = {  #Table for assigning each controller with a color. If "None", then don't draw
     0 : (64,64,64),
@@ -219,8 +224,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         queued_tiles.clear()
 
     def determine_enlighted_tiles():
-        path_tiles.clear()
-        draw_path_star(selected_controllable.move_range, selected_controllable.position[1], selected_controllable.position[0])
+        if timer > 0 and Whos_turn == Pozitie:
+            path_tiles.clear()
+            draw_path_star(selected_controllable.move_range, selected_controllable.position[1], selected_controllable.position[0])
 
     colorTable = {  #Remake the dictionary
     0 : (64,64,64),
@@ -301,7 +307,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 if examined_struct.owner == map_locations[Pozitie]:
                     examined_struct.Draw_AOE(WIN, current_tile_length, (CurrentCamera.x, CurrentCamera.y))
 
-            elif examined_unit != None and examined_unit in controllables_vec:
+            elif examined_unit != None and examined_unit in controllables_vec and timer > 0 and Whos_turn == Pozitie:
                 if examined_unit.owner == map_locations[Pozitie] and examined_unit.canAttack == True:
                     examined_unit.Draw_AOE(WIN, current_tile_length, (CurrentCamera.x, CurrentCamera.y))
 
@@ -324,6 +330,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         #Draw map
         tempSurface = pygame.Surface((WIDTH, HEIGHT))
         tempSurface.blit(mapSurface, (0, 0), (CurrentCamera.x, CurrentCamera.y, WIDTH, HEIGHT))
+
+        selected_tile_check()
+        if timer <= 0 or Whos_turn != Pozitie:
+            global enlighted_surface
+            enlighted_surface = draw_enlighted_tiles()
 
         if enlighted_surface != None:
             tempSurface.blit(enlighted_surface, (0, 0), (CurrentCamera.x, CurrentCamera.y, WIDTH, HEIGHT))
@@ -837,23 +848,26 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 del my_unit
             selected_tile_check()
 
-
     def selected_tile_check() :
         global tile_empty
         global enlighted_surface
-        if tiles[selected_tile[1]][selected_tile[0]].unit == None and tiles[selected_tile[1]][selected_tile[0]].structure == None and tiles[selected_tile[1]][selected_tile[0]].ore == None :
-            tile_empty = True
-        else :
-            nonlocal Element_selectat
-            global selected_controllable
-            if tiles[selected_tile[1]][selected_tile[0]].unit != None and tiles[selected_tile[1]][selected_tile[0]].unit.owner == map_locations[Pozitie] and (selected_tile[0], selected_tile[1]) in visible_tiles:
+        if timer <= 0 or Whos_turn != Pozitie:
+            enlighted_surface = draw_enlighted_tiles()
+        if selected_tile[0] != None:
+            if tiles[selected_tile[1]][selected_tile[0]].unit == None and tiles[selected_tile[1]][selected_tile[0]].structure == None and tiles[selected_tile[1]][selected_tile[0]].ore == None :
+                tile_empty = True
                 enlighted_surface = draw_enlighted_tiles()
-                selected_controllable = tiles[selected_tile[1]][selected_tile[0]].unit
-                if selected_controllable.canMove == True:
-                    determine_enlighted_tiles()
-                    enlighted_surface = draw_enlighted_tiles(True)
-                    Element_selectat = None
-            tile_empty = False
+            else :
+                nonlocal Element_selectat
+                global selected_controllable
+                if tiles[selected_tile[1]][selected_tile[0]].unit != None and tiles[selected_tile[1]][selected_tile[0]].unit.owner == map_locations[Pozitie] and (selected_tile[0], selected_tile[1]) in visible_tiles:
+                    enlighted_surface = draw_enlighted_tiles()
+                    selected_controllable = tiles[selected_tile[1]][selected_tile[0]].unit
+                    if selected_controllable.canMove == True:
+                        determine_enlighted_tiles()
+                        enlighted_surface = draw_enlighted_tiles(True)
+                        Element_selectat = None
+                tile_empty = False
 
 
     #variabilele necesare indiferent de rol
@@ -1347,20 +1361,30 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
                 Changes_from_server.pop(0)
 
-        if timer == 0 :
-            determine_visible_tiles()
+        if timer <= 0 :
+            for unit in controllables_vec: 
+                if unit.HP <= 0:    #If unit is below 0 hp, remove it from the game
+                    the_tile = tiles[unit.position[1]][unit.position[0]]
+                    if type(unit) == Structures.Structure:
+                        the_tile.structure = None
+                    if type(unit) == Units.Unit:
+                        the_tile.unit = None
+
+                    RemoveObjectFromList(unit, controllables_vec)   #Remove dead controllable from the vector
+                    del unit
+
+                if tiles[unit.position[1]][unit.position[0]].unit == unit : #Allow each unit to move and attack for the next round
+                    unit.canMove = True
+                    unit.canAttack = True
 
             units_healed = []   #a vector to store all units healed. Hospital effects don't stack
             for caster in caster_controllables_vec: #For every caster, call it's function. Because of time and internal issues, the only caster is the hospital.
                 caster.call_special_function([caster, controllables_vec, units_healed])
             if len(units_healed) != 0 :
                 Turn_Actions.append(("healed_units",units_healed))
-            del units_healed
+            del units_healed    
 
-            for unit in controllables_vec:  #Allow each unit to make an action
-                if tiles[unit.position[1]][unit.position[0]].unit == unit:
-                    unit.canMove = True
-                    unit.canAttack = True
+            determine_visible_tiles()
 
             if Role == "host" :
                 if Confirmatii_timer == len(CLIENTS) :

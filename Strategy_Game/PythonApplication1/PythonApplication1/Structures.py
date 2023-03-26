@@ -87,8 +87,6 @@ class Structure():
     def ModifyHealth(self, value):
         if self.HP + value > self.MaxHP:
             self.HP = self.MaxHP
-        elif self.HP + value < 0:
-            self.HP = 0
         else:
             self.HP += value
 
