@@ -89,7 +89,6 @@ class Node():
     def Add(self, target):  #Add the Node to the Tree relatively to the target Node. This function shouldn't be called on the Kernel Node.
         #Special Case for connection with Kernel Node:
         if self.Parent == None and target == TreeRoot:
-            print("IT's a me")
             self.Parent = target
             target.Children.append(self)
             self.Powered = True

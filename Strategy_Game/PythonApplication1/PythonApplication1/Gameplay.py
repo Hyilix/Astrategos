@@ -302,7 +302,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     examined_struct.Draw_AOE(WIN, current_tile_length, (CurrentCamera.x, CurrentCamera.y))
 
             elif examined_unit != None and examined_unit in controllables_vec:
-                if examined_unit.owner == map_locations[Pozitie]:
+                if examined_unit.owner == map_locations[Pozitie] and examined_unit.canAttack == True:
                     examined_unit.Draw_AOE(WIN, current_tile_length, (CurrentCamera.x, CurrentCamera.y))
 
     def draw_nodes():
