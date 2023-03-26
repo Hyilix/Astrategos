@@ -256,7 +256,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     x_b = HEIGHT/3 + 50 + HEIGHT/5 -50 + (WIDTH - HEIGHT/3 -25 -HEIGHT/5 +50)/2 - 185/2
     ButtonR_rect = (x_b,HEIGHT-95,186,70)
     Refund_Button = Button((x_b+5,HEIGHT-90,175,60),Gri,None,**{"text": "Refund","font": FontT})
+    refund_bool = False
     Repair_Button = Button((x_b+5,HEIGHT-90,175,60),Gri,None,**{"text": "Repair","font": FontT})
+    repair_bool = False
     # incaracarea imaginilor structurilor si unitatilor care le poate produce playeru, cu culoarea specifica.
     grosime_outline = 5
     spatiu_intre = (HEIGHT/3 - 5 - 70*3)/3
@@ -309,6 +311,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
     def draw_window () :
         nonlocal ButtonR_rect
+        nonlocal refund_bool
+        nonlocal repair_bool
         WIN.fill((255,255,255))
 
         #Draw map
@@ -645,15 +649,15 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             WIN.blit(Mtext,(x_afis,y_center - Mtext_rect[3]/2))
 
                         #Afiseaza  butonul de Refund si butonulde repair
-                        refb = False
-                        repb = False
+                        refund_bool = False
+                        repair_bool = False
                         if (tiles[selected_tile[1]][selected_tile[0]].structure != None and tiles[selected_tile[1]][selected_tile[0]].structure.name == "Kernel") == 0 and ((tiles[selected_tile[1]][selected_tile[0]].structure != None and tiles[selected_tile[1]][selected_tile[0]].structure.owner == map_locations[Pozitie]) or (tiles[selected_tile[1]][selected_tile[0]].unit != None and tiles[selected_tile[1]][selected_tile[0]].unit.owner == map_locations[Pozitie])) :
-                            refb = True
+                            refund_bool = True
                         if tiles[selected_tile[1]][selected_tile[0]].structure != None  and tiles[selected_tile[1]][selected_tile[0]].unit == None and  tiles[selected_tile[1]][selected_tile[0]].structure.HP < tiles[selected_tile[1]][selected_tile[0]].structure.MaxHP :
-                            repb = True
+                            repair_bool = True
 
                         #afisarea butoanelor 
-                        if refb == True and repb == True :
+                        if refund_bool == True and repair_bool == True :
                             #ButtonR_rect = (ButtonR_rect[0] -ButtonR_rect[2]/2 - 50,ButtonR_rect[1],ButtonR_rect[2],ButtonR_rect[3])
                             Refund_Button.rect = pygame.Rect(Refund_Button.rect[0] -ButtonR_rect[2]/2 - 50,Refund_Button.rect[1],Refund_Button.rect[2],Refund_Button.rect[3])
                             pygame.draw.rect(WIN,(25,25,25),(ButtonR_rect[0] -ButtonR_rect[2]/2 - 50,ButtonR_rect[1],ButtonR_rect[2],ButtonR_rect[3]))
@@ -665,9 +669,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             Repair_Button.update(WIN)
                             ButtonR_rect = (ButtonR_rect[0] -ButtonR_rect[2]/2 - 50,ButtonR_rect[1],ButtonR_rect[2],ButtonR_rect[3])
                             Repair_Button.rect =pygame.Rect(Repair_Button.rect[0] -ButtonR_rect[2]/2 - 50,Repair_Button.rect[1],Repair_Button.rect[2],Repair_Button.rect[3])
-                        elif  (refb == True or repb == True) and (refb == True and repb == True)==False :
+                        elif  (refund_bool == True or repair_bool == True) and (refund_bool == True and repair_bool == True)==False :
                             pygame.draw.rect(WIN,(25,25,25),ButtonR_rect)
-                            if refb == True :
+                            if refund_bool == True :
                                 Refund_Button.update(WIN)
                             else :
                                 Repair_Button.update(WIN)
@@ -922,13 +926,21 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         timer_notification_sent = False
         next_turn = False
 
+    def repair_building() :
+        nonlocal Flerovium
+        nonlocal Mithril
+        nonlocal Whos_turn
+
+        if timer > 0 and Whos_turn == Pozitie:
+            #trebuie facuta
+            x=10
+
     def refund_entity():
         nonlocal Flerovium
         nonlocal Mithril
         nonlocal Nodes
         nonlocal Man_power_used
         nonlocal Whos_turn
-        nonlocal Element_selectat
         nonlocal selected_tile
 
         if timer > 0 and Whos_turn == Pozitie:
@@ -962,7 +974,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     Turn_Actions.append(("refund_entity","structure",selected_tile,my_struct))
                     del my_struct
         selected_tile_check()
-
 
     def Create_Building():
         nonlocal Flerovium
@@ -1023,7 +1034,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     del new_unit
                 selected_tile_check()
    
-
     #Camera, texture resizing and load function
     class Camera:
         def __init__(self, position, zoom, max_zoom, min_zoom):
@@ -1541,12 +1551,17 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                              #break
                                      break
                     #detecteaza daca s-a apasat butonul de Build/recruit
-                    if SHOW_UI == True and Create_Button.on_click(event) and can_build == True :
+                    elif SHOW_UI == True and Create_Button.on_click(event) and can_build == True :
                         Create_Building()
                         selected_tile_check()
-                    if Refund_Button.on_click(event) and tile_empty == False and ((tiles[selected_tile[1]][selected_tile[0]].structure != None and tiles[selected_tile[1]][selected_tile[0]].structure.owner == map_locations[Pozitie]) or (tiles[selected_tile[1]][selected_tile[0]].unit != None and tiles[selected_tile[1]][selected_tile[0]].unit.owner == map_locations[Pozitie])) :
+                    elif Refund_Button.on_click(event) and tile_empty == False and refund_bool :
                         refund_entity()
                         selected_tile_check()
+                    elif Refund_Button.on_click(event) and tile_empty == False and refund_bool :
+                        refund_entity()
+                        selected_tile_check()
+                    elif Repair_Button.on_click(event) and tile_empty == False and repair_bool :
+                        repair_building()
                 #daca apesi click dreapta 
                 if event.button == 3:
 
