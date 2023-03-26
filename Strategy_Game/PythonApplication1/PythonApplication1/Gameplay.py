@@ -475,9 +475,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         can_build = True
                         #afisarea caracteristicilor elementului selectat
                         if construction_tab == "Units" :
-                            text = Font.render("HP: "+str(Units.predefined_Units[u_names[Element_selectat]][1]) + "   DEF: " + str(Units.predefined_Units[u_names[Element_selectat]][3]) +"   ATK: " +str(Units.predefined_Units[u_names[Element_selectat]][2])+"   Range: " +str(Units.predefined_Units[u_names[Element_selectat]][4])+"   MRange: " +str(Units.predefined_Units[u_names[Element_selectat]][5]) ,True,(0,0,0))
+                            text = Font.render("HP: "+str(Units.predefined_Units[u_names[Element_selectat]][1]) + "   DEF: " + str(Units.predefined_Units[u_names[Element_selectat]][3]) +"   ATK: " +str(Units.predefined_Units[u_names[Element_selectat]][2]) ,True,(0,0,0))
                         elif construction_tab == "Structures" :
-                            text = Font.render("HP: "+str(Structures.predefined_structures[s_names[Element_selectat]][1]) + "   DEF: " + str(Structures.predefined_structures[s_names[Element_selectat]][3]) ,True,(0,0,0))
+                            if s_names[Element_selectat] == "Healing_Point" :
+                                text = Font.render("HP: "+str(Structures.predefined_structures[s_names[Element_selectat]][1]) + "   DEF: " + str(Structures.predefined_structures[s_names[Element_selectat]][3]) + "   Heal: " + str(Structures.hospital_heal) ,True,(0,0,0))
+                            else :
+                                text = Font.render("HP: "+str(Structures.predefined_structures[s_names[Element_selectat]][1]) + "   DEF: " + str(Structures.predefined_structures[s_names[Element_selectat]][3]) ,True,(0,0,0))
                         y_center  = (HEIGHT*4/5 + ButtonR_rect[1])/2
                         text_rect = text.get_rect()
                         x_afis = HEIGHT/3 + HEIGHT/5 + (WIDTH-HEIGHT*2/3 - HEIGHT/5 - text_rect[2])/2
@@ -624,13 +627,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         if type == "unit" :
                             DMtext = Font.render("DAMAGE: "+ str(entity.attack),True,(0,0,0))
                             DMtext_rect = DMtext.get_rect()
-                            l_afis += DMtext_rect[2] + 25
-                            Rtext = Font.render("RANGE: "+ str(entity.range),True,(0,0,0))
-                            Rtext_rect = Rtext.get_rect()
-                            l_afis += Rtext_rect[2] + 25
-                            Mtext = Font.render("Movement: "+ str(entity.move_range),True,(0,0,0))
-                            Mtext_rect = Mtext.get_rect()
-                            l_afis += Mtext_rect[2]
+                            l_afis += DMtext_rect[2]
+                        elif entity.name == "Healing_Point" :
+                            Healtext = Font.render("Heal: "+ str(Structures.hospital_heal),True,(0,0,0))
+                            Healtext_rect = Healtext.get_rect()
+                            l_afis += Healtext_rect[2]
                         #Afisarea caracteristicilor
                         x_afis = HEIGHT/3 + HEIGHT/5 +(WIDTH - HEIGHT/3 - HEIGHT/5 - l_afis)/2
                         WIN.blit(HP,(x_afis,y_center -HP_rect[3]/2))
@@ -645,10 +646,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         x_afis += Dtext_rect[2] + 25
                         if type == "unit" :
                             WIN.blit(DMtext,(x_afis,y_center - DMtext_rect[3]/2))
-                            x_afis += DMtext_rect[2] + 25
-                            WIN.blit(Rtext,(x_afis,y_center - Rtext_rect[3]/2))
-                            x_afis += Rtext_rect[2] + 25
-                            WIN.blit(Mtext,(x_afis,y_center - Mtext_rect[3]/2))
+                        elif entity.name == "Healing_Point" :
+                            WIN.blit(Healtext,(x_afis,y_center - Healtext_rect[3]/2))
 
                         #Afiseaza  butonul de Refund si butonulde repair
                         refund_bool = False
@@ -718,7 +717,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             Repair_Button.update(WIN)
                             ButtonR_rect = (ButtonR_rect[0] -ButtonR_rect[2]/2 - 50,ButtonR_rect[1],ButtonR_rect[2],ButtonR_rect[3])
                             Repair_Button.rect =pygame.Rect(Repair_Button.rect[0] -ButtonR_rect[2]/2 - 50,Repair_Button.rect[1],Repair_Button.rect[2],Repair_Button.rect[3])
-                        elif  (refund_bool == True or repair_bool == True) and (refund_bool == True and repair_bool == True)==False :
+                        elif  (refund_bool == True or repair_bool == True)  :
                             if refund_bool == True :
                                 pygame.draw.rect(WIN,(25,25,25),ButtonR_rect)
                                 Refund_Button.update(WIN)
