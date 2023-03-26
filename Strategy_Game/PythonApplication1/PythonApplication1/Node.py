@@ -29,7 +29,7 @@ def InitTree():     #Start from the root, find Nodes, and from these Nodes searc
                 if node.CheckCollision(target) == True:
                     NodesFound.append(target)
                     target.Add(node)
-                    target.Powered = True
+                    #target.Powered = True
 
 def Find_connections():
     for node in NodesFound:
@@ -88,12 +88,13 @@ class Node():
 
     def Add(self, target):  #Add the Node to the Tree relatively to the target Node. This function shouldn't be called on the Kernel Node.
         #Special Case for connection with Kernel Node:
-        if self.Parent == None and NodeList.index(target) == 0:
+        if self.Parent == None and target == TreeRoot:
+            print("IT's a me")
             self.Parent = target
             target.Children.append(self)
             self.Powered = True
             NodesFound.append(self)
-        elif NodeList.index(target) == 0:
+        elif target == TreeRoot:
             return  #You don't want to make the Kernel Node a child of another Node. You just don't.
 
         else:

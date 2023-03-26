@@ -65,7 +65,7 @@ visible_tiles = []
 partially_visible_tiles = []
 path_tiles = [] #Tiles that a selected unit can move to
 
-DEBUG_FORCED_POSITION = None
+DEBUG_FORCED_POSITION = 4
 
 def draw_star(length, y, x, TrueSight = False):    #Determine what tiles the player currently sees.
     First = True
@@ -762,6 +762,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             refresh_map([Action[1], Action[2]])
 
             tiles[Action[1][1]][Action[1][0]].unit.canMove = True
+            selected_tile_check()
         elif Action[0] == "new_entity" :
             if Action[1] == "Structures":
                 new_struct = tiles[Action[4][1]][Action[4][0]].structure
@@ -1093,6 +1094,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                             new_structure
                                             )
 
+                nonlocal Man_power_used
+                nonlocal Nodes
+
                 #Detect if the structure is either Kernel or Node to populate the Node module.
                 if new_tile.structure != None:
                     if (new_tile.structure.name == "Kernel" or new_tile.structure.name == "Node") and new_tile.structure.owner == map_locations[Pozitie]:
@@ -1114,9 +1118,13 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     if new_tile.structure.owner == map_locations[Pozitie]:
                         controllables_vec.append(new_tile.structure)
 
+                    if new_tile.structure.name == "Node" and new_tile.structure.owner == map_locations[Pozitie]:
+                        Nodes += 1
+
                 if new_tile.unit != None:
                     if new_tile.unit.owner == map_locations[Pozitie]:
                         controllables_vec.append(new_tile.unit)
+                        Man_power_used += new_tile.unit.price[2]
 
                 new_vec.append(new_tile)
             tiles.append(new_vec)
@@ -1131,7 +1139,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
 
         Node.InitTree()
-        
+
         if TileClass.full_bright == True:
             for y in range(rows):
                 for x in range(tiles_per_row):
