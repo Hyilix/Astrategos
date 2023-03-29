@@ -376,30 +376,39 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             pygame.draw.rect(WIN,(225, 223, 240),(0,0,WIDTH,HEIGHT/25))
             pygame.draw.rect(WIN,(25,25,25),(0,HEIGHT/25,WIDTH,5))
             #Afisarea resurselor detinute
-            x_coord = 5
-            WIN.blit(mithril_icon,(x_coord,(HEIGHT/25-32)/2))
-            x_coord = x_coord +32 + 10
-            mit_count = Font.render(str(Mithril),True,(75, 91, 248))
-            mit_rect = mit_count.get_rect()
-            WIN.blit(mit_count,(x_coord,(HEIGHT/25-mit_rect[3])/2))
-            x_coord = mit_rect[2] + 10 + x_coord
-            fle_count = Font.render(str(Flerovium),True,(152, 65, 182))
-            fle_rect = fle_count.get_rect()
-            WIN.blit(flerovium_icon,(x_coord,(HEIGHT/25-32)/2))
-            x_coord = x_coord + 10 + 32
-            WIN.blit(fle_count,(x_coord,(HEIGHT/25-fle_rect[3])/2))
-            x_coord = x_coord + fle_rect[2]+10
-            man_power_count = Font.render(("  " + str(Man_power_used))[-3:]+' / '+ str(Max_Man_power),True,(0,0,0))
-            man_rect = man_power_count.get_rect()
-            WIN.blit(man_power_icon,(x_coord,(HEIGHT/25-32)/2))
-            x_coord = x_coord + 32 + 10
-            WIN.blit(man_power_count,(x_coord,(HEIGHT/25-man_rect[3])/2))
-            x_coord = x_coord + man_rect[2] + 10
-            nodes_count = Font.render(("  " + str(Nodes))[-2:] + " / " + str(Max_Nodes),True,(0,0,0))
-            nodes_rect = nodes_count.get_rect()
-            WIN.blit(nodes_icon,(x_coord,(HEIGHT/25-32)/2))
-            x_coord = x_coord + 10 + 32
-            WIN.blit(nodes_count,(x_coord,(HEIGHT/25-nodes_rect[3])/2))
+            if Win_condition == 0 :
+                x_coord = 5
+                WIN.blit(mithril_icon,(x_coord,(HEIGHT/25-32)/2))
+                x_coord = x_coord +32 + 10
+                mit_count = Font.render(str(Mithril),True,(75, 91, 248))
+                mit_rect = mit_count.get_rect()
+                WIN.blit(mit_count,(x_coord,(HEIGHT/25-mit_rect[3])/2))
+                x_coord = mit_rect[2] + 10 + x_coord
+                fle_count = Font.render(str(Flerovium),True,(152, 65, 182))
+                fle_rect = fle_count.get_rect()
+                WIN.blit(flerovium_icon,(x_coord,(HEIGHT/25-32)/2))
+                x_coord = x_coord + 10 + 32
+                WIN.blit(fle_count,(x_coord,(HEIGHT/25-fle_rect[3])/2))
+                x_coord = x_coord + fle_rect[2]+10
+                man_power_count = Font.render(("  " + str(Man_power_used))[-3:]+' / '+ str(Max_Man_power),True,(0,0,0))
+                man_rect = man_power_count.get_rect()
+                WIN.blit(man_power_icon,(x_coord,(HEIGHT/25-32)/2))
+                x_coord = x_coord + 32 + 10
+                WIN.blit(man_power_count,(x_coord,(HEIGHT/25-man_rect[3])/2))
+                x_coord = x_coord + man_rect[2] + 10
+                nodes_count = Font.render(("  " + str(Nodes))[-2:] + " / " + str(Max_Nodes),True,(0,0,0))
+                nodes_rect = nodes_count.get_rect()
+                WIN.blit(nodes_icon,(x_coord,(HEIGHT/25-32)/2))
+                x_coord = x_coord + 10 + 32
+                WIN.blit(nodes_count,(x_coord,(HEIGHT/25-nodes_rect[3])/2))
+            elif Win_condition != 0 :
+                if Win_condition == -1 :
+                    text = FontT.render("You died and LOST the match",True,(0,0,0))
+                else :
+                    text = FontT.render("You are the last one standing, you WIN",True,(0,0,0))
+                text_rect =  text.get_rect()
+                text_rect.center = ((WIDTH-260)/4,HEIGHT/50)
+                WIN.blit(text,text_rect)
             #turn part
             pygame.draw.rect(WIN,Player_Colors[playeri[Whos_turn][1]],((WIDTH-260)/2,0,260,HEIGHT*2/25 + 5))
             pygame.draw.rect(WIN,(225, 223, 240),((WIDTH-250)/2,0,250,HEIGHT*2/25 ))
