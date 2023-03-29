@@ -1325,14 +1325,14 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 refresh_map()
                 map_locations.pop(Coduri_pozitie_client[Killed_Clients[0]] + 1 )
                 #modificarea turelor
-                if Whos_turn >= Coduri_pozitie_client[Killed_Clients[0]] + 1 :
+                if Whos_turn == Coduri_pozitie_client[Killed_Clients[0]] + 1 :
                     timer = turn_time
-                    while colorTable[map_locations[Whos_turn]] == None or Whos_turn >= len(playeri) :
+                    while   Whos_turn >= len(playeri) or colorTable[map_locations[Whos_turn]] == None :
                         if Whos_turn >= len(playeri) :
                             Whos_turn = 0
                         if colorTable[map_locations[Whos_turn]] == None :
                             Whos_turn += 1 
-                elif Whos_turn > Whos_turn == Coduri_pozitie_client[Killed_Clients[0]] + 1 :
+                elif Whos_turn > Coduri_pozitie_client[Killed_Clients[0]] + 1 :
                     Whos_turn -= 1
                 Client_THREADS[Coduri_pozitie_client[Killed_Clients[0]]].join()
                 Client_THREADS.pop(Coduri_pozitie_client[Killed_Clients[0]])
@@ -1404,14 +1404,14 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     refresh_map()
                     map_locations.pop(Changes_from_server[0][1] )
                     #modificarea turelor
-                    if Whos_turn >= Changes_from_server[0][1] :
+                    if Whos_turn == Changes_from_server[0][1] :
                         timer = turn_time
-                        while colorTable[map_locations[Whos_turn]] == None or Whos_turn >= len(playeri) :
+                        while   Whos_turn >= len(playeri) or colorTable[map_locations[Whos_turn]] == None :
                             if Whos_turn >= len(playeri) :
                                 Whos_turn = 0
                             if colorTable[map_locations[Whos_turn]] == None :
                                 Whos_turn += 1 
-                    elif  Whos_turn >= Changes_from_server[0][1] :
+                    elif  Whos_turn > Changes_from_server[0][1] :
                         Whos_turn -= 1
                     if Changes_from_server[0][1] < Pozitie :
                         Pozitie -= 1 
@@ -1489,7 +1489,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     Transmit_to_all.append((("next_turn",None),None))
                     #se schimba cel care joaca
                     Whos_turn += 1 
-                    while colorTable[map_locations[Whos_turn]] == None or Whos_turn >= len(playeri) :
+                    while   Whos_turn >= len(playeri) or colorTable[map_locations[Whos_turn]] == None :
                         if Whos_turn >= len(playeri) :
                             Whos_turn = 0
                         if colorTable[map_locations[Whos_turn]] == None :
@@ -1515,7 +1515,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 elif next_turn == True :
                     #se schimba cel care joaca
                     Whos_turn += 1 
-                    while colorTable[map_locations[Whos_turn]] == None or Whos_turn >= len(playeri) :
+                    while   Whos_turn >= len(playeri) or colorTable[map_locations[Whos_turn]] == None :
                         if Whos_turn >= len(playeri) :
                             Whos_turn = 0
                         if colorTable[map_locations[Whos_turn]] == None :
@@ -1621,7 +1621,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                             Element_selectat = None
                                 else :
                                     selected_tile = [None,None]
-
                     #detecteaza daca playeru a schimbat coinstruction tabul
                     elif SHOW_UI == True and press_coordonaits[0]> WIDTH-HEIGHT/3 and press_coordonaits[1] <= HEIGHT*2/3 -5 and press_coordonaits[1] >= HEIGHT*2/3 -55 :
                         Element_selectat = None
@@ -1651,22 +1650,21 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                              #break
                                      break
                     #detecteaza daca s-a apasat butonul de Build/recruit
-                    elif SHOW_UI == True and Create_Button.on_click(event) and can_build == True :
+                    elif Win_condition == 0 and SHOW_UI == True and Create_Button.on_click(event) and can_build == True :
                         Create_Building()
                         selected_tile_check()
-                    elif Refund_Button.on_click(event) and tile_empty == False and refund_bool :
+                    #verifica daca playerul a apasat butonul de refund
+                    elif Win_condition == 0 and Refund_Button.on_click(event) and tile_empty == False and refund_bool :
                         refund_entity()
                         selected_tile_check()
-                    elif Refund_Button.on_click(event) and tile_empty == False and refund_bool :
-                        refund_entity()
-                        selected_tile_check()
-                    elif Repair_Button.on_click(event) and tile_empty == False and repair_bool and aford_repair == True :
+                    #verifica daca apasa butonul de repair
+                    elif Win_condition == 0 and Repair_Button.on_click(event) and tile_empty == False and repair_bool and aford_repair == True :
                         repair_building()
                 #daca apesi click dreapta 
                 if event.button == 3:
 
                     #daca ai o unitate selectata, incearca sa o muti  daca este tura playerului
-                    if selected_controllable != None and timer>0 and Whos_turn == Pozitie :
+                    if Win_condition == 0 and selected_controllable != None and timer>0 and Whos_turn == Pozitie :
                         if SHOW_UI == False or( press_coordonaits[1] > HEIGHT/25 and (press_coordonaits[0] >= (WIDTH-260)/2 and press_coordonaits[0] <= (WIDTH-260)/2 + 260 and (press_coordonaits[1] <= HEIGHT*2/25 +5 or (Whos_turn == Pozitie and press_coordonaits[1] <= HEIGHT*2/25 + 40 )) )==0 and (press_coordonaits[1] > HEIGHT*2/3 and press_coordonaits[0] < HEIGHT/3)==0 and ((press_coordonaits[0]<(WIDTH-260)/2 + 260 and Chat_window == True) or Chat_window == False) and( selected_tile[0]==None or (press_coordonaits[1] < HEIGHT*4/5-5 and (tile_empty==False or (press_coordonaits[0]>WIDTH-HEIGHT/3 and press_coordonaits[1]>HEIGHT*2/3-60)==0 )))) :
 
                             x_layer = (press_coordonaits[0] + CurrentCamera.x) // current_tile_length 
@@ -1690,7 +1688,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                         #Pune aceasta actiune in Turn-Actions
                                         Turn_Actions.append(("move_unit",lastPos,(x_layer, y_layer)))
                                         selected_tile_check()
-
 
                 #daca dai scrol in sus
                 if event.button == 4 :
@@ -1749,7 +1746,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
             elif event.type == pygame.KEYDOWN :
                 #Daca scrie in chat
-
                 if writing_in_chat == False:
                     if event.key == pygame.K_z and event.mod & pygame.KMOD_CTRL :
                         if Ctrl_zeed == False and Whos_turn == Pozitie and timer >0 :
