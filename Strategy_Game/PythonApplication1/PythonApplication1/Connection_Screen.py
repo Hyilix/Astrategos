@@ -6,7 +6,6 @@ from button import Button
 from Lobby_screen import lobby
 
 DEBUG_DARK_MODE = True
-
 White = (255,255,255)
 Error_lifespan = 0
 

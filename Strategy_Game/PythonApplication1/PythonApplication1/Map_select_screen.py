@@ -141,9 +141,9 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
             text = Font.render(Map_load_action,True,(0,0,0))
             text_rect = text.get_rect()
             text_rect.center = (WIDTH/2, HEIGHT - HEIGHT/50 -12)
-            pygame.draw.rect(WIN, (255, 255, 255), text_rect)
             WIN.blit(text,text_rect)
             pygame.display.update(text_rect[0],text_rect[1],text_rect[2],text_rect[3])
+            pygame.draw.rect(WIN, (255, 255, 255), text_rect)
 
     #functia care  determina ce harta castiga dupa vot
     def rezultat_voturi () :
@@ -288,7 +288,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                 #load map in folder
                 adres=os.path.join(directory, filename)
                 Map_load_action = "Loading maps : load " + adres[12:-4] + " map"
-                MAPS.append(pygame.image.load(adres))
+                MAPS.append(pygame.transform.scale(pygame.image.load(adres),(latura,latura)))
                 map_names.append(adres[12:-4])
                 #send verifications to clients
                 Map_load_action = "Loading maps : send verification for " + adres[12:-4] + " map"
@@ -335,7 +335,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                             adres = os.path.join(directory, mapload_related_stuff[0][1] + ".jpg")
                             #da load la harta
                             Map_load_action = "Loading maps : load " + adres[12:-4] + " map"
-                            MAPS.append(pygame.image.load(adres))
+                            MAPS.append(pygame.transform.scale(pygame.image.load(adres),(latura,latura)))
                             map_names.append(adres[12:-4])
                             data_send = pickle.dumps(("I_have_it",None))
                             data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
@@ -347,7 +347,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                                 adres = os.path.join(directory, mapload_related_stuff[0][1] + ".jpg")
                                 #da load la harta
                                 Map_load_action = "Loading maps : load " + adres[12:-4] + " map"
-                                MAPS.append(pygame.image.load(adres))
+                                MAPS.append(pygame.transform.scale(pygame.image.load(adres),(latura,latura)))
                                 map_names.append(adres[26:-4])
                                 data_send = pickle.dumps(("I_have_it",None))
                                 data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
@@ -382,7 +382,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                         image = pickle.loads(image)
                         image = image.save(new_adres + the_name + ".jpg" )
                         del image
-                        MAPS.append(pygame.image.load(new_adres+the_name+".jpg"))
+                        MAPS.append(pygame.transform.scale(pygame.image.load(new_adres+the_name+".jpg"),(latura,latura)))
                         map_names.append(the_name)
                         #trimiterea serverului ca acum are imaginea
                         data_send = pickle.dumps(("I_have_it",None))
