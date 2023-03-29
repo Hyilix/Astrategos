@@ -974,6 +974,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     #Vectorul care detine actiunile playerului din tura lui
     Turn_Actions = []
     Ctrl_zeed = False
+    #daca e -1 playerul a murit, daca este 1 playerul este singurul viu
+    Win_condition = 0
     # Incarcarea variabilelor necesare rolurilor de host si client
     if Role == "host" :
         Confirmatii_timer = 0
@@ -1323,10 +1325,13 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 refresh_map()
                 map_locations.pop(Coduri_pozitie_client[Killed_Clients[0]] + 1 )
                 #modificarea turelor
-                if Whos_turn == Coduri_pozitie_client[Killed_Clients[0]] + 1 :
+                if Whos_turn >= Coduri_pozitie_client[Killed_Clients[0]] + 1 :
                     timer = turn_time
-                    if Whos_turn >= len(playeri) :
-                        Whos_turn = 0
+                    while colorTable[map_locations[Whos_turn]] == None or Whos_turn >= len(playeri) :
+                        if Whos_turn >= len(playeri) :
+                            Whos_turn = 0
+                        if colorTable[map_locations[Whos_turn]] == None :
+                            Whos_turn += 1 
                 elif Whos_turn > Whos_turn == Coduri_pozitie_client[Killed_Clients[0]] + 1 :
                     Whos_turn -= 1
                 Client_THREADS[Coduri_pozitie_client[Killed_Clients[0]]].join()
@@ -1399,10 +1404,13 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     refresh_map()
                     map_locations.pop(Changes_from_server[0][1] )
                     #modificarea turelor
-                    if Whos_turn == Changes_from_server[0][1] :
+                    if Whos_turn >= Changes_from_server[0][1] :
                         timer = turn_time
-                        if Whos_turn >= len(playeri) :
-                            Whos_turn = 0
+                        while colorTable[map_locations[Whos_turn]] == None or Whos_turn >= len(playeri) :
+                            if Whos_turn >= len(playeri) :
+                                Whos_turn = 0
+                            if colorTable[map_locations[Whos_turn]] == None :
+                                Whos_turn += 1 
                     elif  Whos_turn >= Changes_from_server[0][1] :
                         Whos_turn -= 1
                     if Changes_from_server[0][1] < Pozitie :
@@ -1481,8 +1489,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     Transmit_to_all.append((("next_turn",None),None))
                     #se schimba cel care joaca
                     Whos_turn += 1 
-                    if Whos_turn == len(playeri) :
-                        Whos_turn = 0
+                    while colorTable[map_locations[Whos_turn]] == None or Whos_turn >= len(playeri) :
+                        if Whos_turn >= len(playeri) :
+                            Whos_turn = 0
+                        if colorTable[map_locations[Whos_turn]] == None :
+                            Whos_turn += 1 
                     timer = turn_time
                     Confirmatii_timer = 0
                     if TileClass.full_bright == False :
@@ -1504,8 +1515,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 elif next_turn == True :
                     #se schimba cel care joaca
                     Whos_turn += 1 
-                    if Whos_turn == len(playeri) :
-                        Whos_turn = 0
+                    while colorTable[map_locations[Whos_turn]] == None or Whos_turn >= len(playeri) :
+                        if Whos_turn >= len(playeri) :
+                            Whos_turn = 0
+                        if colorTable[map_locations[Whos_turn]] == None :
+                            Whos_turn += 1 
                     timer = turn_time
                     timer_notification_sent = False
                     next_turn = False
