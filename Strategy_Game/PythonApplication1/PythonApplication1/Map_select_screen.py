@@ -135,7 +135,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
             #desenarea barii de cooldown 
             pygame.draw.rect(WIN, (255, 255, 255), pygame.Rect(0, HEIGHT - HEIGHT/25 , WIDTH,HEIGHT/25 ))
             pygame.draw.rect(WIN, (230, 0, 0), pygame.Rect(0, HEIGHT - HEIGHT/25 , cooldown*WIDTH/Next_stage_cooldown,HEIGHT/25 ))
-            pygame.display.update(0,HEIGHT-HEIGHT/25,WIDTH,HEIGHT/25)
+            pygame.display.update(0,HEIGHT-HEIGHT/25-10,WIDTH,HEIGHT/25+10)
         else :
             #afiseaza ce actiune se face la loading maps
             text = Font.render(Map_load_action,True,(0,0,0))

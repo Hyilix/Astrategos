@@ -403,9 +403,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 WIN.blit(nodes_count,(x_coord,(HEIGHT/25-nodes_rect[3])/2))
             elif Win_condition != 0 :
                 if Win_condition == -1 :
-                    text = FontT.render("You died and LOST the match",True,(0,0,0))
+                    if Winner == None :
+                        text = FontT.render("You died and LOST wait for the match to end",True,(0,0,0))
+                    else :
+                        text = FontT.render(Winner+" WON, wait for the host to return to the lobby",True,(0,0,0))
                 else :
-                    text = FontT.render("You are the last one standing, you WIN",True,(0,0,0))
+                    text = FontT.render("You WON, wait for the host to return to the lobby",True,(0,0,0))
                 text_rect =  text.get_rect()
                 text_rect.center = ((WIDTH-260)/4,HEIGHT/50)
                 WIN.blit(text,text_rect)
@@ -437,6 +440,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             #Partea de jos a UI-ului
             # draw mini_map part
             pygame.draw.rect(WIN,(25,25,25),(0,HEIGHT-HEIGHT/3,HEIGHT/3,HEIGHT/3))
+            WIN.blit(pygame.transform.scale(mapSurface,(HEIGHT/3-10,HEIGHT/3-10)),(5,HEIGHT*2/3+5))
             #desenarea chenarului su informatiile despre ce este selectat
             if selected_tile[0] !=None :
                 if tile_empty == True :
@@ -869,7 +873,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             refresh_map([Action[1], Action[2]])
 
             tiles[Action[1][1]][Action[1][0]].unit.canMove = True
-            selected_tile_check()
         elif Action[0] == "new_entity" :
             if Action[1] == "Structures":
                 new_struct = tiles[Action[4][1]][Action[4][0]].structure
@@ -882,13 +885,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     new_node = Node.getNodeFromObj(new_struct)
                     new_node.Kill()
                     del new_node
-                selected_tile_check()
                 #Sterge structura
                 tiles[Action[4][1]][Action[4][0]].structure = None
                 refresh_map([[Action[4][0],Action[4][1]]])
                 controllables_vec.pop(Action[5])
                 del new_struct
-
             elif Action[1] == "Units":
                 new_unit = tiles[Action[4][1]][Action[4][0]].unit
                 #se redau costurile
@@ -900,7 +901,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 tiles[Action[4][1]][Action[4][0]].unit = None
                 refresh_map([[Action[4][0],Action[4][1]]])
                 controllables_vec.pop(Action[5])
-                selected_tile_check()
         elif Action[0] == "refund_entity":
             if Action[1] == "structure" : #Structure case. Also don't refund Kernel lol
                 my_struct = Action[3]
@@ -930,14 +930,13 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 tiles[Action[2][1]][Action[2][0]].unit = my_unit
                 refresh_map([[Action[2][0],Action[2][1]]])
                 del my_unit
-            selected_tile_check()
-
         elif Action[0] == "repair_entity":
             #scaderea pretului
             Mithril += Action[3][0]
             Flerovium += Action[3][1]
             tiles[Action[1][1]][Action[1][0]].structure.ModifyHealth(-Action[2])
-
+        
+        selected_tile_check()
 
     def selected_tile_check() :
         global tile_empty
@@ -985,6 +984,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     Ctrl_zeed = False
     #daca e -1 playerul a murit, daca este 1 playerul este singurul viu
     Win_condition = 0
+    Winner = None
     # Incarcarea variabilelor necesare rolurilor de host si client
     if Role == "host" :
         Confirmatii_timer = 0
@@ -1128,6 +1128,20 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     del new_unit
                 selected_tile_check()
    
+    def check_for_winner():
+        nonlocal Winner
+        nonlocal Win_condition
+        nr_active = 0
+        w = None
+        for i in range(len(playeri)) :
+            if colorTable[map_locations[i]] != None :
+                nr_active += 1
+                w = playeri[i][0]
+        if nr_active == 1 :
+            Winner = w
+            if Winner == playeri[Pozitie][0] :
+                Win_condition = 1
+                
     #Camera, texture resizing and load function
     class Camera:
         def __init__(self, position, zoom, max_zoom, min_zoom):
@@ -1186,7 +1200,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         nonlocal mapSurfaceNormal 
         nonlocal mapSurface
         infile = None
-        print(map_name)
         try:
             infile = open("Maps/info/" + map_name + ".txt", "rb")
         except:
@@ -1330,6 +1343,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 playeri.pop(Coduri_pozitie_client[Killed_Clients[0]] + 1)
                 #modifecarea pozitiilor de pe harta si stergerea cladirilor
                 colorTable[map_locations[Coduri_pozitie_client[Killed_Clients[0]] + 1]] = None
+                check_for_winner()
                 TileClass.colorTable = colorTable
                 refresh_map()
                 map_locations.pop(Coduri_pozitie_client[Killed_Clients[0]] + 1 )
@@ -1410,6 +1424,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     #modifecarea pozitiilor de pe harta si stergerea cladirilor
                     colorTable[map_locations[Changes_from_server[0][1]]] = None
                     TileClass.colorTable = colorTable
+                    check_for_winner()
                     refresh_map()
                     map_locations.pop(Changes_from_server[0][1] )
                     #modificarea turelor
@@ -1535,6 +1550,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     if TileClass.full_bright == False :
                         refresh_map()
 
+            selected_tile_check()
 
         #The event loop
         for event in pygame.event.get():
