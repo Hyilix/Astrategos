@@ -253,6 +253,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     x_b =HEIGHT/3 + 50 + HEIGHT/5 -50 + (WIDTH - HEIGHT*2/3 -25 -HEIGHT/5 +50)/2 - 185/2
     ButtonC_rect = (x_b,HEIGHT-95,185,70)
     Create_Button = Button((x_b+5,HEIGHT-90,175,60),Gri,None,**{"text": "Recruit","font": FontT})
+    #butonul de repair si refund
     x_b = HEIGHT/3 + 50 + HEIGHT/5 -50 + (WIDTH - HEIGHT/3 -25 -HEIGHT/5 +50)/2 - 185/2
     ButtonR_rect = (x_b,HEIGHT-95,186,70)
     Refund_Button = Button((x_b+5,HEIGHT-90,175,60),Gri,None,**{"text": "Refund","font": FontT})
@@ -260,6 +261,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     Repair_Button = Button((x_b+5,HEIGHT-90,175,60),Gri,None,**{"text": "Repair","font": FontT})
     repair_bool = False
     aford_repair = False
+    #Escape part 
     # incaracarea imaginilor structurilor si unitatilor care le poate produce playeru, cu culoarea specifica.
     grosime_outline = 5
     spatiu_intre = (HEIGHT/3 - 5 - 70*3)/3
@@ -752,6 +754,13 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                     pygame.draw.rect(WIN,Red,ButtonR_rect)
                                 Repair_Button.update(WIN)
 
+            #desenare ESCAPE_TAB
+            if Escape_tab == True :
+                pygame.draw.rect(WIN,(25,25,25),(WIDTH/2-255,HEIGHT/2-155, 510,5))
+                pygame.draw.rect(WIN,(25,25,25),(WIDTH/2-255,HEIGHT/2-155, 5,310))
+                pygame.draw.rect(WIN,(25,25,25),(WIDTH/2-255,HEIGHT/2+150, 510,5))
+                pygame.draw.rect(WIN,(25,25,25),(WIDTH/2+250,HEIGHT/2-155, 5,310))
+                pygame.draw.rect(WIN,Gri,(WIDTH/2-250,HEIGHT/2-150, 500,300))
         pygame.display.update()
 
     #Functia cu care serverul asculta pentru mesajele unui client
@@ -985,6 +994,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     #daca e -1 playerul a murit, daca este 1 playerul este singurul viu
     Win_condition = 0
     Winner = None
+    Escape_tab = False
     # Incarcarea variabilelor necesare rolurilor de host si client
     if Role == "host" :
         Confirmatii_timer = 0
@@ -1562,7 +1572,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 #daca apesi click stanga
                 if event.button == 1 :
                     #Se verifica daca apasa butonul de chat
-                    if SHOW_UI == True and press_coordonaits[1] <= 75  and press_coordonaits[0] >= WIDTH -75 :
+                    if Escape_tab == False and SHOW_UI == True and press_coordonaits[1] <= 75  and press_coordonaits[0] >= WIDTH -75 :
                         if Chat_window == False :
                             Chat_window = True
                             chat_notification = False
@@ -1574,7 +1584,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             message = ""
                             chat_scroll = 0
                     #se verifica daca interactioneaza cu chat boxul
-                    if SHOW_UI == True and Chat_window == True :
+                    if Escape_tab == False and SHOW_UI == True and Chat_window == True :
                         if press_coordonaits[0] < (WIDTH-260)/2 + 265 :
                             Chat_window = False
                             writing_in_chat = False
@@ -1585,7 +1595,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         else :
                             writing_in_chat = False
                     #Detecteaza daca a apasat butonul de End Turn
-                    if SHOW_UI == True and Whos_turn == Pozitie and press_coordonaits[0]>(WIDTH-260)/2 and press_coordonaits[0]<(WIDTH-260)/2 +260 and press_coordonaits[1]>HEIGHT*2/25 and press_coordonaits[1]<HEIGHT*2/25 + 40 :
+                    if Escape_tab == False and SHOW_UI == True and Whos_turn == Pozitie and press_coordonaits[0]>(WIDTH-260)/2 and press_coordonaits[0]<(WIDTH-260)/2 +260 and press_coordonaits[1]>HEIGHT*2/25 and press_coordonaits[1]<HEIGHT*2/25 + 40 :
                         timer = 0 
                         if Role == "host" :
                             Transmit_to_all.append((("Force_end_turn",None),None))
@@ -1594,7 +1604,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                             Connection.send(data_send)
                     #detecteaza daca playeru apasa un tile vizibil
-                    if SHOW_UI == False or( press_coordonaits[1] > HEIGHT/25 and (press_coordonaits[0] >= (WIDTH-260)/2 and press_coordonaits[0] <= (WIDTH-260)/2 + 260 and (press_coordonaits[1] <= HEIGHT*2/25 +5 or (Whos_turn == Pozitie and press_coordonaits[1] <= HEIGHT*2/25 + 40 )) )==0 and (press_coordonaits[1] > HEIGHT*2/3 and press_coordonaits[0] < HEIGHT/3)==0 and ((press_coordonaits[0]<(WIDTH-260)/2 + 260 and Chat_window == True) or Chat_window == False) and( selected_tile[0]==None or (press_coordonaits[1] < HEIGHT*4/5-5 and (tile_empty==False or (press_coordonaits[0]>WIDTH-HEIGHT/3 and press_coordonaits[1]>HEIGHT*2/3-60)==0 )))) :
+                    if Escape_tab == False and SHOW_UI == False or( press_coordonaits[1] > HEIGHT/25 and (press_coordonaits[0] >= (WIDTH-260)/2 and press_coordonaits[0] <= (WIDTH-260)/2 + 260 and (press_coordonaits[1] <= HEIGHT*2/25 +5 or (Whos_turn == Pozitie and press_coordonaits[1] <= HEIGHT*2/25 + 40 )) )==0 and (press_coordonaits[1] > HEIGHT*2/3 and press_coordonaits[0] < HEIGHT/3)==0 and ((press_coordonaits[0]<(WIDTH-260)/2 + 260 and Chat_window == True) or Chat_window == False) and( selected_tile[0]==None or (press_coordonaits[1] < HEIGHT*4/5-5 and (tile_empty==False or (press_coordonaits[0]>WIDTH-HEIGHT/3 and press_coordonaits[1]>HEIGHT*2/3-60)==0 )))) :
                         x_layer = (press_coordonaits[0] + CurrentCamera.x) // current_tile_length 
                         y_layer = (press_coordonaits[1] + CurrentCamera.y) // current_tile_length
                         if x_layer >= 0 and x_layer < tiles_per_row:
@@ -1647,7 +1657,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                 else :
                                     selected_tile = [None,None]
                     #detecteaza daca playeru a schimbat coinstruction tabul
-                    elif SHOW_UI == True and press_coordonaits[0]> WIDTH-HEIGHT/3 and press_coordonaits[1] <= HEIGHT*2/3 -5 and press_coordonaits[1] >= HEIGHT*2/3 -55 :
+                    elif Escape_tab == False and SHOW_UI == True and press_coordonaits[0]> WIDTH-HEIGHT/3 and press_coordonaits[1] <= HEIGHT*2/3 -5 and press_coordonaits[1] >= HEIGHT*2/3 -55 :
                         Element_selectat = None
                         construction_tab_scroll = 0
                         if construction_tab == "Structures" :
@@ -1655,7 +1665,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         elif construction_tab == "Units" :
                             construction_tab = "Structures"
                     #detecteaza daca playerul a apasat un element din construction_tab
-                    elif SHOW_UI == True and press_coordonaits[0]> WIDTH-HEIGHT/3 and press_coordonaits[1] >= HEIGHT*2/3 :
+                    elif Escape_tab == False and SHOW_UI == True and press_coordonaits[0]> WIDTH-HEIGHT/3 and press_coordonaits[1] >= HEIGHT*2/3 :
                         if construction_tab == "Structures" :
                             elements = len(structures)
                         else :
@@ -1675,21 +1685,21 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                              #break
                                      break
                     #detecteaza daca s-a apasat butonul de Build/recruit
-                    elif Win_condition == 0 and SHOW_UI == True and Create_Button.on_click(event) and can_build == True :
+                    elif Escape_tab == False and Win_condition == 0 and SHOW_UI == True and Create_Button.on_click(event) and can_build == True :
                         Create_Building()
                         selected_tile_check()
                     #verifica daca playerul a apasat butonul de refund
-                    elif Win_condition == 0 and Refund_Button.on_click(event) and tile_empty == False and refund_bool :
+                    elif Escape_tab == False and Win_condition == 0 and Refund_Button.on_click(event) and tile_empty == False and refund_bool :
                         refund_entity()
                         selected_tile_check()
                     #verifica daca apasa butonul de repair
-                    elif Win_condition == 0 and Repair_Button.on_click(event) and tile_empty == False and repair_bool and aford_repair == True :
+                    elif Escape_tab == False and Win_condition == 0 and Repair_Button.on_click(event) and tile_empty == False and repair_bool and aford_repair == True :
                         repair_building()
                 #daca apesi click dreapta 
                 if event.button == 3:
 
                     #daca ai o unitate selectata, incearca sa o muti  daca este tura playerului
-                    if Win_condition == 0 and selected_controllable != None and timer>0 and Whos_turn == Pozitie :
+                    if Escape_tab == False and Win_condition == 0 and selected_controllable != None and timer>0 and Whos_turn == Pozitie :
                         if SHOW_UI == False or( press_coordonaits[1] > HEIGHT/25 and (press_coordonaits[0] >= (WIDTH-260)/2 and press_coordonaits[0] <= (WIDTH-260)/2 + 260 and (press_coordonaits[1] <= HEIGHT*2/25 +5 or (Whos_turn == Pozitie and press_coordonaits[1] <= HEIGHT*2/25 + 40 )) )==0 and (press_coordonaits[1] > HEIGHT*2/3 and press_coordonaits[0] < HEIGHT/3)==0 and ((press_coordonaits[0]<(WIDTH-260)/2 + 260 and Chat_window == True) or Chat_window == False) and( selected_tile[0]==None or (press_coordonaits[1] < HEIGHT*4/5-5 and (tile_empty==False or (press_coordonaits[0]>WIDTH-HEIGHT/3 and press_coordonaits[1]>HEIGHT*2/3-60)==0 )))) :
 
                             x_layer = (press_coordonaits[0] + CurrentCamera.x) // current_tile_length 
@@ -1715,12 +1725,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                         selected_tile_check()
 
                 #daca dai scrol in sus
-                if event.button == 4 :
-                    if SHOW_UI == True and Chat_window == True and press_coordonaits[0] >= (WIDTH-260)/2 + 265 and len(chat_archive) > 30 :
+                if  event.button == 4 :
+                    if Escape_tab == False and SHOW_UI == True and Chat_window == True and press_coordonaits[0] >= (WIDTH-260)/2 + 265 and len(chat_archive) > 30 :
                         chat_scroll = chat_scroll +1
                         if chat_scroll > len(chat_archive) - 31:
                             chat_scroll = len(chat_archive) - 31
-                    elif SHOW_UI == True and press_coordonaits[0]> WIDTH-HEIGHT/3 and press_coordonaits[1] >= HEIGHT*2/3  :
+                    elif Escape_tab == False and SHOW_UI == True and press_coordonaits[0]> WIDTH-HEIGHT/3 and press_coordonaits[1] >= HEIGHT*2/3  :
                         construction_tab_scroll = construction_tab_scroll + 1
                         if construction_tab == "Structures" and construction_tab_scroll > math.ceil(len(structures)/3) -3 :
                             construction_tab_scroll = math.ceil(len(structures)/3) -3
@@ -1731,18 +1741,18 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         
                 #daca dai scrol in jos
                 elif event.button == 5 :
-                    if SHOW_UI == True and Chat_window == True and press_coordonaits[0] >= (WIDTH-260)/2 + 265 :
+                    if Escape_tab == False and SHOW_UI == True and Chat_window == True and press_coordonaits[0] >= (WIDTH-260)/2 + 265 :
                         chat_scroll = chat_scroll - 1
                         if chat_scroll < 0 :
                             chat_scroll = 0
-                    elif SHOW_UI == True and press_coordonaits[0]> WIDTH-HEIGHT/3 and press_coordonaits[1] >= HEIGHT*2/3  :
+                    elif Escape_tab == False and SHOW_UI == True and press_coordonaits[0]> WIDTH-HEIGHT/3 and press_coordonaits[1] >= HEIGHT*2/3  :
                         construction_tab_scroll = construction_tab_scroll - 1
                         if construction_tab_scroll < 0 :
                             construction_tab_scroll = 0
 
                 #Zoom si check_boundary pentru camera.
                 modifier = 0
-                if SHOW_UI == False or (Chat_window == True and press_coordonaits[0] >= (WIDTH-260)/2 + 265) == 0 and (press_coordonaits[0]> WIDTH-HEIGHT/3 and press_coordonaits[1] >= HEIGHT*2/3 and selected_tile[0] !=None and tile_empty == True) == 0 :
+                if Escape_tab == False and SHOW_UI == False or (Chat_window == True and press_coordonaits[0] >= (WIDTH-260)/2 + 265) == 0 and (press_coordonaits[0]> WIDTH-HEIGHT/3 and press_coordonaits[1] >= HEIGHT*2/3 and selected_tile[0] !=None and tile_empty == True) == 0 :
                     if event.button == 4:
                         modifier = 1
                     elif event.button == 5:
@@ -1786,6 +1796,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         else :
                             SHOW_UI = True
 
+                    elif event.key == pygame.K_ESCAPE :
+                        if Escape_tab == False :
+                            Escape_tab = True
+                        else :
+                            Escape_tab = False
+
                 if writing_in_chat == True and event.key != pygame.K_TAB :
                     if event.key == pygame.K_ESCAPE :
                         writing_in_chat = False
@@ -1815,14 +1831,15 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         x_pos = pygame.mouse.get_pos()[0]
         y_pos = pygame.mouse.get_pos()[1]
 
-        if x_pos == 0:
-            CurrentCamera.x -= CurrentCamera.camera_movement
-        if y_pos == 0:
-            CurrentCamera.y -= CurrentCamera.camera_movement
-        if x_pos == WIDTH - 1:
-            CurrentCamera.x += CurrentCamera.camera_movement
-        if y_pos == HEIGHT - 1:
-            CurrentCamera.y += CurrentCamera.camera_movement
+        if Escape_tab == False :
+            if x_pos == 0:
+                CurrentCamera.x -= CurrentCamera.camera_movement
+            if y_pos == 0:
+                CurrentCamera.y -= CurrentCamera.camera_movement
+            if x_pos == WIDTH - 1:
+                CurrentCamera.x += CurrentCamera.camera_movement
+            if y_pos == HEIGHT - 1:
+                CurrentCamera.y += CurrentCamera.camera_movement
 
         CurrentCamera.Check_Camera_Boundaries()
 
