@@ -236,7 +236,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     4 : None
     }
 
-    TileClass.full_bright = True  #if full_bright == True, player can see the whole map at any time, like in editor.
+    TileClass.full_bright = False  #if full_bright == True, player can see the whole map at any time, like in editor.
 
     index = 0
     for player in playeri:  #assign colors to structures and units. Any structure/unit with 
@@ -332,8 +332,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         tempSurface.blit(mapSurface, (0, 0), (CurrentCamera.x, CurrentCamera.y, WIDTH, HEIGHT))
 
         selected_tile_check()
-        if timer <= 0 or Whos_turn != Pozitie:
-            global enlighted_surface
+        global enlighted_surface
+        if timer <= 0 or Whos_turn != Pozitie and enlighted_surface == None:
             enlighted_surface = draw_enlighted_tiles()
 
         if enlighted_surface != None:
@@ -959,7 +959,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     del my_struct
         selected_tile_check()
 
-
     def Create_Building():
         nonlocal Flerovium
         nonlocal Mithril
@@ -983,9 +982,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
                                 Nodes += 1
                                 new_node = Node.Node((selected_tile[0] + 0.5, selected_tile[1] + 0.5), 4.5, new_struct)
-                                for node in Node.NodeList:
-                                    if node != new_node and new_node.CheckCollision(node):
-                                        new_node.Add(node)
+                                Node.Find_connections()
 
                             #construieste structura
                             tiles[selected_tile[1]][selected_tile[0]].structure = new_struct
@@ -1019,7 +1016,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     del new_unit
                 selected_tile_check()
    
-
     #Camera, texture resizing and load function
     class Camera:
         def __init__(self, position, zoom, max_zoom, min_zoom):
@@ -1564,8 +1560,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 if event.button == 3:
 
                     #daca ai o unitate selectata, incearca sa o muti  daca este tura playerului
-                    if selected_controllable != None and timer>0 and Whos_turn == Pozitie :
-                        if SHOW_UI == False or( press_coordonaits[1] > HEIGHT/25 and (press_coordonaits[0] >= (WIDTH-260)/2 and press_coordonaits[0] <= (WIDTH-260)/2 + 260 and (press_coordonaits[1] <= HEIGHT*2/25 +5 or (Whos_turn == Pozitie and press_coordonaits[1] <= HEIGHT*2/25 + 40 )) )==0 and (press_coordonaits[1] > HEIGHT*2/3 and press_coordonaits[0] < HEIGHT/3)==0 and ((press_coordonaits[0]<(WIDTH-260)/2 + 260 and Chat_window == True) or Chat_window == False) and( selected_tile[0]==None or (press_coordonaits[1] < HEIGHT*4/5-5 and (tile_empty==False or (press_coordonaits[0]>WIDTH-HEIGHT/3 and press_coordonaits[1]>HEIGHT*2/3-60)==0 )))) :
+                    if selected_controllable != None and timer > 0 and Whos_turn == Pozitie :
+
+                        #!!WARNING!!: Huge line of code ahead! Proceed with extreme caution! Effects include dizziness, headaches, disorientation and sudden suicidal impulses!
+
+                        if SHOW_UI == False or (press_coordonaits[1] > HEIGHT/25 and (press_coordonaits[0] >= (WIDTH-260)/2 and press_coordonaits[0] <= (WIDTH-260)/2 + 260 and (press_coordonaits[1] <= HEIGHT*2/25 +5 or (Whos_turn == Pozitie and press_coordonaits[1] <= HEIGHT*2/25 + 40 )) )==0 and (press_coordonaits[1] > HEIGHT*2/3 and press_coordonaits[0] < HEIGHT/3)==0 and ((press_coordonaits[0]<(WIDTH-260)/2 + 260 and Chat_window == True) or Chat_window == False) and( selected_tile[0]==None or (press_coordonaits[1] < HEIGHT*4/5-5 and (tile_empty==False or (press_coordonaits[0]>WIDTH-HEIGHT/3 and press_coordonaits[1]>HEIGHT*2/3-60)==0 )))) :
 
                             x_layer = (press_coordonaits[0] + CurrentCamera.x) // current_tile_length 
                             y_layer = (press_coordonaits[1] + CurrentCamera.y) // current_tile_length
@@ -1589,6 +1588,17 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                         Turn_Actions.append(("move_unit",lastPos,(x_layer, y_layer)))
                                         selected_tile_check()
 
+
+                                    if type(selected_controllable) == Units.Unit and selected_controllable.canAttack == True:
+                                        tile = tiles[y_layer][x_layer]
+                                        hitinformation = None   #The Attack function returns a tuple: has hit an enemy and the absolute value (abs) of damage it did
+                                        if tile.structure != None:
+                                            hitinformation = selected_controllable.Attack(tile.structure)
+                                        elif tile.unit != None:
+                                            hitinformation = selected_controllable.Attack(tile.unit)
+
+                                        if hitinformation and hitinformation[0] == True:
+                                            selected_controllable.canAttack = False
 
                 #daca dai scrol in sus
                 if event.button == 4 :

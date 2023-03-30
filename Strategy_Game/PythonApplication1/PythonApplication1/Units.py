@@ -1,6 +1,7 @@
 import pygame
 import os
 import TileClass
+import math
 
 default_path = 'Assets/Units/'
 texture_names = []
@@ -26,7 +27,7 @@ unit_attack_range_color = (235, 0, 0)
 
 predefined_Units = {   
                 #HP, MaxHp, attack, defence, range, move_range, fog_range, price (Mithril, Flerovium, Supply), Refund_percent
-    "Marine" :  [5, 5, 2, 0, 2, 4, 5, (6,0,1), 60/100],
+    "Marine" :  [5, 5, 2, 0, 3, 4, 5, (6,0,1), 60/100],
     "Phantom" : [7, 7, 4, 1, 5, 7, 9, (10,0,2), 55/100],
     "Tank" :    [20, 20, 8, 3, 3, 5, 6, (30,4,2), 35/100],
 
@@ -69,6 +70,14 @@ class Unit():
     def Draw_AOE(self, screen, size, offset):   #Draw the area range
         if self.range != 0:
             pygame.draw.circle(screen, unit_attack_range_color, ((self.position[0] + 0.5) * size - offset[0], (self.position[1] + 0.5) * size - offset[1]), self.range * size, 2)
+
+    def Attack(self, target):
+        if target.owner != self.owner:  #You can only attack enemy units
+            inrange = math.sqrt((self.position[0] - target.position[0]) ** 2 + (self.position[1] - target.position[1]) ** 2) <= max(self.range, target.range)
+            if inrange == True:
+                target.ModifyHealth(-(self.attack - target.defence))
+                return (inrange, (self.attack - target.defence))
+        return (False, None)    
 
     def ModifyHealth(self, value):
         if self.HP + value > self.MaxHP:
