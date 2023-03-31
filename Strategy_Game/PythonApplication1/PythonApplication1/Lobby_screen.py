@@ -602,8 +602,8 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                             CLIENTS[i][0].send(data_send)
                             CLIENTS[i][0].close()
                     Connection.close()
-                    break
                     time_thread.join()
+                    break
                     
 
 

@@ -261,7 +261,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     Repair_Button = Button((x_b+5,HEIGHT-90,175,60),Gri,None,**{"text": "Repair","font": FontT})
     repair_bool = False
     aford_repair = False
-    #Escape part 
+    #Escape Button
+    ButtonE_rect = (WIDTH/2-155,HEIGHT/2-80,310,160)
+    if Role == "host" :
+        Escape_Button = Button((WIDTH/2-150,HEIGHT/2-75,300,150),Gri,None,**{"text": "Return to lobby","font": FontT})
+    else :
+        Escape_Button = Button((WIDTH/2-150,HEIGHT/2-75,300,150),Gri,None,**{"text": "Disconect","font": FontT})
     # incaracarea imaginilor structurilor si unitatilor care le poate produce playeru, cu culoarea specifica.
     grosime_outline = 5
     spatiu_intre = (HEIGHT/3 - 5 - 70*3)/3
@@ -756,11 +761,16 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
             #desenare ESCAPE_TAB
             if Escape_tab == True :
+                #desenare escape part
                 pygame.draw.rect(WIN,(25,25,25),(WIDTH/2-255,HEIGHT/2-155, 510,5))
                 pygame.draw.rect(WIN,(25,25,25),(WIDTH/2-255,HEIGHT/2-155, 5,310))
                 pygame.draw.rect(WIN,(25,25,25),(WIDTH/2-255,HEIGHT/2+150, 510,5))
                 pygame.draw.rect(WIN,(25,25,25),(WIDTH/2+250,HEIGHT/2-155, 5,310))
                 pygame.draw.rect(WIN,Gri,(WIDTH/2-250,HEIGHT/2-150, 500,300))
+                #escape button
+                pygame.draw.rect(WIN,(25,25,25),ButtonE_rect)
+                Escape_Button.update(WIN)
+
         pygame.display.update()
 
     #Functia cu care serverul asculta pentru mesajele unui client
@@ -950,19 +960,20 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     def selected_tile_check() :
         global tile_empty
         global enlighted_surface
-        if tiles[selected_tile[1]][selected_tile[0]].unit == None and tiles[selected_tile[1]][selected_tile[0]].structure == None and tiles[selected_tile[1]][selected_tile[0]].ore == None :
-            tile_empty = True
-        else :
-            nonlocal Element_selectat
-            global selected_controllable
-            if tiles[selected_tile[1]][selected_tile[0]].unit != None and tiles[selected_tile[1]][selected_tile[0]].unit.owner == map_locations[Pozitie] and (selected_tile[0], selected_tile[1]) in visible_tiles:
-                enlighted_surface = draw_enlighted_tiles()
-                selected_controllable = tiles[selected_tile[1]][selected_tile[0]].unit
-                if selected_controllable.canMove == True:
-                    determine_enlighted_tiles()
-                    enlighted_surface = draw_enlighted_tiles(True)
-                    Element_selectat = None
-            tile_empty = False
+        if selected_tile[0] != None :
+            if tiles[selected_tile[1]][selected_tile[0]].unit == None and tiles[selected_tile[1]][selected_tile[0]].structure == None and tiles[selected_tile[1]][selected_tile[0]].ore == None :
+                tile_empty = True
+            else :
+                nonlocal Element_selectat
+                global selected_controllable
+                if tiles[selected_tile[1]][selected_tile[0]].unit != None and tiles[selected_tile[1]][selected_tile[0]].unit.owner == map_locations[Pozitie] and (selected_tile[0], selected_tile[1]) in visible_tiles:
+                    enlighted_surface = draw_enlighted_tiles()
+                    selected_controllable = tiles[selected_tile[1]][selected_tile[0]].unit
+                    if selected_controllable.canMove == True:
+                        determine_enlighted_tiles()
+                        enlighted_surface = draw_enlighted_tiles(True)
+                        Element_selectat = None
+                tile_empty = False
 
 
     #variabilele necesare indiferent de rol
@@ -1604,7 +1615,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                             Connection.send(data_send)
                     #detecteaza daca playeru apasa un tile vizibil
-                    if Escape_tab == False and SHOW_UI == False or( press_coordonaits[1] > HEIGHT/25 and (press_coordonaits[0] >= (WIDTH-260)/2 and press_coordonaits[0] <= (WIDTH-260)/2 + 260 and (press_coordonaits[1] <= HEIGHT*2/25 +5 or (Whos_turn == Pozitie and press_coordonaits[1] <= HEIGHT*2/25 + 40 )) )==0 and (press_coordonaits[1] > HEIGHT*2/3 and press_coordonaits[0] < HEIGHT/3)==0 and ((press_coordonaits[0]<(WIDTH-260)/2 + 260 and Chat_window == True) or Chat_window == False) and( selected_tile[0]==None or (press_coordonaits[1] < HEIGHT*4/5-5 and (tile_empty==False or (press_coordonaits[0]>WIDTH-HEIGHT/3 and press_coordonaits[1]>HEIGHT*2/3-60)==0 )))) :
+                    if Escape_tab == False and (SHOW_UI == False or( press_coordonaits[1] > HEIGHT/25 and (press_coordonaits[0] >= (WIDTH-260)/2 and press_coordonaits[0] <= (WIDTH-260)/2 + 260 and (press_coordonaits[1] <= HEIGHT*2/25 +5 or (Whos_turn == Pozitie and press_coordonaits[1] <= HEIGHT*2/25 + 40 )) )==0 and (press_coordonaits[1] > HEIGHT*2/3 and press_coordonaits[0] < HEIGHT/3)==0 and ((press_coordonaits[0]<(WIDTH-260)/2 + 260 and Chat_window == True) or Chat_window == False) and( selected_tile[0]==None or (press_coordonaits[1] < HEIGHT*4/5-5 and (tile_empty==False or (press_coordonaits[0]>WIDTH-HEIGHT/3 and press_coordonaits[1]>HEIGHT*2/3-60)==0 ))))) :
                         x_layer = (press_coordonaits[0] + CurrentCamera.x) // current_tile_length 
                         y_layer = (press_coordonaits[1] + CurrentCamera.y) // current_tile_length
                         if x_layer >= 0 and x_layer < tiles_per_row:
@@ -1695,6 +1706,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     #verifica daca apasa butonul de repair
                     elif Escape_tab == False and Win_condition == 0 and Repair_Button.on_click(event) and tile_empty == False and repair_bool and aford_repair == True :
                         repair_building()
+                    elif Escape_tab == True and Escape_Button.on_click(event) :
+                        if Role == "host" :
+                            x=10
                 #daca apesi click dreapta 
                 if event.button == 3:
 

@@ -285,10 +285,12 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
             nonlocal Transmit_to_specific
             directory = "Maps\images"
             for filename in os.listdir(directory):
+                print(filename)
                 #load map in folder
                 adres=os.path.join(directory, filename)
                 Map_load_action = "Loading maps : load " + adres[12:-4] + " map"
                 MAPS.append(pygame.transform.scale(pygame.image.load(adres),(latura,latura)))
+                print(MAPS)
                 map_names.append(adres[12:-4])
                 #send verifications to clients
                 Map_load_action = "Loading maps : send verification for " + adres[12:-4] + " map"
