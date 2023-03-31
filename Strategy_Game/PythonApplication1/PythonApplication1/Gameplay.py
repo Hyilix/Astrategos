@@ -262,6 +262,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     repair_bool = False
     aford_repair = False
     #Escape Button
+    Escape_menu_part = ()
     ButtonE_rect = (WIDTH/2-155,HEIGHT/2-80,310,160)
     if Role == "host" :
         Escape_Button = Button((WIDTH/2-150,HEIGHT/2-75,300,150),Gri,None,**{"text": "Return to lobby","font": FontT})
@@ -776,6 +777,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     #Functia cu care serverul asculta pentru mesajele unui client
     def reciev_thread_from_client(client,cod) :
         global Confirmatii_timer
+        nonlocal Confirmatii
         try :
             while True :
                 header = client.recv(10)
@@ -794,6 +796,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     elif data_recv[0] == "Force_end_turn" :
                         Changes_from_clients.append(data_recv)
                         Transmit_to_all.append((("Force_end_turn",None),cod))
+                    elif data_recv[0] == "return_to_lobby" :
+                        Confirmatii += 1 
+                        break
                     else :
                         Changes_from_clients.append(data_recv)
                         Transmit_to_all.append((data_recv,cod))
@@ -808,6 +813,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     #Functia clientului care asculta pentru mesaje de la server
     def reciev_thread_from_server(server) :
         global run
+        nonlocal Confirmation
         try :
             while True :
                 header = server.recv(10)
@@ -820,6 +826,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     if data_recv[0] == "I_died...Fuck_off":
                         server.close()
                         run = False
+                        break
+                    elif data_recv[0] == "return_to_lobby":
+                        data_send = pickle.dumps(("return_to_lobby",None))
+                        data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
+                        server.send(data_send)
+                        Confirmation = True
                         break
                     else :
                         Changes_from_server.append(data_recv)
@@ -1020,6 +1032,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             Client_THREADS[len(Client_THREADS)-1].start() 
         time_thread = threading.Thread(target = timer_thread)
         time_thread.start() 
+        sent_reaquest = False
+        return_lobby = False
+        Confirmatii = 0
     else :
         #restart listenig to the server
         recv_from_server = threading.Thread(target = reciev_thread_from_server, args = (Connection,))
@@ -1027,6 +1042,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         Changes_from_server = []
         timer_notification_sent = False
         next_turn = False
+        Confirmation = False
 
     def repair_building() :
         nonlocal Flerovium
@@ -1708,7 +1724,16 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         repair_building()
                     elif Escape_tab == True and Escape_Button.on_click(event) :
                         if Role == "host" :
-                            x=10
+                            if sent_reaquest == False :
+                                return_lobby = True
+                                #trimite tuturor playerilor ca am trecut la urmatoru stage
+                                data_send = pickle.dumps(("return_to_lobby",None))
+                                data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
+                                for i in range(len(CLIENTS)) :
+                                    CLIENTS[i][0].send(data_send)
+                                sent_reaquest = True
+                        else :
+                            Connection.close()
                 #daca apesi click dreapta 
                 if event.button == 3:
 
@@ -1813,6 +1838,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     elif event.key == pygame.K_ESCAPE :
                         if Escape_tab == False :
                             Escape_tab = True
+                            selected_tile = (None,None)
                         else :
                             Escape_tab = False
 
@@ -1856,6 +1882,15 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 CurrentCamera.y += CurrentCamera.camera_movement
 
         CurrentCamera.Check_Camera_Boundaries()
+        #return to lobby check
+        if Role == "client" and Confirmation == True :
+            recv_from_server.join()
+            run = False
+        elif Role == "host" and sent_reaquest == True and  Confirmatii == len(Client_THREADS) :  
+            while len(Client_THREADS) > 0 :
+                Client_THREADS[0].join()
+                Client_THREADS.pop(0)
+            run = False
 
 
     #finalul functiei si returnarea variabilelor necesare care s-ar fi putut schimba

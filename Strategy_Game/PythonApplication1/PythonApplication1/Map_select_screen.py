@@ -45,20 +45,17 @@ MAPS = []
 map_names =[]
 
 
-resized = False
 THE_MAP = -1
 Map_Locations = []
 
 def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client) :
     global run
     global MAPS
-    global resized
     global THE_MAP
     global Map_Locations 
     global map_names
 
     THE_MAP = -1
-    nr_harti = 0
     Map_Locations = []
     MAPS = []
     map_names = []
@@ -84,7 +81,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
         latura -= 32
     spatiu_intre = (Map_part-50-latura*pe_rand)/(pe_rand-1)
 
-    limita_scroll =  100  + HEIGHT/25 + math.ceil(nr_harti/pe_rand) *latura + math.ceil(nr_harti/pe_rand) *25 - HEIGHT
+    limita_scroll =  100  + HEIGHT/25 + math.ceil(len(MAPS)/pe_rand) *latura + math.ceil(len(MAPS)/pe_rand) *25 - HEIGHT
     if limita_scroll <0 :
         limita_scroll = 0
 
@@ -92,10 +89,10 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
     def draw_window () :
         #afisarea hartilor
         pygame.draw.rect(WIN,(80, 82, 81),(50,75,Map_part,HEIGHT- 100 - HEIGHT/25))
-        for i in range(math.ceil(nr_harti/pe_rand)) :
+        for i in range(math.ceil(len(MAPS)/pe_rand)) :
             y_rand = 75 + i*latura + i*25 -scroll
             if y_rand+latura >50 and y_rand < HEIGHT -50 - HEIGHT/25  :
-                for j in range(min(nr_harti-i*pe_rand,pe_rand)) :
+                for j in range(min(len(MAPS)-i*pe_rand,pe_rand)) :
                     x_coloana = 75 + j*latura + j*spatiu_intre
                     #pygame.draw.rect(WIN,Gri,(x_coloana,y_rand,latura,latura))
                     WIN.blit(MAPS[i*pe_rand + j],(x_coloana,y_rand))
@@ -166,7 +163,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                 candidati.append(map)
         #daca nu a fost nici una votata atunci alege una random
         if len(candidati) == 0 :
-            return random.randint(0,nr_harti-1)
+            return random.randint(0,len(MAPS)-1)
         else :
             return candidati[random.randint(0,len(candidati)-1)]
 
@@ -416,14 +413,8 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
         draw_window()
 
         if thread_smt_on == True :
-            #incarcarea hartiilor
-            nr_harti = len(MAPS)
-            if resized == False :
-                for i in range(nr_harti):
-                    MAPS[i] = pygame.transform.scale(MAPS[i], (latura, latura))
-                resized = True
             #stabilirea limitei de scroll
-            limita_scroll =  100  + HEIGHT/25 + math.ceil(nr_harti/pe_rand) *latura + math.ceil(nr_harti/pe_rand) *25 - HEIGHT
+            limita_scroll =  100  + HEIGHT/25 + math.ceil(len(MAPS)/pe_rand) *latura + math.ceil(len(MAPS)/pe_rand) *25 - HEIGHT
             if limita_scroll <0 :
                 limita_scroll = 0
 
@@ -544,11 +535,11 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                      # se vede daca a apasat pe partea cu harti
                      if press_coordonaits[0]>50 and press_coordonaits[0]< 50 + Map_part and press_coordonaits[1]>50 and press_coordonaits[1]< HEIGHT - 50 :
                          # se determina ce rand si coloana se afla harta apasata
-                         for i in range(math.ceil(nr_harti/pe_rand)) :
+                         for i in range(math.ceil(len(MAPS)/pe_rand)) :
                              y_rand = 75 + i*latura +i*25 - scroll
                              if y_rand +latura >50 :
                                  if press_coordonaits[1] >= y_rand and press_coordonaits[1] <= y_rand+latura :
-                                     for j in range(min(pe_rand,nr_harti-i*pe_rand)) :
+                                     for j in range(min(pe_rand,len(MAPS)-i*pe_rand)) :
                                          x_coloana = 50 + j*latura + j*spatiu_intre
                                          if press_coordonaits[0] >= x_coloana and press_coordonaits[0] <= x_coloana + latura :
                                              Voturi[Pozitie]=(i,j)
