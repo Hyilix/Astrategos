@@ -1,5 +1,7 @@
 from ctypes import Structure
 from select import select
+from tkinter.messagebox import showerror
+from turtle import left
 import pygame 
 import os 
 import socket
@@ -95,6 +97,9 @@ SWAP_TO_NORMAL = pygame.USEREVENT + 1   #event for refreshing the map after some
 
 global canRenderMinimap
 canRenderMinimap = True
+
+global left_click_holding
+left_click_holding = False
 
 def draw_star(length, y, x, TrueSight = False):    #Determine what tiles the player currently sees.
     First = True
@@ -1488,16 +1493,22 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
         #The event loop
         for event in pygame.event.get():
+            global left_click_holding
             if event.type == SWAP_TO_NORMAL:
                 refresh_map([lastPositionForRendering])
 
             if event.type == pygame.QUIT :
                 pygame.quit()
                 os._exit(0)
+            elif event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1:
+                    left_click_holding = False
+
             elif event.type == pygame.MOUSEBUTTONDOWN  :
                 press_coordonaits = event.pos 
                 #daca apesi click stanga
                 if event.button == 1 :
+                    left_click_holding = True
                     #Se verifica daca apasa butonul de chat
                     if SHOW_UI == True and press_coordonaits[1] <= 75  and press_coordonaits[0] >= WIDTH -75 :
                         if Chat_window == False :
@@ -1783,6 +1794,18 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             CurrentCamera.x += CurrentCamera.camera_movement
         if y_pos == HEIGHT - 1:
             CurrentCamera.y += CurrentCamera.camera_movement
+
+        if x_pos > 0 and x_pos < HEIGHT // 3 and y_pos < HEIGHT and y_pos > 2 * HEIGHT // 3 and SHOW_UI == True and left_click_holding == True:
+            #sizeY = int(HEIGHT / 3 * HEIGHT / current_tile_length / rows)
+            X = x_pos
+            Y = y_pos - 2 * HEIGHT // 3
+            size_y  = int(HEIGHT / 3 * HEIGHT / current_tile_length / rows)
+            size_x  = int(HEIGHT / 3 * WIDTH / current_tile_length / rows)
+            world_y = int((Y - size_y / 2) * rows * current_tile_length * 3 / HEIGHT)
+            world_x = int((X - size_x / 2) * tiles_per_row * current_tile_length * 3 / HEIGHT)
+
+            CurrentCamera.x = world_x
+            CurrentCamera.y = world_y
 
         CurrentCamera.Check_Camera_Boundaries()
 
