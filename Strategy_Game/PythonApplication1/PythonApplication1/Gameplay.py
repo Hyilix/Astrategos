@@ -7,6 +7,8 @@ import pickle
 import threading
 import time
 import math
+import os
+import random
 
 import TileClass
 import Structures
@@ -16,6 +18,18 @@ from button import Button
 import Node
 
 pygame.init()
+
+music_path = 'Assets/Music/'
+music_vec = []
+
+for music in os.listdir(music_path):
+    music_vec.append(music)
+
+def PlayRandomMusic():
+    rand = random.randint(0, len(music_vec) - 1)
+    pygame.mixer.music.load(music_path + music_vec[rand])
+    pygame.mixer.music.set_volume(0.4)
+    pygame.mixer.music.play()
 
 White = (255,255,255)
 Gri = (225, 223, 240)
@@ -71,6 +85,11 @@ partially_visible_tiles = []
 path_tiles = [] #Tiles that a selected unit can move to
 
 DEBUG_FORCED_POSITION = None
+
+global lastPositionForRendering
+lastPositionForRendering = None
+
+SWAP_TO_NORMAL = pygame.USEREVENT + 1   #event for refreshing the map after some time when a thing was hit.
 
 def draw_star(length, y, x, TrueSight = False):    #Determine what tiles the player currently sees.
     First = True
@@ -331,10 +350,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         tempSurface = pygame.Surface((WIDTH, HEIGHT))
         tempSurface.blit(mapSurface, (0, 0), (CurrentCamera.x, CurrentCamera.y, WIDTH, HEIGHT))
 
-        selected_tile_check()
         global enlighted_surface
         if timer <= 0 or Whos_turn != Pozitie and enlighted_surface == None:
             enlighted_surface = draw_enlighted_tiles()
+            selected_tile_check()
 
         if enlighted_surface != None:
             tempSurface.blit(enlighted_surface, (0, 0), (CurrentCamera.x, CurrentCamera.y, WIDTH, HEIGHT))
@@ -1428,6 +1447,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
         #The event loop
         for event in pygame.event.get():
+            if event.type == SWAP_TO_NORMAL:
+                refresh_map([lastPositionForRendering])
+
             if event.type == pygame.QUIT :
                 pygame.quit()
                 os._exit(0)
@@ -1592,13 +1614,20 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                     if type(selected_controllable) == Units.Unit and selected_controllable.canAttack == True:
                                         tile = tiles[y_layer][x_layer]
                                         hitinformation = None   #The Attack function returns a tuple: has hit an enemy and the absolute value (abs) of damage it did
+                                        target = None
                                         if tile.structure != None:
                                             hitinformation = selected_controllable.Attack(tile.structure)
+                                            target = tile.structure
                                         elif tile.unit != None:
                                             hitinformation = selected_controllable.Attack(tile.unit)
+                                            target = tile.unit
 
                                         if hitinformation and hitinformation[0] == True:
                                             selected_controllable.canAttack = False
+                                            target.took_damage = True
+                                            refresh_map([target.position])
+                                            lastPositionForRendering = target.position
+                                            pygame.time.set_timer(SWAP_TO_NORMAL, 200)
 
                 #daca dai scrol in sus
                 if event.button == 4 :
@@ -1666,6 +1695,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             if len(Turn_Actions) > 0 :
                                 reverse_action(Turn_Actions[-1])
                                 Turn_Actions.pop(-1)
+
+                    elif event.unicode.lower() == 'm':  #Test some music playin
+                        PlayRandomMusic()
 
                     elif event.unicode.lower() == 'l':  #Enable/Disable GUIs
                         if SHOW_UI   :

@@ -4,9 +4,19 @@ import TileClass
 import math
 
 default_path = 'Assets/Units/'
+sound_path = 'Assets/Sound'
+
 texture_names = []
 textures = []
 base_textures = []
+
+unit_sounds = []
+
+damage_percent = 70/100
+dead_percent = 90/100
+
+for sound in os.listdir(sound_path):
+    unit_sounds.append(sound)
 
 for img in os.listdir(default_path):    #Load all images
     texture_names.append(img)
@@ -49,6 +59,8 @@ class Unit():
         self.position = position    #The position of the tile it's sitted.
         self.owner = owner          #The owner of the unit.
         self.name = name            #The unit
+
+        self.took_damage = False
 
         vec = predefined_Units[name]
 
@@ -102,17 +114,19 @@ class Unit():
                 if image.get_at((i,j)) == (1,1,1):
                     image.set_at((i,j), colorTable[self.owner])
                 if image.get_at((i,j)) != (0,0,0,0):
-                    dark.set_at((i,j), (0, 0, 0, TileClass.darken_percent * 255))
+                    dark.set_at((i,j), (153, 0, 0, damage_percent * 255))
 
         if special_blit == False:
             if TileClass.full_bright == False and visible_tuple and not (self.position in visible_tuple[0]) and not (self.position in visible_tuple[1]):
                 image.fill(TileClass.darkness)
-            elif TileClass.full_bright == False and visible_tuple and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
-                image.blit(dark,(0,0))
+            if self.took_damage:
+                self.took_damage = False
+                image.blit(dark,(0,0)) 
             screen.blit(image, (self.position[0] * size[0], self.position[1]  * size[1]))
         else:
             image = pygame.transform.scale(image, size)
             dark = pygame.transform.scale(dark, size)
-            if TileClass.full_bright == False:
-                image.blit(dark, (0,0))
+            if self.took_damage:
+                self.took_damage = False
+                image.blit(dark,(0,0))
             screen.blit(image, (self.position[0] * size[0], self.position[1]  * size[1]))

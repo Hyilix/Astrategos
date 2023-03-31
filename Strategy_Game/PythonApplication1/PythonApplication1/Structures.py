@@ -5,9 +5,19 @@ import Units
 import math
 
 default_path = 'Assets/Structures/'
+sound_path = 'Assets/Sound'
+
 texture_names = []
 textures = []
 base_textures = []
+
+unit_sounds = []
+
+damage_percent = 70/100
+dead_percent = 90/100
+
+for sound in os.listdir(sound_path):
+    unit_sounds.append(sound)
 
 #VARIABLES FOR STRUCTURES
 hospital_heal = 2   #HP per end turn to each unit in range of hospital(healing_point)
@@ -63,6 +73,8 @@ class Structure():
         self.owner = owner          #The owner of the unit.
         self.name = name            #The structure.
 
+        self.took_damage = False
+
         vec = predefined_structures[name]
 
         self.texture = name + ".png"
@@ -87,8 +99,10 @@ class Structure():
     def ModifyHealth(self, value):
         if self.HP + value > self.MaxHP:
             self.HP = self.MaxHP
+            self.took_damage == True
         else:
             self.HP += value
+            self.took_damage == True
 
     def Draw_AOE(self, screen, size, offset):   #Draw the area of efect of a structure
         if self.AOE != 0:
@@ -104,17 +118,19 @@ class Structure():
                 if image.get_at((i,j)) == (1,1,1):
                     image.set_at((i,j), colorTable[self.owner])
                 if image.get_at((i,j)) != (0,0,0,0):
-                    dark.set_at((i,j), (0, 0, 0, TileClass.darken_percent * 255))
+                    dark.set_at((i,j), (153, 0, 0, damage_percent * 255))
 
         if special_blit == False:
             if TileClass.full_bright == False and visible_tuple and not (self.position in visible_tuple[0]) and not (self.position in visible_tuple[1]):
                 image.fill(TileClass.darkness)
-            elif TileClass.full_bright == False and visible_tuple and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
-                image.blit(dark,(0,0))
+            if self.took_damage:
+                self.took_damage = False
+                image.blit(dark,(0,0)) 
             screen.blit(image, (self.position[0] * size[0], self.position[1]  * size[1]))
         else:
             image = pygame.transform.scale(image, size)
             dark = pygame.transform.scale(dark, size)
-            if TileClass.full_bright == False:
-                image.blit(dark, (0,0))
+            if self.took_damage:
+                self.took_damage = False
+                image.blit(dark,(0,0))
             screen.blit(image, (self.position[0] * size[0], self.position[1]  * size[1]))
