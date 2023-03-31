@@ -142,11 +142,11 @@ def draw_star(length, y, x, TrueSight = False):    #Determine what tiles the pla
                             if TrueSight == True:
                                 new_tiles.append((y + in_y, x + in_x))
                             else:
-                                if tiles[y][x].collidable == False:
+                                if tiles[y][x].collidable == False and tiles[y + in_y][x + in_x].unit == None and tiles[y + in_y][x + in_x].structure == None:
                                     new_tiles.append((y + in_y, x + in_x))
                                     First = False
                             
-                                elif tiles[y][x].collidable == True and y + in_y >= 0 and x + in_x >= 0 and y + in_y < rows and x + in_x < tiles_per_row and tiles[y + in_y][x + in_x].collidable == False:
+                                elif tiles[y][x].collidable == True and y + in_y >= 0 and x + in_x >= 0 and y + in_y < rows and x + in_x < tiles_per_row and tiles[y + in_y][x + in_x].collidable == False and tiles[y + in_y][x + in_x].unit == None and tiles[y + in_y][x + in_x].structure == None:
                                     if First == False:
                                         new_tiles.append((y + in_y, x + in_x, True))
                                     else:
@@ -856,7 +856,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 #Sterge structura
                 tiles[Action[4][1]][Action[4][0]].structure = None
                 refresh_map([[Action[4][0],Action[4][1]]])
-                controllables_vec.pop(Action[5])
+                RemoveObjectFromList(Action[5], controllables_vec)
                 del new_struct
 
             elif Action[1] == "Units":
@@ -869,7 +869,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 #Se sterge unitatea
                 tiles[Action[4][1]][Action[4][0]].unit = None
                 refresh_map([[Action[4][0],Action[4][1]]])
-                controllables_vec.pop(Action[5])
+                RemoveObjectFromList(Action[5], controllables_vec)
                 selected_tile_check()
         elif Action[0] == "refund_entity":
             if Action[1] == "structure" : #Structure case. Also don't refund Kernel lol
@@ -992,6 +992,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
                     tiles[selected_tile[1]][selected_tile[0]].unit = None
                     refresh_map([[selected_tile[0],selected_tile[1]]])
+                    RemoveObjectFromList(my_unit, controllables_vec)
                     Turn_Actions.append(("refund_entity","unit",selected_tile,my_unit))
                     del my_unit
                 elif tiles[selected_tile[1]][selected_tile[0]].structure != None and tiles[selected_tile[1]][selected_tile[0]].structure.name != "Kernel": #Structure case. Also don't refund Kernel lol
@@ -1006,6 +1007,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
                     Flerovium += int(my_struct.price[1] * my_struct.refund_percent)
                     Mithril += int(my_struct.price[0] * my_struct.refund_percent)
+
+                    RemoveObjectFromList(my_struct, controllables_vec)
 
                     tiles[selected_tile[1]][selected_tile[0]].structure = None
                     refresh_map([[selected_tile[0],selected_tile[1]]])
