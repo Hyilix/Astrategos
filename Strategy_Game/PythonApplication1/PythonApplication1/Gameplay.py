@@ -264,11 +264,17 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     #Escape Button
     l_emp = 600
     Escape_menu_part = (WIDTH/2-250,HEIGHT/2-l_emp/2, 500,l_emp)
-    ButtonE_rect = (WIDTH/2-155,HEIGHT/2-80,310,160)
+    ButtonE_rect = (WIDTH/2-155,Escape_menu_part[1]+Escape_menu_part[3] - 160 -55,310,160)
     if Role == "host" :
-        Escape_Button = Button((WIDTH/2-150,HEIGHT/2-75,300,150),Gri,None,**{"text": "Return to lobby","font": FontT})
+        Escape_Button = Button((WIDTH/2-150,Escape_menu_part[1]+Escape_menu_part[3] - 160 -50,300,150),Gri,None,**{"text": "Return to lobby","font": FontT})
     else :
-        Escape_Button = Button((WIDTH/2-150,HEIGHT/2-75,300,150),Gri,None,**{"text": "Disconect","font": FontT})
+        Escape_Button = Button((WIDTH/2-150,Escape_menu_part[1]+Escape_menu_part[3] - 160 -50,300,150),Gri,None,**{"text": "Disconect","font": FontT})
+    #music slider
+    music_text = FontT.render("Music Volume",True,(0,0,0)) 
+    music_text_rect = music_text.get_rect()
+    music_text_rect.center = (WIDTH/2,Escape_menu_part[1] + 25 +music_text_rect[3]/2)
+    slider_x = WIDTH/2 - 12
+    slider_rect = [slider_x,music_text_rect[1]+music_text_rect[3]+10,24,55]
     # incaracarea imaginilor structurilor si unitatilor care le poate produce playeru, cu culoarea specifica.
     grosime_outline = 5
     spatiu_intre = (HEIGHT/3 - 5 - 70*3)/3
@@ -449,7 +455,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             #Partea de jos a UI-ului
             # draw mini_map part
             pygame.draw.rect(WIN,(25,25,25),(0,HEIGHT-HEIGHT/3,HEIGHT/3,HEIGHT/3))
-            WIN.blit(pygame.transform.scale(mapSurface,(HEIGHT/3-10,HEIGHT/3-10)),(5,HEIGHT*2/3+5))
             #desenarea chenarului su informatiile despre ce este selectat
             if selected_tile[0] !=None :
                 if tile_empty == True :
@@ -766,6 +771,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 #desenare escape part
                 pygame.draw.rect(WIN,(25,25,25),(Escape_menu_part[0]-5,Escape_menu_part[1]-5,Escape_menu_part[2]+10,Escape_menu_part[3]+10))
                 pygame.draw.rect(WIN,Gri,Escape_menu_part)
+                #Volume slider
+                WIN.blit(music_text,music_text_rect)
+                pygame.draw.rect(WIN,(25,25,25),(Escape_menu_part[0]+50,music_text_rect[1]+music_text_rect[3]+30,Escape_menu_part[2]-100,15))
+                pygame.draw.rect(WIN,Cyan,slider_rect)
                 #escape button
                 pygame.draw.rect(WIN,(25,25,25),ButtonE_rect)
                 Escape_Button.update(WIN)
@@ -1016,6 +1025,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     Win_condition = 0
     Winner = None
     Escape_tab = False
+    Slider_Got = False
     # Incarcarea variabilelor necesare rolurilor de host si client
     if Role == "host" :
         Confirmatii_timer = 0
@@ -1609,7 +1619,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             message = ""
                             chat_scroll = 0
                     #se verifica daca interactioneaza cu chat boxul
-                    if Escape_tab == False and SHOW_UI == True and Chat_window == True :
+                    elif Escape_tab == False and SHOW_UI == True and Chat_window == True :
                         if press_coordonaits[0] < (WIDTH-260)/2 + 265 :
                             Chat_window = False
                             writing_in_chat = False
@@ -1620,7 +1630,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         else :
                             writing_in_chat = False
                     #Detecteaza daca a apasat butonul de End Turn
-                    if Escape_tab == False and SHOW_UI == True and Whos_turn == Pozitie and press_coordonaits[0]>(WIDTH-260)/2 and press_coordonaits[0]<(WIDTH-260)/2 +260 and press_coordonaits[1]>HEIGHT*2/25 and press_coordonaits[1]<HEIGHT*2/25 + 40 :
+                    elif Escape_tab == False and SHOW_UI == True and Whos_turn == Pozitie and press_coordonaits[0]>(WIDTH-260)/2 and press_coordonaits[0]<(WIDTH-260)/2 +260 and press_coordonaits[1]>HEIGHT*2/25 and press_coordonaits[1]<HEIGHT*2/25 + 40 :
                         timer = 0 
                         if Role == "host" :
                             Transmit_to_all.append((("Force_end_turn",None),None))
@@ -1629,7 +1639,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
                             Connection.send(data_send)
                     #detecteaza daca playeru apasa un tile vizibil
-                    if Escape_tab == False and (SHOW_UI == False or( press_coordonaits[1] > HEIGHT/25 and (press_coordonaits[0] >= (WIDTH-260)/2 and press_coordonaits[0] <= (WIDTH-260)/2 + 260 and (press_coordonaits[1] <= HEIGHT*2/25 +5 or (Whos_turn == Pozitie and press_coordonaits[1] <= HEIGHT*2/25 + 40 )) )==0 and (press_coordonaits[1] > HEIGHT*2/3 and press_coordonaits[0] < HEIGHT/3)==0 and ((press_coordonaits[0]<(WIDTH-260)/2 + 260 and Chat_window == True) or Chat_window == False) and( selected_tile[0]==None or (press_coordonaits[1] < HEIGHT*4/5-5 and (tile_empty==False or (press_coordonaits[0]>WIDTH-HEIGHT/3 and press_coordonaits[1]>HEIGHT*2/3-60)==0 ))))) :
+                    elif Escape_tab == False and (SHOW_UI == False or( press_coordonaits[1] > HEIGHT/25 and (press_coordonaits[0] >= (WIDTH-260)/2 and press_coordonaits[0] <= (WIDTH-260)/2 + 260 and (press_coordonaits[1] <= HEIGHT*2/25 +5 or (Whos_turn == Pozitie and press_coordonaits[1] <= HEIGHT*2/25 + 40 )) )==0 and (press_coordonaits[1] > HEIGHT*2/3 and press_coordonaits[0] < HEIGHT/3)==0 and ((press_coordonaits[0]<(WIDTH-260)/2 + 260 and Chat_window == True) or Chat_window == False) and( selected_tile[0]==None or (press_coordonaits[1] < HEIGHT*4/5-5 and (tile_empty==False or (press_coordonaits[0]>WIDTH-HEIGHT/3 and press_coordonaits[1]>HEIGHT*2/3-60)==0 ))))) :
                         x_layer = (press_coordonaits[0] + CurrentCamera.x) // current_tile_length 
                         y_layer = (press_coordonaits[1] + CurrentCamera.y) // current_tile_length
                         if x_layer >= 0 and x_layer < tiles_per_row:
@@ -1720,18 +1730,22 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     #verifica daca apasa butonul de repair
                     elif Escape_tab == False and Win_condition == 0 and Repair_Button.on_click(event) and tile_empty == False and repair_bool and aford_repair == True :
                         repair_building()
-                    elif Escape_tab == True and Escape_Button.on_click(event) :
-                        if Role == "host" :
-                            if sent_reaquest == False :
-                                return_lobby = True
-                                #trimite tuturor playerilor ca am trecut la urmatoru stage
-                                data_send = pickle.dumps(("return_to_lobby",None))
-                                data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
-                                for i in range(len(CLIENTS)) :
-                                    CLIENTS[i][0].send(data_send)
-                                sent_reaquest = True
-                        else :
-                            Connection.close()
+                    elif Escape_tab == True :
+                        if Escape_Button.on_click(event) :
+                            if Role == "host" :
+                                if sent_reaquest == False :
+                                    return_lobby = True
+                                    #trimite tuturor playerilor ca am trecut la urmatoru stage
+                                    data_send = pickle.dumps(("return_to_lobby",None))
+                                    data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
+                                    for i in range(len(CLIENTS)) :
+                                        CLIENTS[i][0].send(data_send)
+                                    sent_reaquest = True
+                            else :
+                                Connection.close()
+
+                        elif slider_rect[0]<=press_coordonaits[0] and slider_rect[0] + slider_rect[2]>=press_coordonaits[0] and slider_rect[1]<=press_coordonaits[1] and slider_rect[1] + slider_rect[3]>=press_coordonaits[1] :
+                            Slider_Got = True
                 #daca apesi click dreapta 
                 if event.button == 3:
 
@@ -1839,6 +1853,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             selected_tile = (None,None)
                         else :
                             Escape_tab = False
+                            Slider_Got = False
 
                 if writing_in_chat == True and event.key != pygame.K_TAB :
                     if event.key == pygame.K_ESCAPE :
@@ -1863,8 +1878,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     else : 
                         message += event.unicode
 
-            if pygame.key.get_pressed()[pygame.K_z]==False :
-                Ctrl_zeed = False
+            elif event.type == pygame.MOUSEBUTTONUP and event.button == 1 and Slider_Got == True :
+                Slider_Got = False
+
+        #ctrl_z verify
+        if pygame.key.get_pressed()[pygame.K_z]==False :
+            Ctrl_zeed = False
 
         x_pos = pygame.mouse.get_pos()[0]
         y_pos = pygame.mouse.get_pos()[1]
@@ -1880,6 +1899,14 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 CurrentCamera.y += CurrentCamera.camera_movement
 
         CurrentCamera.Check_Camera_Boundaries()
+        #volume slider modify
+        if Slider_Got == True :
+           slider_rect[0] = pygame.mouse.get_pos()[0] -12
+           if slider_rect[0] < Escape_menu_part[0]+50 :
+                slider_rect[0] = Escape_menu_part[0]+50
+           elif slider_rect[0] > Escape_menu_part[0] + Escape_menu_part[2]-50 -24 :
+               slider_rect[0] = Escape_menu_part[0] + Escape_menu_part[2]-50 -24
+
         #return to lobby check
         if Role == "client" and Confirmation == True :
             recv_from_server.join()
