@@ -91,6 +91,9 @@ lastPositionForRendering = None
 
 SWAP_TO_NORMAL = pygame.USEREVENT + 1   #event for refreshing the map after some time when a thing was hit.
 
+global canRenderMinimap
+canRenderMinimap = True
+
 def draw_star(length, y, x, TrueSight = False):    #Determine what tiles the player currently sees.
     First = True
     visited_vec = []
@@ -171,6 +174,7 @@ def determine_visible_tiles():
 
 selected_controllable = None
 enlighted_surface = None
+minimap_surface = None
 
 #De stiut map_locations este un vector de aceasi lungime cu vectorul de playeri care contine locatia de pe hart a fiecaruia reprezentata printr-un nr de la 1 la 4
 def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client,map_name,map_locations) :
@@ -186,10 +190,25 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     global colorTable
     global selected_controllable
     global enlighted_surface
+    global minimap_surface
     can_build = False
     SHOW_UI = True 
 
+    minimap_surface = pygame.Surface((HEIGHT // 3, HEIGHT // 3)).convert_alpha()
     enlighted_surface = None
+
+    def draw_minimap():
+        global canRenderMinimap
+        if canRenderMinimap == True:
+            minimap_surface.fill((50,50,50,110))
+            ratio = int((HEIGHT // 3) / max(rows, tiles_per_row))
+            print("RATIO", ratio)
+            for tile in partially_visible_tiles:
+                tiles[tile[1]][tile[0]].DrawImage(minimap_surface, (ratio, ratio), True, (visible_tiles, partially_visible_tiles))
+            canRenderMinimap = False
+
+            return True
+        return False
 
     def draw_path_star(length, y, x):
         visited_vec = []
@@ -358,7 +377,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         if enlighted_surface != None:
             tempSurface.blit(enlighted_surface, (0, 0), (CurrentCamera.x, CurrentCamera.y, WIDTH, HEIGHT))
 
-        WIN.blit(tempSurface, (0, 0)) 
+        WIN.blit(tempSurface, (0, 0))
 
         #Draw Nodes circles
         draw_nodes()
@@ -374,6 +393,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
         #desenarea Ui - ului 
         if SHOW_UI == True :
+            draw_minimap()
+            WIN.blit(minimap_surface, (0, HEIGHT - HEIGHT // 3))
+
         #chat windowul daca este deschis
             if Chat_window :
                 pygame.draw.rect(WIN,(25,25,25),((WIDTH-260)/2 + 260,0,5,HEIGHT))
@@ -461,7 +483,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 pygame.draw.circle(WIN,Red,(WIDTH-10,20),8)
             #Partea de jos a UI-ului
             # draw mini_map part
-            pygame.draw.rect(WIN,(25,25,25),(0,HEIGHT-HEIGHT/3,HEIGHT/3,HEIGHT/3))
+            #pygame.draw.rect(WIN,(25,25,25),(0,HEIGHT-HEIGHT // 3,HEIGHT // 3,HEIGHT // 3))    UNUSE MINIMAP
             #desenarea chenarului su informatiile despre ce este selectat
             if selected_tile[0] !=None :
                 if tile_empty == True :
@@ -1377,6 +1399,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 Changes_from_server.pop(0)
 
         if timer <= 0 :
+            global canRenderMinimap
+            canRenderMinimap = True
+
             for unit in controllables_vec: 
                 if unit.HP <= 0:    #If unit is below 0 hp, remove it from the game
                     the_tile = tiles[unit.position[1]][unit.position[0]]
