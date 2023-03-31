@@ -44,6 +44,8 @@ Cyan = (60, 160, 255)
 Light_Green = (0, 255, 0)
 Player_Colors = [White,Blue,Red,Green,Yellow,Orange,Purple,Pink,Cyan]
 
+camerabox_color = (192,192,192)
+
 def RemoveObjectFromList(obj, ls):
     for i, o in enumerate(ls):
         if o.position == obj.position and type(o) == type(obj):
@@ -175,6 +177,7 @@ def determine_visible_tiles():
 selected_controllable = None
 enlighted_surface = None
 minimap_surface = None
+fake_minimap_surface = None     #Surface to store a rectangle to show where you are looking currently
 
 #De stiut map_locations este un vector de aceasi lungime cu vectorul de playeri care contine locatia de pe hart a fiecaruia reprezentata printr-un nr de la 1 la 4
 def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client,map_name,map_locations) :
@@ -191,18 +194,27 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     global selected_controllable
     global enlighted_surface
     global minimap_surface
+    global fake_minimap_surface
+
     can_build = False
     SHOW_UI = True 
 
     minimap_surface = pygame.Surface((HEIGHT // 3, HEIGHT // 3)).convert_alpha()
     enlighted_surface = None
+    fake_minimap_surface = pygame.Surface((HEIGHT // 3, HEIGHT // 3)).convert_alpha()
 
     def draw_minimap():
+        sizeY = int(HEIGHT / 3 * HEIGHT / current_tile_length / rows)
+        sizeX = int(HEIGHT / 3 * WIDTH / current_tile_length / tiles_per_row)
         global canRenderMinimap
+        global fake_minimap_surface
+        ratio = int((HEIGHT // 3) / max(rows, tiles_per_row))
+        fake_minimap_surface.fill((0,0,0,0))
+        pygame.draw.rect(fake_minimap_surface, camerabox_color, (int(CurrentCamera.x / 3 * HEIGHT / current_tile_length / tiles_per_row), int(CurrentCamera.y / 3 * HEIGHT / current_tile_length / rows), sizeX, sizeY), 3)
+
         if canRenderMinimap == True:
             minimap_surface.fill((50,50,50,110))
-            ratio = int((HEIGHT // 3) / max(rows, tiles_per_row))
-            print("RATIO", ratio)
+
             for tile in partially_visible_tiles:
                 tiles[tile[1]][tile[0]].DrawImage(minimap_surface, (ratio, ratio), True, (visible_tiles, partially_visible_tiles))
             canRenderMinimap = False
@@ -395,6 +407,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         if SHOW_UI == True :
             draw_minimap()
             WIN.blit(minimap_surface, (0, HEIGHT - HEIGHT // 3))
+            WIN.blit(fake_minimap_surface, (0, HEIGHT - HEIGHT // 3))
 
         #chat windowul daca este deschis
             if Chat_window :

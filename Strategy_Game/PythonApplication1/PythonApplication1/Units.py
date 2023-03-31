@@ -10,13 +10,9 @@ texture_names = []
 textures = []
 base_textures = []
 
-unit_sounds = []
-
 damage_percent = 70/100
 dead_percent = 90/100
 
-for sound in os.listdir(sound_path):
-    unit_sounds.append(sound)
 
 for img in os.listdir(default_path):    #Load all images
     texture_names.append(img)

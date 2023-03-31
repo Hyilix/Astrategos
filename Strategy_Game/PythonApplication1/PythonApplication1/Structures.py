@@ -11,13 +11,8 @@ texture_names = []
 textures = []
 base_textures = []
 
-unit_sounds = []
-
 damage_percent = 70/100
 dead_percent = 90/100
-
-for sound in os.listdir(sound_path):
-    unit_sounds.append(sound)
 
 #VARIABLES FOR STRUCTURES
 hospital_heal = 2   #HP per end turn to each unit in range of hospital(healing_point)
@@ -49,6 +44,7 @@ def heal_units(val_list):
 
 predefined_structures = {   
                         #HP, MaxHp, Area_of_effect(block radius), defence, canShareSpace, fog_range, TrueSight, Price (Mithril, Flerovium), Refund_percent, SpecialFunction
+    "Barricade" :       [10, 10, 0, 2, False, 2, False, (10, 0), 60/100, None],
     "Healing_Point" :   [15, 15, 5, 0, False, 4, False, (40, 5), 30/100, "heal_units"],
     "Node" :            [4, 4, 0, 0, False, 3, False, (3,0), 75/100, None],
     "Radar" :           [10, 10, 0, 0, False, 9, True, (20, 0), 20/100, None],
