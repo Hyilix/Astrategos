@@ -41,8 +41,8 @@ colorTable = {  #Table for assigning each controller with a color. If "None", th
 
 HEADERSIZE = 10
 SPACE = "          "
-Font = pygame.font.Font(None, 30)
-FontT = pygame.font.Font(None, 50)
+Font = pygame.font.SysFont("Times New Roman.ttf", 30)
+FontT = pygame.font.SysFont("Times New Roman.ttf", 50)
 
 run = True
 timer = 120
@@ -273,8 +273,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     music_text = FontT.render("Music Volume",True,(0,0,0)) 
     music_text_rect = music_text.get_rect()
     music_text_rect.center = (WIDTH/2,Escape_menu_part[1] + 25 +music_text_rect[3]/2)
-    slider_x = WIDTH/2 - 12
-    slider_rect = [slider_x,music_text_rect[1]+music_text_rect[3]+10,24,55]
+    slider_rect = [WIDTH/2 - 12,music_text_rect[1]+music_text_rect[3]+10,24,55]
+    VOLUM = 50
     # incaracarea imaginilor structurilor si unitatilor care le poate produce playeru, cu culoarea specifica.
     grosime_outline = 5
     spatiu_intre = (HEIGHT/3 - 5 - 70*3)/3
@@ -775,6 +775,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 WIN.blit(music_text,music_text_rect)
                 pygame.draw.rect(WIN,(25,25,25),(Escape_menu_part[0]+50,music_text_rect[1]+music_text_rect[3]+30,Escape_menu_part[2]-100,15))
                 pygame.draw.rect(WIN,Cyan,slider_rect)
+                text = Font.render(str(VOLUM),True,(0,0,0))
+                text_rect = text.get_rect()
+                text_rect.center = (slider_rect[0]+12,slider_rect[1]+slider_rect[3]+20)
+                WIN.blit(text,text_rect)
                 #escape button
                 pygame.draw.rect(WIN,(25,25,25),ButtonE_rect)
                 Escape_Button.update(WIN)
@@ -1906,6 +1910,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 slider_rect[0] = Escape_menu_part[0]+50
            elif slider_rect[0] > Escape_menu_part[0] + Escape_menu_part[2]-50 -24 :
                slider_rect[0] = Escape_menu_part[0] + Escape_menu_part[2]-50 -24
+           VOLUM = math.ceil(((slider_rect[0]-(Escape_menu_part[0]+50))/((Escape_menu_part[0] + Escape_menu_part[2]-50 -24) -(Escape_menu_part[0]+50)))*100)
 
         #return to lobby check
         if Role == "client" and Confirmation == True :
