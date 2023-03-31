@@ -27,18 +27,22 @@ def InitTree():     #Start from the root, find Nodes, and from these Nodes searc
         for target in NodeList:
             if target != node and target not in NodesFound:
                 if node.CheckCollision(target) == True:
-                    NodesFound.append(target)
+                    #NodesFound.append(target)
                     target.Add(node)
-                    target.Powered = True
+                    #target.Powered = True
 
 def Find_connections():
+    print("Current_STATE")
+    print("FOUND", NodesFound)
+    for node in NodeList:
+        print(node, node.Parent, node.Children)
     for node in NodesFound:
         for target in NodeList:
             if target != node and target not in NodesFound:
                 if node.CheckCollision(target) == True:
-                    NodesFound.append(target)
+                    #NodesFound.append(target)
                     target.Add(node)
-                    target.Powered = True
+                    #target.Powered = True
 
 def Draw_tree_circles(node, screen, size, offset):  #Go trough the tree and draw all circles
     node.DrawCircle(screen, size, offset)
@@ -72,14 +76,16 @@ class Node():
 
     def Unpower_Children(self):     #Weird name, but it iterates trough every children (and grandchildren) and unpowers it
         self.Powered = False
+        RemoveNodeFromList(self, NodesFound)
         for child in self.Children:
             child.Unpower_Children()
 
     def Remove(self):   #Removes the node from the array and the Tree
         RemoveNodeFromList(self, self.Parent.Children)  
         self.Parent = None
+        for child in self.Children:
+            child.Parent = None
         self.Unpower_Children()
-        RemoveNodeFromList(self, NodesFound)
 
     def Kill(self):     #Removes the node from the game
         self.Remove()
@@ -88,12 +94,12 @@ class Node():
 
     def Add(self, target):  #Add the Node to the Tree relatively to the target Node. This function shouldn't be called on the Kernel Node.
         #Special Case for connection with Kernel Node:
-        if self.Parent == None and NodeList.index(target) == 0:
+        if self.Parent == None and target == TreeRoot:
             self.Parent = target
             target.Children.append(self)
             self.Powered = True
             NodesFound.append(self)
-        elif NodeList.index(target) == 0:
+        elif target == TreeRoot:
             return  #You don't want to make the Kernel Node a child of another Node. You just don't.
 
         else:

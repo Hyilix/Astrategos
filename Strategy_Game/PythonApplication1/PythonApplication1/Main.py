@@ -1,8 +1,10 @@
 import Menu
-
+import random
 import pygame
 
 pygame.init()
+pygame.mixer.init()
+random.seed()
 screen = pygame.display.Info()
 WIDTH = screen.current_w
 HEIGHT = screen.current_h

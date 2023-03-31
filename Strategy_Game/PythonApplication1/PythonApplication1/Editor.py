@@ -259,8 +259,9 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                     elif event.key == pygame.K_ESCAPE:
                         return
                     else:
-                        if len(map_text) < max_str_length:
-                            map_text += event.unicode
+                        if event.unicode != '@':
+                            if len(map_text) < max_str_length:
+                                map_text += event.unicode
 
         save_map(map_text)
 
@@ -293,8 +294,9 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                     elif event.key == pygame.K_ESCAPE:
                         return
                     else:
-                        if len(map_text) < max_str_length:
-                            map_text += event.unicode
+                        if event.unicode != '@':
+                            if len(map_text) < max_str_length:
+                                map_text += event.unicode
 
         load_map(map_text)
 

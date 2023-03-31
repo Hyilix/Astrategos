@@ -1,11 +1,18 @@
 import pygame
 import os
 import TileClass
+import math
 
 default_path = 'Assets/Units/'
+sound_path = 'Assets/Sound'
+
 texture_names = []
 textures = []
 base_textures = []
+
+damage_percent = 70/100
+dead_percent = 90/100
+
 
 for img in os.listdir(default_path):    #Load all images
     texture_names.append(img)
@@ -22,9 +29,11 @@ def resize_textures(size):
 
 last_index = len(texture_names)
 
+unit_attack_range_color = (235, 0, 0)
+
 predefined_Units = {   
                 #HP, MaxHp, attack, defence, range, move_range, fog_range, price (Mithril, Flerovium, Supply), Refund_percent
-    "Marine" :  [5, 5, 2, 0, 2, 4, 5, (6,0,1), 60/100],
+    "Marine" :  [5, 5, 2, 0, 3, 4, 5, (6,0,1), 60/100],
     "Phantom" : [7, 7, 4, 1, 5, 7, 9, (10,0,2), 55/100],
     "Tank" :    [20, 20, 8, 3, 3, 5, 6, (30,4,2), 35/100],
 
@@ -47,6 +56,8 @@ class Unit():
         self.owner = owner          #The owner of the unit.
         self.name = name            #The unit
 
+        self.took_damage = False
+
         vec = predefined_Units[name]
 
         self.canMove = True
@@ -64,11 +75,21 @@ class Unit():
         self.price = vec[7]
         self.refund_percent = vec[8]
 
+    def Draw_AOE(self, screen, size, offset):   #Draw the area range
+        if self.range != 0:
+            pygame.draw.circle(screen, unit_attack_range_color, ((self.position[0] + 0.5) * size - offset[0], (self.position[1] + 0.5) * size - offset[1]), self.range * size, 2)
+
+    def Attack(self, target):
+        if target.owner != self.owner:  #You can only attack enemy units
+            inrange = math.sqrt((self.position[0] - target.position[0]) ** 2 + (self.position[1] - target.position[1]) ** 2) <= max(self.range, target.range)
+            if inrange == True:
+                target.ModifyHealth(-(self.attack - target.defence))
+                return (inrange, (self.attack - target.defence))
+        return (False, None)    
+
     def ModifyHealth(self, value):
         if self.HP + value > self.MaxHP:
             self.HP = self.MaxHP
-        elif self.HP + value < 0:
-            self.HP = 0
         else:
             self.HP += value
 
@@ -81,7 +102,6 @@ class Unit():
         return False
 
     def DrawImage(self, screen, size, colorTable, special_blit = False, visible_tuple = None):
-
         image = textures[texture_names.index(self.texture)].copy()
         dark = pygame.Surface(image.get_size()).convert_alpha()
         dark.fill((0, 0, 0, 0))
@@ -90,17 +110,19 @@ class Unit():
                 if image.get_at((i,j)) == (1,1,1):
                     image.set_at((i,j), colorTable[self.owner])
                 if image.get_at((i,j)) != (0,0,0,0):
-                    dark.set_at((i,j), (0, 0, 0, TileClass.darken_percent * 255))
+                    dark.set_at((i,j), (153, 0, 0, damage_percent * 255))
 
         if special_blit == False:
             if TileClass.full_bright == False and visible_tuple and not (self.position in visible_tuple[0]) and not (self.position in visible_tuple[1]):
                 image.fill(TileClass.darkness)
-            elif TileClass.full_bright == False and visible_tuple and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
-                image.blit(dark,(0,0))
+            if self.took_damage:
+                self.took_damage = False
+                image.blit(dark,(0,0)) 
             screen.blit(image, (self.position[0] * size[0], self.position[1]  * size[1]))
         else:
             image = pygame.transform.scale(image, size)
             dark = pygame.transform.scale(dark, size)
-            if TileClass.full_bright == False:
-                image.blit(dark, (0,0))
+            if self.took_damage:
+                self.took_damage = False
+                image.blit(dark,(0,0))
             screen.blit(image, (self.position[0] * size[0], self.position[1]  * size[1]))

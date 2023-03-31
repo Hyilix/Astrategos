@@ -1,5 +1,7 @@
 from ctypes import Structure
 from select import select
+from tkinter.messagebox import showerror
+from turtle import left
 import pygame 
 import os 
 import socket
@@ -7,7 +9,8 @@ import pickle
 import threading
 import time
 import math
-
+import os
+import random
 
 import TileClass
 import Structures
@@ -17,6 +20,18 @@ from button import Button
 import Node
 
 pygame.init()
+
+music_path = 'Assets/Music/'
+music_vec = []
+
+for music in os.listdir(music_path):
+    music_vec.append(music)
+
+def PlayRandomMusic():
+    rand = random.randint(0, len(music_vec) - 1)
+    pygame.mixer.music.load(music_path + music_vec[rand])
+    pygame.mixer.music.set_volume(0.4)
+    pygame.mixer.music.play()
 
 White = (255,255,255)
 Gri = (225, 223, 240)
@@ -30,6 +45,14 @@ Pink = (255, 0, 255)
 Cyan = (60, 160, 255)
 Light_Green = (0, 255, 0)
 Player_Colors = [White,Blue,Red,Green,Yellow,Orange,Purple,Pink,Cyan]
+
+camerabox_color = (192,192,192)
+
+def RemoveObjectFromList(obj, ls):
+    for i, o in enumerate(ls):
+        if o.position == obj.position and type(o) == type(obj):
+            del ls[i]
+            break
 
 colorTable = {  #Table for assigning each controller with a color. If "None", then don't draw
     0 : (64,64,64),
@@ -66,6 +89,17 @@ partially_visible_tiles = []
 path_tiles = [] #Tiles that a selected unit can move to
 
 DEBUG_FORCED_POSITION = None
+
+global lastPositionForRendering
+lastPositionForRendering = None
+
+SWAP_TO_NORMAL = pygame.USEREVENT + 1   #event for refreshing the map after some time when a thing was hit.
+
+global canRenderMinimap
+canRenderMinimap = True
+
+global left_click_holding
+left_click_holding = False
 
 def draw_star(length, y, x, TrueSight = False):    #Determine what tiles the player currently sees.
     First = True
@@ -113,11 +147,11 @@ def draw_star(length, y, x, TrueSight = False):    #Determine what tiles the pla
                             if TrueSight == True:
                                 new_tiles.append((y + in_y, x + in_x))
                             else:
-                                if tiles[y][x].collidable == False:
+                                if tiles[y][x].collidable == False and tiles[y + in_y][x + in_x].unit == None and tiles[y + in_y][x + in_x].structure == None:
                                     new_tiles.append((y + in_y, x + in_x))
                                     First = False
                             
-                                elif tiles[y][x].collidable == True and y + in_y >= 0 and x + in_x >= 0 and y + in_y < rows and x + in_x < tiles_per_row and tiles[y + in_y][x + in_x].collidable == False:
+                                elif tiles[y][x].collidable == True and y + in_y >= 0 and x + in_x >= 0 and y + in_y < rows and x + in_x < tiles_per_row and tiles[y + in_y][x + in_x].collidable == False and tiles[y + in_y][x + in_x].unit == None and tiles[y + in_y][x + in_x].structure == None:
                                     if First == False:
                                         new_tiles.append((y + in_y, x + in_x, True))
                                     else:
@@ -147,6 +181,8 @@ def determine_visible_tiles():
 
 selected_controllable = None
 enlighted_surface = None
+minimap_surface = None
+fake_minimap_surface = None     #Surface to store a rectangle to show where you are looking currently
 
 #De stiut map_locations este un vector de aceasi lungime cu vectorul de playeri care contine locatia de pe hart a fiecaruia reprezentata printr-un nr de la 1 la 4
 def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Coduri_pozitie_client,map_name,map_locations) :
@@ -162,10 +198,34 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     global colorTable
     global selected_controllable
     global enlighted_surface
+    global minimap_surface
+    global fake_minimap_surface
+
     can_build = False
     SHOW_UI = True 
 
+    minimap_surface = pygame.Surface((HEIGHT // 3, HEIGHT // 3)).convert_alpha()
     enlighted_surface = None
+    fake_minimap_surface = pygame.Surface((HEIGHT // 3, HEIGHT // 3)).convert_alpha()
+
+    def draw_minimap():
+        sizeY = int(HEIGHT / 3 * HEIGHT / current_tile_length / rows)
+        sizeX = int(HEIGHT / 3 * WIDTH / current_tile_length / tiles_per_row)
+        global canRenderMinimap
+        global fake_minimap_surface
+        ratio = int((HEIGHT // 3) / max(rows, tiles_per_row))
+        fake_minimap_surface.fill((0,0,0,0))
+        pygame.draw.rect(fake_minimap_surface, camerabox_color, (int(CurrentCamera.x / 3 * HEIGHT / current_tile_length / tiles_per_row), int(CurrentCamera.y / 3 * HEIGHT / current_tile_length / rows), sizeX, sizeY), 3)
+
+        if canRenderMinimap == True:
+            minimap_surface.fill((50,50,50,110))
+
+            for tile in partially_visible_tiles:
+                tiles[tile[1]][tile[0]].DrawImage(minimap_surface, (ratio, ratio), True, (visible_tiles, partially_visible_tiles))
+            canRenderMinimap = False
+
+            return True
+        return False
 
     def draw_path_star(length, y, x):
         visited_vec = []
@@ -219,8 +279,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         queued_tiles.clear()
 
     def determine_enlighted_tiles():
-        path_tiles.clear()
-        draw_path_star(selected_controllable.move_range, selected_controllable.position[1], selected_controllable.position[0])
+        if timer > 0 and Whos_turn == Pozitie:
+            path_tiles.clear()
+            draw_path_star(selected_controllable.move_range, selected_controllable.position[1], selected_controllable.position[0])
 
     colorTable = {  #Remake the dictionary
     0 : (64,64,64),
@@ -230,7 +291,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     4 : None
     }
 
-    TileClass.full_bright = True  #if full_bright == True, player can see the whole map at any time, like in editor.
+    TileClass.full_bright = False  #if full_bright == True, player can see the whole map at any time, like in editor.
 
     index = 0
     for player in playeri:  #assign colors to structures and units. Any structure/unit with 
@@ -314,6 +375,18 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 if unit.get_at((i,j)) == (1,1,1):
                     unit.set_at((i,j), Player_Colors[playeri[Pozitie][1]])
 
+    def draw_selected_controllable_radius():
+        if selected_tile[0] != None:
+            examined_struct = tiles[selected_tile[1]][selected_tile[0]].structure
+            examined_unit = tiles[selected_tile[1]][selected_tile[0]].unit
+
+            if examined_struct != None and examined_struct in controllables_vec:
+                if examined_struct.owner == map_locations[Pozitie]:
+                    examined_struct.Draw_AOE(WIN, current_tile_length, (CurrentCamera.x, CurrentCamera.y))
+
+            elif examined_unit != None and examined_unit in controllables_vec and timer > 0 and Whos_turn == Pozitie:
+                if examined_unit.owner == map_locations[Pozitie] and examined_unit.canAttack == True:
+                    examined_unit.Draw_AOE(WIN, current_tile_length, (CurrentCamera.x, CurrentCamera.y))
 
     def draw_nodes():
         if selected_tile[0] != None:
@@ -339,14 +412,19 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         tempSurface = pygame.Surface((WIDTH, HEIGHT))
         tempSurface.blit(mapSurface, (0, 0), (CurrentCamera.x, CurrentCamera.y, WIDTH, HEIGHT))
 
+        global enlighted_surface
+        if timer <= 0 or Whos_turn != Pozitie and enlighted_surface == None:
+            enlighted_surface = draw_enlighted_tiles()
+            selected_tile_check()
+
         if enlighted_surface != None:
             tempSurface.blit(enlighted_surface, (0, 0), (CurrentCamera.x, CurrentCamera.y, WIDTH, HEIGHT))
 
-        WIN.blit(tempSurface, (0, 0)) 
+        WIN.blit(tempSurface, (0, 0))
 
         #Draw Nodes circles
         draw_nodes()
-
+        draw_selected_controllable_radius()
         #draw selected tile outline
         if selected_tile[0] != None : 
             x_tile=selected_tile[0]* current_tile_length - CurrentCamera.x
@@ -358,6 +436,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
         #desenarea Ui - ului 
         if SHOW_UI == True :
+            draw_minimap()
+            WIN.blit(minimap_surface, (0, HEIGHT - HEIGHT // 3))
+            WIN.blit(fake_minimap_surface, (0, HEIGHT - HEIGHT // 3))
+
         #chat windowul daca este deschis
             if Chat_window :
                 pygame.draw.rect(WIN,(25,25,25),((WIDTH-260)/2 + 260,0,5,HEIGHT))
@@ -457,7 +539,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 pygame.draw.circle(WIN,Red,(WIDTH-10,20),8)
             #Partea de jos a UI-ului
             # draw mini_map part
-            pygame.draw.rect(WIN,(25,25,25),(0,HEIGHT-HEIGHT/3,HEIGHT/3,HEIGHT/3))
+            #pygame.draw.rect(WIN,(25,25,25),(0,HEIGHT-HEIGHT // 3,HEIGHT // 3,HEIGHT // 3))    UNUSE MINIMAP
             #desenarea chenarului su informatiile despre ce este selectat
             if selected_tile[0] !=None :
                 if tile_empty == True :
@@ -921,6 +1003,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             refresh_map([Action[1], Action[2]])
 
             tiles[Action[1][1]][Action[1][0]].unit.canMove = True
+            selected_tile_check()
         elif Action[0] == "new_entity" :
             if Action[1] == "Structures":
                 new_struct = tiles[Action[4][1]][Action[4][0]].structure
@@ -936,7 +1019,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 #Sterge structura
                 tiles[Action[4][1]][Action[4][0]].structure = None
                 refresh_map([[Action[4][0],Action[4][1]]])
-                controllables_vec.pop(Action[5])
+                RemoveObjectFromList(Action[5], controllables_vec)
                 del new_struct
             elif Action[1] == "Units":
                 new_unit = tiles[Action[4][1]][Action[4][0]].unit
@@ -948,7 +1031,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 #Se sterge unitatea
                 tiles[Action[4][1]][Action[4][0]].unit = None
                 refresh_map([[Action[4][0],Action[4][1]]])
-                controllables_vec.pop(Action[5])
+                RemoveObjectFromList(Action[5], controllables_vec)
+                selected_tile_check()
+
         elif Action[0] == "refund_entity":
             if Action[1] == "structure" : #Structure case. Also don't refund Kernel lol
                 my_struct = Action[3]
@@ -978,6 +1063,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 tiles[Action[2][1]][Action[2][0]].unit = my_unit
                 refresh_map([[Action[2][0],Action[2][1]]])
                 del my_unit
+                
         elif Action[0] == "repair_entity":
             #scaderea pretului
             Mithril += Action[3][0]
@@ -986,12 +1072,17 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         
         selected_tile_check()
 
+
     def selected_tile_check() :
         global tile_empty
         global enlighted_surface
-        if selected_tile[0] != None :
+        if timer <= 0 or Whos_turn != Pozitie:
+            enlighted_surface = draw_enlighted_tiles()
+        if selected_tile[0] != None:
             if tiles[selected_tile[1]][selected_tile[0]].unit == None and tiles[selected_tile[1]][selected_tile[0]].structure == None and tiles[selected_tile[1]][selected_tile[0]].ore == None :
                 tile_empty = True
+                enlighted_surface = draw_enlighted_tiles()
+
             else :
                 nonlocal Element_selectat
                 global selected_controllable
@@ -1103,6 +1194,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
                     tiles[selected_tile[1]][selected_tile[0]].unit = None
                     refresh_map([[selected_tile[0],selected_tile[1]]])
+                    RemoveObjectFromList(my_unit, controllables_vec)
                     Turn_Actions.append(("refund_entity","unit",selected_tile,my_unit))
                     del my_unit
                 elif tiles[selected_tile[1]][selected_tile[0]].structure != None and tiles[selected_tile[1]][selected_tile[0]].structure.name != "Kernel": #Structure case. Also don't refund Kernel lol
@@ -1117,6 +1209,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
                     Flerovium += int(my_struct.price[1] * my_struct.refund_percent)
                     Mithril += int(my_struct.price[0] * my_struct.refund_percent)
+
+                    RemoveObjectFromList(my_struct, controllables_vec)
 
                     tiles[selected_tile[1]][selected_tile[0]].structure = None
                     refresh_map([[selected_tile[0],selected_tile[1]]])
@@ -1147,9 +1241,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
                                 Nodes += 1
                                 new_node = Node.Node((selected_tile[0] + 0.5, selected_tile[1] + 0.5), 4.5, new_struct)
-                                for node in Node.NodeList:
-                                    if node != new_node and new_node.CheckCollision(node):
-                                        new_node.Add(node)
+                                Node.Find_connections()
 
                             #construieste structura
                             tiles[selected_tile[1]][selected_tile[0]].structure = new_struct
@@ -1197,6 +1289,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             if Winner == playeri[Pozitie][0] :
                 Win_condition = 1
                 
+
     #Camera, texture resizing and load function
     class Camera:
         def __init__(self, position, zoom, max_zoom, min_zoom):
@@ -1296,6 +1389,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                             new_structure
                                             )
 
+                nonlocal Man_power_used
+                nonlocal Nodes
+
                 #Detect if the structure is either Kernel or Node to populate the Node module.
                 if new_tile.structure != None:
                     if (new_tile.structure.name == "Kernel" or new_tile.structure.name == "Node") and new_tile.structure.owner == map_locations[Pozitie]:
@@ -1317,9 +1413,13 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     if new_tile.structure.owner == map_locations[Pozitie]:
                         controllables_vec.append(new_tile.structure)
 
+                    if new_tile.structure.name == "Node" and new_tile.structure.owner == map_locations[Pozitie]:
+                        Nodes += 1
+
                 if new_tile.unit != None:
                     if new_tile.unit.owner == map_locations[Pozitie]:
                         controllables_vec.append(new_tile.unit)
+                        Man_power_used += new_tile.unit.price[2]
 
                 new_vec.append(new_tile)
             tiles.append(new_vec)
@@ -1334,7 +1434,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
 
         Node.InitTree()
-        
+
         if TileClass.full_bright == True:
             for y in range(rows):
                 for x in range(tiles_per_row):
@@ -1541,20 +1641,33 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
                 Changes_from_server.pop(0)
 
-        if timer == 0 :
-            determine_visible_tiles()
+        if timer <= 0 :
+            global canRenderMinimap
+            canRenderMinimap = True
+
+            for unit in controllables_vec: 
+                if unit.HP <= 0:    #If unit is below 0 hp, remove it from the game
+                    the_tile = tiles[unit.position[1]][unit.position[0]]
+                    if type(unit) == Structures.Structure:
+                        the_tile.structure = None
+                    if type(unit) == Units.Unit:
+                        the_tile.unit = None
+
+                    RemoveObjectFromList(unit, controllables_vec)   #Remove dead controllable from the vector
+                    del unit
+
+                if tiles[unit.position[1]][unit.position[0]].unit == unit : #Allow each unit to move and attack for the next round
+                    unit.canMove = True
+                    unit.canAttack = True
 
             units_healed = []   #a vector to store all units healed. Hospital effects don't stack
             for caster in caster_controllables_vec: #For every caster, call it's function. Because of time and internal issues, the only caster is the hospital.
                 caster.call_special_function([caster, controllables_vec, units_healed])
             if len(units_healed) != 0 :
                 Turn_Actions.append(("healed_units",units_healed))
-            del units_healed
+            del units_healed    
 
-            for unit in controllables_vec:  #Allow each unit to make an action
-                if tiles[unit.position[1]][unit.position[0]].unit == unit:
-                    unit.canMove = True
-                    unit.canAttack = True
+            determine_visible_tiles()
 
             if Role == "host" :
                 if Confirmatii_timer == len(CLIENTS) :
@@ -1609,13 +1722,22 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
         #The event loop
         for event in pygame.event.get():
+            global left_click_holding
+            if event.type == SWAP_TO_NORMAL:
+                refresh_map([lastPositionForRendering])
+
             if event.type == pygame.QUIT :
                 pygame.quit()
                 os._exit(0)
+            elif event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1:
+                    left_click_holding = False
+
             elif event.type == pygame.MOUSEBUTTONDOWN  :
                 press_coordonaits = event.pos 
                 #daca apesi click stanga
                 if event.button == 1 :
+                    left_click_holding = True
                     #Se verifica daca apasa butonul de chat
                     if Escape_tab == False and SHOW_UI == True and press_coordonaits[1] <= 75  and press_coordonaits[0] >= WIDTH -75 :
                         if Chat_window == False :
@@ -1763,7 +1885,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 if event.button == 3:
 
                     #daca ai o unitate selectata, incearca sa o muti  daca este tura playerului
+
                     if Escape_tab == False and Win_condition == 0 and selected_controllable != None and timer>0 and Whos_turn == Pozitie :
+                    
+                        #!!WARNING!!: Huge line of code ahead! Proceed with extreme caution! Effects include dizziness, headaches, disorientation and sudden suicidal impulses!
+                    
                         if SHOW_UI == False or( press_coordonaits[1] > HEIGHT/25 and (press_coordonaits[0] >= (WIDTH-260)/2 and press_coordonaits[0] <= (WIDTH-260)/2 + 260 and (press_coordonaits[1] <= HEIGHT*2/25 +5 or (Whos_turn == Pozitie and press_coordonaits[1] <= HEIGHT*2/25 + 40 )) )==0 and (press_coordonaits[1] > HEIGHT*2/3 and press_coordonaits[0] < HEIGHT/3)==0 and ((press_coordonaits[0]<(WIDTH-260)/2 + 260 and Chat_window == True) or Chat_window == False) and( selected_tile[0]==None or (press_coordonaits[1] < HEIGHT*4/5-5 and (tile_empty==False or (press_coordonaits[0]>WIDTH-HEIGHT/3 and press_coordonaits[1]>HEIGHT*2/3-60)==0 )))) :
 
                             x_layer = (press_coordonaits[0] + CurrentCamera.x) // current_tile_length 
@@ -1787,6 +1913,25 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                         #Pune aceasta actiune in Turn-Actions
                                         Turn_Actions.append(("move_unit",lastPos,(x_layer, y_layer)))
                                         selected_tile_check()
+
+                                    if type(selected_controllable) == Units.Unit and selected_controllable.canAttack == True:
+                                        tile = tiles[y_layer][x_layer]
+                                        hitinformation = None   #The Attack function returns a tuple: has hit an enemy and the absolute value (abs) of damage it did
+                                        target = None
+                                        if tile.structure != None:
+                                            hitinformation = selected_controllable.Attack(tile.structure)
+                                            target = tile.structure
+                                        elif tile.unit != None:
+                                            hitinformation = selected_controllable.Attack(tile.unit)
+                                            target = tile.unit
+
+                                        if hitinformation and hitinformation[0] == True:
+                                            selected_controllable.canAttack = False
+                                            target.took_damage = True
+                                            refresh_map([target.position])
+                                            lastPositionForRendering = target.position
+                                            pygame.time.set_timer(SWAP_TO_NORMAL, 200)
+
 
                 #daca dai scrol in sus
                 if  event.button == 4 :
@@ -1854,6 +1999,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                 reverse_action(Turn_Actions[-1])
                                 Turn_Actions.pop(-1)
 
+                    elif event.unicode.lower() == 'm':  #Test some music playin
+                        PlayRandomMusic()
+
                     elif event.unicode.lower() == 'l':  #Enable/Disable GUIs
                         if SHOW_UI   :
                             SHOW_UI = False  
@@ -1910,6 +2058,18 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 CurrentCamera.x += CurrentCamera.camera_movement
             if y_pos == HEIGHT - 1:
                 CurrentCamera.y += CurrentCamera.camera_movement
+
+        if x_pos > 0 and x_pos < HEIGHT // 3 and y_pos < HEIGHT and y_pos > 2 * HEIGHT // 3 and SHOW_UI == True and left_click_holding == True:
+            #sizeY = int(HEIGHT / 3 * HEIGHT / current_tile_length / rows)
+            X = x_pos
+            Y = y_pos - 2 * HEIGHT // 3
+            size_y  = int(HEIGHT / 3 * HEIGHT / current_tile_length / rows)
+            size_x  = int(HEIGHT / 3 * WIDTH / current_tile_length / rows)
+            world_y = int((Y - size_y / 2) * rows * current_tile_length * 3 / HEIGHT)
+            world_x = int((X - size_x / 2) * tiles_per_row * current_tile_length * 3 / HEIGHT)
+
+            CurrentCamera.x = world_x
+            CurrentCamera.y = world_y
 
         CurrentCamera.Check_Camera_Boundaries()
         #volume slider modify

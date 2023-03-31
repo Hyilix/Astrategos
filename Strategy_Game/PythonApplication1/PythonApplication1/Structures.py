@@ -5,9 +5,14 @@ import Units
 import math
 
 default_path = 'Assets/Structures/'
+sound_path = 'Assets/Sound'
+
 texture_names = []
 textures = []
 base_textures = []
+
+damage_percent = 70/100
+dead_percent = 90/100
 
 #VARIABLES FOR STRUCTURES
 hospital_heal = 2   #HP per end turn to each unit in range of hospital(healing_point)
@@ -39,11 +44,12 @@ def heal_units(val_list):
 
 predefined_structures = {   
                         #HP, MaxHp, Area_of_effect(block radius), defence, canShareSpace, fog_range, TrueSight, Price (Mithril, Flerovium), Refund_percent, SpecialFunction
-    "Healing_Point" :   [15, 15, 5, 0, False, 4, False, (40, 5), 30/100, "heal_units"],
-    "Node" :            [4, 4, 0, 0, False, 3, False, (3,0), 75/100, None],
+    "Barricade" :       [10, 10, 0, 2, False, 2, False, (10, 0), 60/100, None],
+    "Healing_Point" :   [15, 15, 5, 1, False, 3, False, (40, 5), 30/100, "heal_units"],
+    "Node" :            [4, 4, 0, 0, False, 2, False, (3,0), 75/100, None],
     "Radar" :           [10, 10, 0, 0, False, 9, True, (20, 0), 20/100, None],
     #De acum kernel va trebui sa stea pe ultima pozitie
-    "Kernel" :          [100, 100, 0, 3, False, 6, False, (0,0), 0, None]
+    "Kernel" :          [100, 100, 0, 3, False, 5, False, (0,0), 0, None]
     }
 
 def BuildStructure(index, position, owner):
@@ -62,6 +68,8 @@ class Structure():
         self.position = position    #The position of the tile it's sitted.
         self.owner = owner          #The owner of the unit.
         self.name = name            #The structure.
+
+        self.took_damage = False
 
         vec = predefined_structures[name]
 
@@ -87,14 +95,14 @@ class Structure():
     def ModifyHealth(self, value):
         if self.HP + value > self.MaxHP:
             self.HP = self.MaxHP
-        elif self.HP + value < 0:
-            self.HP = 0
+            self.took_damage == True
         else:
             self.HP += value
+            self.took_damage == True
 
     def Draw_AOE(self, screen, size, offset):   #Draw the area of efect of a structure
         if self.AOE != 0:
-            pygame.draw.circle(screen, hospital_circle_color, (self.position[0] * size - offset[0], self.position[1] * size - offset[1]), self.AOE * size, 1)
+            pygame.draw.circle(screen, hospital_circle_color, ((self.position[0] + 0.5) * size - offset[0], (self.position[1] + 0.5) * size - offset[1]), self.AOE * size, 1)
 
     def DrawImage(self, screen, size, colorTable, special_blit = False, visible_tuple = None):
         image = textures[texture_names.index(self.texture)].copy()
@@ -106,17 +114,19 @@ class Structure():
                 if image.get_at((i,j)) == (1,1,1):
                     image.set_at((i,j), colorTable[self.owner])
                 if image.get_at((i,j)) != (0,0,0,0):
-                    dark.set_at((i,j), (0, 0, 0, TileClass.darken_percent * 255))
+                    dark.set_at((i,j), (153, 0, 0, damage_percent * 255))
 
         if special_blit == False:
             if TileClass.full_bright == False and visible_tuple and not (self.position in visible_tuple[0]) and not (self.position in visible_tuple[1]):
                 image.fill(TileClass.darkness)
-            elif TileClass.full_bright == False and visible_tuple and not (self.position in visible_tuple[0]) and (self.position in visible_tuple[1]):
-                image.blit(dark,(0,0))
+            if self.took_damage:
+                self.took_damage = False
+                image.blit(dark,(0,0)) 
             screen.blit(image, (self.position[0] * size[0], self.position[1]  * size[1]))
         else:
             image = pygame.transform.scale(image, size)
             dark = pygame.transform.scale(dark, size)
-            if TileClass.full_bright == False:
-                image.blit(dark, (0,0))
+            if self.took_damage:
+                self.took_damage = False
+                image.blit(dark,(0,0))
             screen.blit(image, (self.position[0] * size[0], self.position[1]  * size[1]))
