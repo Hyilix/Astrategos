@@ -264,17 +264,20 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     #Escape Button
     l_emp = 600
     Escape_menu_part = (WIDTH/2-250,HEIGHT/2-l_emp/2, 500,l_emp)
-    ButtonE_rect = (WIDTH/2-155,Escape_menu_part[1]+Escape_menu_part[3] - 160 -55,310,160)
+    ButtonE_rect = (WIDTH/2-155,Escape_menu_part[1]+Escape_menu_part[3] - 160 -25,310,160)
     if Role == "host" :
-        Escape_Button = Button((WIDTH/2-150,Escape_menu_part[1]+Escape_menu_part[3] - 160 -50,300,150),Gri,None,**{"text": "Return to lobby","font": FontT})
+        Escape_Button = Button((WIDTH/2-150,Escape_menu_part[1]+Escape_menu_part[3] - 160 -20,300,150),Gri,None,**{"text": "Return to lobby","font": FontT})
     else :
-        Escape_Button = Button((WIDTH/2-150,Escape_menu_part[1]+Escape_menu_part[3] - 160 -50,300,150),Gri,None,**{"text": "Disconect","font": FontT})
+        Escape_Button = Button((WIDTH/2-150,Escape_menu_part[1]+Escape_menu_part[3] - 160 -20,300,150),Gri,None,**{"text": "Disconect","font": FontT})
     #music slider
     music_text = FontT.render("Music Volume",True,(0,0,0)) 
     music_text_rect = music_text.get_rect()
     music_text_rect.center = (WIDTH/2,Escape_menu_part[1] + 25 +music_text_rect[3]/2)
     slider_rect = [WIDTH/2 - 12,music_text_rect[1]+music_text_rect[3]+10,24,55]
     VOLUM = 50
+    #buton next song 
+    ButtonN_rect = (ButtonE_rect[0],ButtonE_rect[1]-160-25,310,160)
+    Next_Button = Button((ButtonE_rect[0]+5,ButtonE_rect[1]-160-20,300,150),Gri,None,**{"text": "Next Song","font": FontT})
     # incaracarea imaginilor structurilor si unitatilor care le poate produce playeru, cu culoarea specifica.
     grosime_outline = 5
     spatiu_intre = (HEIGHT/3 - 5 - 70*3)/3
@@ -779,6 +782,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 text_rect = text.get_rect()
                 text_rect.center = (slider_rect[0]+12,slider_rect[1]+slider_rect[3]+20)
                 WIN.blit(text,text_rect)
+                #next song button
+                pygame.draw.rect(WIN,(25,25,25),ButtonN_rect)
+                Next_Button.update(WIN)
                 #escape button
                 pygame.draw.rect(WIN,(25,25,25),ButtonE_rect)
                 Escape_Button.update(WIN)
@@ -1748,6 +1754,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             else :
                                 Connection.close()
 
+                        elif Next_Button.on_click(event) :
+                            #aici se va pune ce face butonul de next song
+                            nimic = None
                         elif slider_rect[0]<=press_coordonaits[0] and slider_rect[0] + slider_rect[2]>=press_coordonaits[0] and slider_rect[1]<=press_coordonaits[1] and slider_rect[1] + slider_rect[3]>=press_coordonaits[1] :
                             Slider_Got = True
                 #daca apesi click dreapta 
