@@ -306,9 +306,9 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         nonlocal cooldown
         global run
         while run :
-            time.sleep(0.05)
+            time.sleep(0.015)
             if All_Readied == True and started_cooldown == True and cooldown > 0 :
-                cooldown -= 0.05
+                cooldown -= 0.015
 
     #variabilele necesare chiar pentru ambele roluri
     global Pozitie

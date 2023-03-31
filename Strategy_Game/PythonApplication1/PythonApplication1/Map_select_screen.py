@@ -241,12 +241,12 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
     def timer_thread ():
         nonlocal cooldown
         while cooldown > 0 :
-            time.sleep(0.1)
+            time.sleep(0.01)
             if cooldown > 0 and Loaded_maps == True :
                 if All_voted :
-                    cooldown -=0.3
+                    cooldown -=0.03
                 else :
-                    cooldown -=0.1
+                    cooldown -=0.01
 
     mapload_related_stuff = []
     #declararea variabilelor rolurilor specifice

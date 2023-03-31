@@ -262,7 +262,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     repair_bool = False
     aford_repair = False
     #Escape Button
-    Escape_menu_part = ()
+    l_emp = 600
+    Escape_menu_part = (WIDTH/2-250,HEIGHT/2-l_emp/2, 500,l_emp)
     ButtonE_rect = (WIDTH/2-155,HEIGHT/2-80,310,160)
     if Role == "host" :
         Escape_Button = Button((WIDTH/2-150,HEIGHT/2-75,300,150),Gri,None,**{"text": "Return to lobby","font": FontT})
@@ -763,11 +764,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             #desenare ESCAPE_TAB
             if Escape_tab == True :
                 #desenare escape part
-                pygame.draw.rect(WIN,(25,25,25),(WIDTH/2-255,HEIGHT/2-155, 510,5))
-                pygame.draw.rect(WIN,(25,25,25),(WIDTH/2-255,HEIGHT/2-155, 5,310))
-                pygame.draw.rect(WIN,(25,25,25),(WIDTH/2-255,HEIGHT/2+150, 510,5))
-                pygame.draw.rect(WIN,(25,25,25),(WIDTH/2+250,HEIGHT/2-155, 5,310))
-                pygame.draw.rect(WIN,Gri,(WIDTH/2-250,HEIGHT/2-150, 500,300))
+                pygame.draw.rect(WIN,(25,25,25),(Escape_menu_part[0]-5,Escape_menu_part[1]-5,Escape_menu_part[2]+10,Escape_menu_part[3]+10))
+                pygame.draw.rect(WIN,Gri,Escape_menu_part)
                 #escape button
                 pygame.draw.rect(WIN,(25,25,25),ButtonE_rect)
                 Escape_Button.update(WIN)
@@ -846,7 +844,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     #Un thread care va functiona la host care are rolul sa tina cont de cat timp trece in timpul jocului
     def timer_thread ():
         global timer
-        while True :
+        while sent_reaquest == False :
             time.sleep(1)
             if timer > 0 :
                 timer = timer - 1
@@ -1791,7 +1789,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
                 #Zoom si check_boundary pentru camera.
                 modifier = 0
-                if Escape_tab == False and SHOW_UI == False or (Chat_window == True and press_coordonaits[0] >= (WIDTH-260)/2 + 265) == 0 and (press_coordonaits[0]> WIDTH-HEIGHT/3 and press_coordonaits[1] >= HEIGHT*2/3 and selected_tile[0] !=None and tile_empty == True) == 0 :
+                if Escape_tab == False and ( SHOW_UI == False or (Chat_window == True and press_coordonaits[0] >= (WIDTH-260)/2 + 265) == 0 and (press_coordonaits[0]> WIDTH-HEIGHT/3 and press_coordonaits[1] >= HEIGHT*2/3 and selected_tile[0] !=None and tile_empty == True) == 0) :
                     if event.button == 4:
                         modifier = 1
                     elif event.button == 5:
@@ -1890,6 +1888,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             while len(Client_THREADS) > 0 :
                 Client_THREADS[0].join()
                 Client_THREADS.pop(0)
+            time_thread.join()
             run = False
 
 
