@@ -32,10 +32,6 @@ def InitTree():     #Start from the root, find Nodes, and from these Nodes searc
                     #target.Powered = True
 
 def Find_connections():
-    print("Current_STATE")
-    print("FOUND", NodesFound)
-    for node in NodeList:
-        print(node, node.Parent, node.Children)
     for node in NodesFound:
         for target in NodeList:
             if target != node and target not in NodesFound:
