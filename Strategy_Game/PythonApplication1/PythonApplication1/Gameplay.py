@@ -807,7 +807,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         aford_repair = True
                         if (tiles[selected_tile[1]][selected_tile[0]].structure != None and tiles[selected_tile[1]][selected_tile[0]].structure.name == "Kernel") == 0 and ((tiles[selected_tile[1]][selected_tile[0]].structure != None and tiles[selected_tile[1]][selected_tile[0]].structure.owner == map_locations[Pozitie] and tiles[selected_tile[1]][selected_tile[0]].structure.HP == tiles[selected_tile[1]][selected_tile[0]].structure.MaxHP) or (tiles[selected_tile[1]][selected_tile[0]].unit != None and tiles[selected_tile[1]][selected_tile[0]].unit.owner == map_locations[Pozitie] and tiles[selected_tile[1]][selected_tile[0]].unit.HP == tiles[selected_tile[1]][selected_tile[0]].unit.MaxHP)) :
                             refund_bool = True
-                        if tiles[selected_tile[1]][selected_tile[0]].structure != None  and tiles[selected_tile[1]][selected_tile[0]].unit == None and  tiles[selected_tile[1]][selected_tile[0]].structure.HP < math.ceil(tiles[selected_tile[1]][selected_tile[0]].structure.MaxHP *0.65) :
+                        if tiles[selected_tile[1]][selected_tile[0]].structure != None  and tiles[selected_tile[1]][selected_tile[0]].unit == None and  tiles[selected_tile[1]][selected_tile[0]].structure.HP < math.ceil(tiles[selected_tile[1]][selected_tile[0]].structure.MaxHP *0.65) and tiles[selected_tile[1]][selected_tile[0]].structure.owner == map_locations[Pozitie] :
                             repair_bool = True
                             #determinare pret
                             cost = tiles[selected_tile[1]][selected_tile[0]].structure.price
