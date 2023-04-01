@@ -1029,9 +1029,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
     def reverse_action (Action) :
         nonlocal Flerovium
+        nonlocal F_Yield
         nonlocal Mithril
+        nonlocal M_Yield
         nonlocal Nodes
         nonlocal Man_power_used
+
         #reverse unit movement
         if Action[0] == "move_unit" :
             tiles[Action[1][1]][Action[1][0]].unit = tiles[Action[2][1]][Action[2][0]].unit
@@ -1069,6 +1072,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 #se reda costul
                 Flerovium += new_struct.price[1]
                 Mithril += new_struct.price[0]
+                if new_struct.name[:4] == "Mine" :
+                    #se adauga yieldul pentru o resursa
+                    if tiles[selected_tile[1]][selected_tile[0]].ore.tier == 1 :
+                        M_Yield -= Structures.predefined_structures[new_struct.name][10][0]
+                    else :
+                        F_Yield -= Structures.predefined_structures[new_struct.name][10][1]
                 #Sterge structura
                 tiles[Action[4][1]][Action[4][0]].structure = None
                 refresh_map([[Action[4][0],Action[4][1]]])
@@ -1104,6 +1113,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
                 Flerovium -= int(my_struct.price[1] * my_struct.refund_percent)
                 Mithril -= int(my_struct.price[0] * my_struct.refund_percent)
+                if my_struct.name[:4] == "Mine" :
+                    #se adauga yieldul pentru o resursa
+                    if tiles[selected_tile[1]][selected_tile[0]].ore.tier == 1 :
+                        M_Yield += Structures.predefined_structures[my_struct.name][10][0]
+                    else :
+                        F_Yield += Structures.predefined_structures[my_struct.name][10][1]
 
                 tiles[Action[2][1]][Action[2][0]].structure = my_struct
                 refresh_map([[Action[2][0],Action[2][1]]])
@@ -1168,7 +1183,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     construction_tab_scroll = 0
     #Resursele playerului 
     Mithril = 5555
+    M_Yield = 0
     Flerovium = 5555
+    F_Yield = 0
     Man_power_used = 0
     Max_Man_power = 100
     Nodes = 0
@@ -1231,7 +1248,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
     def refund_entity():
         nonlocal Flerovium
+        nonlocal F_Yield
         nonlocal Mithril
+        nonlocal M_Yield
         nonlocal Nodes
         nonlocal Man_power_used
         nonlocal Whos_turn
@@ -1263,6 +1282,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
                     Flerovium += int(my_struct.price[1] * my_struct.refund_percent)
                     Mithril += int(my_struct.price[0] * my_struct.refund_percent)
+                    if my_struct.name[:4] == "Mine" :
+                        #se adauga yieldul pentru o resursa
+                        if tiles[selected_tile[1]][selected_tile[0]].ore.tier == 1 :
+                            M_Yield -= Structures.predefined_structures[my_struct.name][10][0]
+                        else :
+                            F_Yield -= Structures.predefined_structures[my_struct.name][10][1]
 
                     RemoveObjectFromList(my_struct, controllables_vec)
 
@@ -1277,7 +1302,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
     def Create_Building():
         nonlocal Flerovium
+        nonlocal F_Yield
         nonlocal Mithril
+        nonlocal M_Yield
         nonlocal Nodes
         nonlocal Man_power_used
         nonlocal Max_Man_power
@@ -1327,6 +1354,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             #scade costul
                             Flerovium -= new_struct.price[1]
                             Mithril -= new_struct.price[0]
+                            #se adauga yieldul pentru o resursa
+                            if tiles[selected_tile[1]][selected_tile[0]].ore.tier == 1 :
+                                M_Yield += Structures.predefined_structures[new_struct.name][10][0]
+                            else :
+                                F_Yield += Structures.predefined_structures[new_struct.name][10][1]
                             #Adaugarea actiunii in Istoricul actiunilor
                             Turn_Actions.append(("new_entity",construction_tab,Element_selectat,map_locations[Pozitie],selected_tile,new_struct))
                             break
@@ -1763,6 +1795,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             Whos_turn = 0
                         if colorTable[map_locations[Whos_turn]] == None :
                             Whos_turn += 1 
+                    if Whos_turn == Pozitie :
+                        Mithril += M_Yield
+                        Flerovium += F_Yield
                     timer = turn_time
                     Confirmatii_timer = 0
                     if TileClass.full_bright == False :
@@ -1789,6 +1824,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             Whos_turn = 0
                         if colorTable[map_locations[Whos_turn]] == None :
                             Whos_turn += 1 
+                    if Whos_turn == Pozitie :
+                        Mithril += M_Yield
+                        Flerovium += F_Yield
                     timer = turn_time
                     timer_notification_sent = False
                     next_turn = False
