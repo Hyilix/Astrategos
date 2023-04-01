@@ -204,9 +204,25 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     global enlighted_surface
     global minimap_surface
     global fake_minimap_surface
+    global canRenderMinimap
+    canRenderMinimap = True
+
+    left_click_holding = False
+
+    controllables_vec.clear()
+    caster_controllables_vec.clear()
+
+    visible_tiles.clear()
+    partially_visible_tiles.clear()
+    path_tiles.clear()
 
     can_build = False
     SHOW_UI = True 
+
+    selected_controllable = None
+    enlighted_surface = None
+    minimap_surface = None
+    fake_minimap_surface = None     #Surface to store a rectangle to show where you are looking currently
 
     minimap_surface = pygame.Surface((HEIGHT // 3, HEIGHT // 3)).convert_alpha()
     enlighted_surface = None
@@ -295,7 +311,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     4 : None
     }
 
-    TileClass.full_bright = True  #if full_bright == True, player can see the whole map at any time, like in editor.
+    TileClass.full_bright = False #if full_bright == True, player can see the whole map at any time, like in editor.
 
     index = 0
     for player in playeri:  #assign colors to structures and units. Any structure/unit with 
@@ -542,6 +558,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             if chat_notification == True :
                 pygame.draw.circle(WIN,Red,(WIDTH-10,20),8)
             #Partea de jos a UI-ului
+            # draw mini_map part
+            #pygame.draw.rect(WIN,(25,25,25),(0,HEIGHT-HEIGHT // 3,HEIGHT // 3,HEIGHT // 3))    UNUSE MINIMAP
             #desenarea chenarului su informatiile despre ce este selectat
             if selected_tile[0] !=None :
                 if tile_empty == True :
@@ -1295,7 +1313,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             Winner = w
             if Winner == playeri[Pozitie][0] :
                 Win_condition = 1
-                TileClass.full_bright = True
                 
 
     #Camera, texture resizing and load function
@@ -1642,6 +1659,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     else : #Structure case. Also don't refund Kernel lol
                         tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].structure = None
                         refresh_map([[Changes_from_server[0][2][0],Changes_from_server[0][2][1]]])
+                        del my_struct
                 elif Changes_from_server[0][0] == "repair_entity" :
                     tiles[Changes_from_server[0][1][1]][Changes_from_server[0][1][0]].structure.ModifyHealth(Changes_from_server[0][2])
                 elif Changes_from_server[0][0] == "healed_units" :
@@ -1652,7 +1670,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 Changes_from_server.pop(0)
 
         if timer <= 0 :
-            global canRenderMinimap
             canRenderMinimap = True
 
             for unit in controllables_vec: 
@@ -1732,7 +1749,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
         #The event loop
         for event in pygame.event.get():
-            global left_click_holding
             if event.type == SWAP_TO_NORMAL:
                 refresh_map([lastPositionForRendering])
 
