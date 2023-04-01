@@ -140,6 +140,10 @@ def draw_star(length, y, x, TrueSight = False):    #Determine what tiles the pla
                     if (x, y) not in visible_tiles: visible_tiles.append((x, y))
                     if (x, y) not in partially_visible_tiles: partially_visible_tiles.append((x, y))
 
+                    if First != True:
+                        if tiles[y][x].unit != None or tiles[y][x].structure != None or tiles[y][x].ore != None:
+                            continue
+
                     for direction in directions:
                         in_x = direction[0]
                         in_y = direction[1]
@@ -147,11 +151,11 @@ def draw_star(length, y, x, TrueSight = False):    #Determine what tiles the pla
                             if TrueSight == True:
                                 new_tiles.append((y + in_y, x + in_x))
                             else:
-                                if tiles[y][x].collidable == False and tiles[y + in_y][x + in_x].unit == None and tiles[y + in_y][x + in_x].structure == None:
+                                if tiles[y][x].collidable == False:
                                     new_tiles.append((y + in_y, x + in_x))
                                     First = False
                             
-                                elif tiles[y][x].collidable == True and y + in_y >= 0 and x + in_x >= 0 and y + in_y < rows and x + in_x < tiles_per_row and tiles[y + in_y][x + in_x].collidable == False and tiles[y + in_y][x + in_x].unit == None and tiles[y + in_y][x + in_x].structure == None:
+                                elif tiles[y][x].collidable == True and y + in_y >= 0 and x + in_x >= 0 and y + in_y < rows and x + in_x < tiles_per_row and tiles[y + in_y][x + in_x].collidable == False and tiles[y + in_y][x + in_x].unit == None and tiles[y + in_y][x + in_x].structure == None and tiles[y + in_y][x + in_x].ore == None:
                                     if First == False:
                                         new_tiles.append((y + in_y, x + in_x, True))
                                     else:
@@ -291,7 +295,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     4 : None
     }
 
-    TileClass.full_bright = False  #if full_bright == True, player can see the whole map at any time, like in editor.
+    TileClass.full_bright = False #if full_bright == True, player can see the whole map at any time, like in editor.
 
     index = 0
     for player in playeri:  #assign colors to structures and units. Any structure/unit with 
@@ -1020,6 +1024,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 tiles[Action[4][1]][Action[4][0]].structure = None
                 refresh_map([[Action[4][0],Action[4][1]]])
                 RemoveObjectFromList(Action[5], controllables_vec)
+                if Action[5] in caster_controllables_vec:
+                    RemoveObjectFromList(Action[5], caster_controllables_vec)
+
                 del new_struct
             elif Action[1] == "Units":
                 new_unit = tiles[Action[4][1]][Action[4][0]].unit
@@ -1031,7 +1038,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 #Se sterge unitatea
                 tiles[Action[4][1]][Action[4][0]].unit = None
                 refresh_map([[Action[4][0],Action[4][1]]])
-                RemoveObjectFromList(Action[5], controllables_vec)
+                if Action[5] in caster_controllables_vec:
+                    RemoveObjectFromList(Action[5], caster_controllables_vec)
                 selected_tile_check()
 
         elif Action[0] == "refund_entity":
@@ -1072,7 +1080,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         
         selected_tile_check()
 
-
     def selected_tile_check() :
         global tile_empty
         global enlighted_surface
@@ -1094,7 +1101,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         enlighted_surface = draw_enlighted_tiles(True)
                         Element_selectat = None
                 tile_empty = False
-
 
     #variabilele necesare indiferent de rol
     Whos_turn = 0
@@ -1212,6 +1218,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
                     RemoveObjectFromList(my_struct, controllables_vec)
 
+                    if my_struct in caster_controllables_vec:
+                        RemoveObjectFromList(my_struct, caster_controllables_vec)
+
                     tiles[selected_tile[1]][selected_tile[0]].structure = None
                     refresh_map([[selected_tile[0],selected_tile[1]]])
                     Turn_Actions.append(("refund_entity","structure",selected_tile,my_struct))
@@ -1253,7 +1262,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             Flerovium -= new_struct.price[1]
                             Mithril -= new_struct.price[0]
                             #Adaugarea actiunii in Istoricul actiunilor
-                            Turn_Actions.append(("new_entity",construction_tab,Element_selectat,map_locations[Pozitie],selected_tile,len(controllables_vec)-1))
+                            Turn_Actions.append(("new_entity",construction_tab,Element_selectat,map_locations[Pozitie],selected_tile,new_struct))
                             break
                     del new_struct
 
@@ -1270,7 +1279,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             Mithril -= new_unit.price[0]
                             Man_power_used += new_unit.price[2]
                             #Adaugarea actiunii in Istoricul actiunilor
-                            Turn_Actions.append(("new_entity",construction_tab,Element_selectat,map_locations[Pozitie],selected_tile,len(controllables_vec)-1))
+                            Turn_Actions.append(("new_entity",construction_tab,Element_selectat,map_locations[Pozitie],selected_tile,new_unit))
                             break
                     del new_unit
                 selected_tile_check()
@@ -1415,6 +1424,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
                     if new_tile.structure.name == "Node" and new_tile.structure.owner == map_locations[Pozitie]:
                         Nodes += 1
+
+                    if new_tile.structure.name == "Healing_Point" and new_tile.structure.owner == map_locations[Pozitie]:
+                        caster_controllables_vec.append(new_tile.structure)
 
                 if new_tile.unit != None:
                     if new_tile.unit.owner == map_locations[Pozitie]:
