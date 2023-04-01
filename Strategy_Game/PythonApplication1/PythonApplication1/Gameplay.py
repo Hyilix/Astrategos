@@ -12,6 +12,7 @@ import time
 import math
 import os
 import random
+import copy
 
 import TileClass
 import Structures
@@ -206,6 +207,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     global minimap_surface
     global fake_minimap_surface
     global canRenderMinimap
+    global lastPositionForRendering
+    global tiles
+    lastPositionForRendering = None
     canRenderMinimap = True
 
     left_click_holding = False
@@ -1085,7 +1089,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         nonlocal M_Yield
         nonlocal Nodes
         nonlocal Man_power_used
-
+        global tiles
         #reverse unit movement
         if Action[0] == "move_unit" :
             tiles[Action[1][1]][Action[1][0]].unit = tiles[Action[2][1]][Action[2][0]].unit
@@ -1192,6 +1196,33 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             Flerovium += Action[3][1]
             tiles[Action[1][1]][Action[1][0]].structure.ModifyHealth(-Action[2])
         
+        elif Action[0] == "damaged_entity" :
+            if Action[1] == "unit" :
+                if Action[5] == False :
+                    tiles[Action[2][1]][Action[2][0]].unit.ModifyHealth(-Action[3])
+                else :
+                    new_unit = Units.BuildUnit(u_names.index(Action[6]), (Action[2][0], Action[2][1]), Action[8])
+                    tiles[Action[2][1]][Action[2][0]].unit = new_unit
+                    tiles[Action[2][1]][Action[2][0]].unit.HP = Action[7]
+                    refresh_map([[Action[2][0],Action[2][1]]])
+                    del new_unit
+            else :
+                if Action[5] == False :
+                    tiles[Action[2][1]][Action[2][0]].structure.ModifyHealth(-Action[3])
+                else :
+                    #determina daca e mina sau nu
+                    if Action[6][:4] == "Mine" :
+                        new_struct = Structures.BuildStructure(m_names.index(Action[6]) + len(s_names),(Action[2][0], Action[2][1]), Action[8])
+                    else :
+                        new_struct = Structures.BuildStructure(6,(Action[2][0], Action[2][1]), Action[8])
+                    if Action[6] == "Kernel" :
+                        tiles = copy.deepcopy(Action[9])
+                        refresh_map()
+                    else :
+                        tiles[Action[2][1]][Action[2][0]].structure = new_struct
+                        tiles[Action[2][1]][Action[2][0]].structure.HP = Action[7]
+                        refresh_map([[Action[2][0],Action[2][1]]])
+            tiles[Action[4][1]][Action[4][0]].unit.canAttack = True
         selected_tile_check()
 
     def selected_tile_check() :
@@ -1729,6 +1760,15 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     hu_vector = Changes_from_clients[0][1]
                     for i in range(len(hu_vector)) :
                         tiles[hu_vector[i].position[1]][hu_vector[i].position[0]].unit.ModifyHealth(Structures.hospital_heal)
+                elif Changes_from_clients[0][0] == "damaged_entity" :
+                    if Changes_from_clients[0][1] == "unit" :
+                        tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].unit.ModifyHealth(Changes_from_clients[0][3])
+                        if tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].unit.HP <= 0 :
+                            delete_entity(tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].unit)
+                    else :
+                        tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].structure.ModifyHealth(Changes_from_clients[0][3])
+                        if tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].structure.HP <= 0 :
+                            delete_entity(tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].structure)
                 Changes_from_clients.pop(0)
         else :
             #Se verifica daca serverul a trimis lucruri spre acest client
@@ -1798,6 +1838,15 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     for i in range(len(hu_vector)) :
                         tiles[hu_vector[i].position[1]][hu_vector[i].position[0]].unit.ModifyHealth(Structures.hospital_heal)
 
+                elif Changes_from_server[0][0] == "damaged_entity" :
+                    if Changes_from_server[0][1] == "unit" :
+                        tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].unit.ModifyHealth(Changes_from_server[0][3])
+                        if tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].unit.HP <= 0 :
+                            delete_entity(tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].unit)
+                    else :
+                        tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].structure.ModifyHealth(Changes_from_server[0][3])
+                        if tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].structure.HP <= 0 :
+                            delete_entity(tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].structure)
                 Changes_from_server.pop(0)
 
         if timer <= 0 :
@@ -1887,7 +1936,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         #The event loop
         for event in pygame.event.get():
             if event.type == SWAP_TO_NORMAL:
-                refresh_map([lastPositionForRendering])
+                if lastPositionForRendering != None :
+                    refresh_map([lastPositionForRendering])
 
             if event.type == pygame.QUIT :
                 pygame.quit()
@@ -2091,16 +2141,36 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                         elif tile.unit != None:
                                             hitinformation = selected_controllable.Attack(tile.unit)
                                             target = tile.unit
-
+                                        HP_target = target.HP
+                                        owner_target = target.owner
+                                        if target.name == "Kernel" :
+                                            backup_matrix = copy.deepcopy(tiles)
+                                            print(backup_matrix[0][0].structure,backup_matrix[len(backup_matrix)-1][0].structure,backup_matrix[0][len(backup_matrix[0])-1].structure,backup_matrix[len(backup_matrix)-1][len(backup_matrix[0])-1].structure)
                                         if hitinformation and hitinformation[0] == True and target != None:
                                             selected_controllable.canAttack = False
                                             target.took_damage = True
                                             
                                             if target.HP <= 0:
                                                 print("Call function")
+                                                if tile.structure != None :
+                                                    if target.name == "Kernel" :
+                                                        Turn_Actions.append(("damaged_entity","structure",(x_layer,y_layer),-(selected_controllable.attack-target.defence),selected_controllable.position,True,target.name,HP_target,owner_target,backup_matrix))
+                                                    else :
+                                                        Turn_Actions.append(("damaged_entity","structure",(x_layer,y_layer),-(selected_controllable.attack-target.defence),selected_controllable.position,True,target.name,HP_target,owner_target,None))
+                                                else :
+                                                    Turn_Actions.append(("damaged_entity","unit",(x_layer,y_layer),-(selected_controllable.attack-target.defence),selected_controllable.position,True,target.name,HP_target,owner_target,None))
+
                                                 vec = delete_entity(target)
+                                                print("/n")
+                                                print(tiles[0][0].structure,tiles[len(tiles)-1][0].structure,tiles[0][len(tiles[0])-1].structure,tiles[len(tiles)-1][len(tiles[0])-1].structure)
+                                                print("/n")
+                                                print(backup_matrix[0][0].structure,backup_matrix[len(backup_matrix)-1][0].structure,backup_matrix[0][len(backup_matrix[0])-1].structure,backup_matrix[len(backup_matrix)-1][len(backup_matrix[0])-1].structure)
                                                 refresh_map(vec)
                                             else:
+                                                if tile.structure != None :
+                                                    Turn_Actions.append(("damaged_entity","structure",(x_layer,y_layer),-(selected_controllable.attack-target.defence),selected_controllable.position,False))
+                                                else :
+                                                    Turn_Actions.append(("damaged_entity","unit",(x_layer,y_layer),-(selected_controllable.attack-target.defence),selected_controllable.position,False))
                                                 refresh_map([target.position])
                                             lastPositionForRendering = target.position
                                             pygame.time.set_timer(SWAP_TO_NORMAL, 200)

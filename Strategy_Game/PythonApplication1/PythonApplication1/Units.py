@@ -33,8 +33,8 @@ unit_attack_range_color = (235, 0, 0)
 
 predefined_Units = {   
                 #HP, MaxHp, attack, defence, range, move_range, fog_range, price (Mithril, Flerovium, Supply), Refund_percent
-    "Marine" :  [5, 5, 2, 0, 3, 4, 5, (6,0,1), 60/100],
-    "Phantom" : [7, 7, 4, 1, 5, 7, 9, (10,0,2), 55/100],
+    "Marine" :  [1, 5, 2, 0, 3, 4, 5, (6,0,1), 60/100],
+    "Phantom" : [1, 7, 4, 1, 5, 7, 9, (10,0,2), 55/100],
     "Tank" :    [1, 20, 8, 3, 3, 5, 6, (30,4,2), 35/100],
 
     }

@@ -52,13 +52,13 @@ def heal_units(val_list):
 predefined_structures = {   
                         #HP, MaxHp, Area_of_effect(block radius), defence, canShareSpace, fog_range, TrueSight, Price (Mithril, Flerovium), Refund_percent, SpecialFunction, (Mithril_rate, Flerovium_rate)
     "Barricade" :       [10, 10, 0, 2, False, 2, False, (10, 0), 60/100, None, (None, None)],
-    "Healing_Point" :   [15, 15, 5, 1, False, 3, False, (40, 5), 30/100, "heal_units", (None, None)],
+    "Healing_Point" :   [1, 15, 5, 1, False, 3, False, (40, 5), 30/100, "heal_units", (None, None)],
     "Node" :            [4, 4, 0, 0, False, 2, False, (3,0), 75/100, None, (None, None)],
-    "Radar" :           [10, 10, 0, 0, False, 9, True, (20, 0), 20/100, None, (None, None)],
+    "Radar" :           [1, 10, 0, 0, False, 9, True, (20, 0), 20/100, None, (None, None)],
     #De acum kernel va trebui sa stea pe ultima pozitie
     "Mine_1" :          [15, 15, 0, 1, False, 3, False, (35,0), 60/100, None, (7, 3)],
     "Mine_2" :          [10, 10, 0, 0, False, 2, False, (10,0), 70/100, None, (4, 0)],
-    "Kernel" :          [100, 100, 0, 3, False, 5, False, (0,0), 0, None, (None, None)]
+    "Kernel" :          [1, 100, 0, 3, False, 5, False, (0,0), 0, None, (None, None)]
     }
 
 def BuildStructure(index, position, owner):
