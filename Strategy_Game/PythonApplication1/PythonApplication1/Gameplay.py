@@ -204,9 +204,16 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     global enlighted_surface
     global minimap_surface
     global fake_minimap_surface
+    global canRenderMinimap
+    canRenderMinimap = True
 
     can_build = False
     SHOW_UI = True 
+
+    selected_controllable = None
+    enlighted_surface = None
+    minimap_surface = None
+    fake_minimap_surface = None     #Surface to store a rectangle to show where you are looking currently
 
     minimap_surface = pygame.Surface((HEIGHT // 3, HEIGHT // 3)).convert_alpha()
     enlighted_surface = None
@@ -295,7 +302,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     4 : None
     }
 
-    TileClass.full_bright = False #if full_bright == True, player can see the whole map at any time, like in editor.
+    TileClass.full_bright = True #if full_bright == True, player can see the whole map at any time, like in editor.
 
     index = 0
     for player in playeri:  #assign colors to structures and units. Any structure/unit with 
@@ -1654,7 +1661,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 Changes_from_server.pop(0)
 
         if timer <= 0 :
-            global canRenderMinimap
             canRenderMinimap = True
 
             for unit in controllables_vec: 
