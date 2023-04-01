@@ -538,8 +538,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             if chat_notification == True :
                 pygame.draw.circle(WIN,Red,(WIDTH-10,20),8)
             #Partea de jos a UI-ului
-            # draw mini_map part
-            #pygame.draw.rect(WIN,(25,25,25),(0,HEIGHT-HEIGHT // 3,HEIGHT // 3,HEIGHT // 3))    UNUSE MINIMAP
             #desenarea chenarului su informatiile despre ce este selectat
             if selected_tile[0] !=None :
                 if tile_empty == True :
