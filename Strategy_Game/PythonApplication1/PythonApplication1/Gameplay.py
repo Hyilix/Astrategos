@@ -207,6 +207,15 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     global canRenderMinimap
     canRenderMinimap = True
 
+    left_click_holding = False
+
+    controllables_vec.clear()
+    caster_controllables_vec.clear()
+
+    visible_tiles.clear()
+    partially_visible_tiles.clear()
+    path_tiles.clear()
+
     can_build = False
     SHOW_UI = True 
 
@@ -302,7 +311,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     4 : None
     }
 
-    TileClass.full_bright = True #if full_bright == True, player can see the whole map at any time, like in editor.
+    TileClass.full_bright = False #if full_bright == True, player can see the whole map at any time, like in editor.
 
     index = 0
     for player in playeri:  #assign colors to structures and units. Any structure/unit with 
@@ -1740,7 +1749,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
         #The event loop
         for event in pygame.event.get():
-            global left_click_holding
             if event.type == SWAP_TO_NORMAL:
                 refresh_map([lastPositionForRendering])
 
