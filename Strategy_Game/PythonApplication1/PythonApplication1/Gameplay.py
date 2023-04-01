@@ -1,3 +1,4 @@
+from ast import Delete
 from ctypes import Structure
 from select import select
 from tkinter.messagebox import showerror
@@ -227,6 +228,35 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     minimap_surface = pygame.Surface((HEIGHT // 3, HEIGHT // 3)).convert_alpha()
     enlighted_surface = None
     fake_minimap_surface = pygame.Surface((HEIGHT // 3, HEIGHT // 3)).convert_alpha()
+
+    def delete_entity(entity):
+        removed_position = []
+        position = entity.position
+        if type(entity) == Structures.Structure:
+            tiles[position[1]][position[0]].structure = None
+            removed_position.append(position)
+            if entity.owner == map_locations[Pozitie]:
+                RemoveObjectFromList(entity, controllables_vec)
+                if entity.name == "Healing_Point":
+                    RemoveObjectFromList(entity, caster_controllables_vec)
+
+            if entity.name == "Kernel":
+                for y in range(rows):
+                    for x in range(tiles_per_row):
+                        if tiles[y][x].unit != None and tiles[y][x].unit.owner == entity.owner:
+                            tiles[y][x].unit = None
+                            removed_position.append((x,y))
+                        elif tiles[y][x].structure != None and tiles[y][x].structure.owner == entity.owner:
+                            tiles[y][x].structure = None
+                            removed_position.append((x,y))
+
+        elif type(entity) == Units.Unit:
+            tiles[position[1]][position[0]].unit = None
+            removed_position.append(position)
+            if entity.owner == map_locations[Pozitie]:
+                RemoveObjectFromList(entity, controllables_vec)
+
+        return removed_position
 
     def draw_minimap():
         sizeY = int(HEIGHT / 3 * HEIGHT / current_tile_length / rows)
@@ -962,6 +992,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             server.close()
             run = False
 
+    if Role == "host":
+        sent_reaquest = False
+
     #Un thread care va functiona la host care are rolul sa tina cont de cat timp trece in timpul jocului
     def timer_thread ():
         global timer
@@ -1378,7 +1411,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         except:
             infile = open("Maps/Imported_Maps/info/" + map_name + ".txt", "rb")
 
-        print("STARTED")
         tiles.clear()
         rows = pickle.load(infile)
         tiles_per_row = pickle.load(infile)
@@ -1951,10 +1983,16 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                             hitinformation = selected_controllable.Attack(tile.unit)
                                             target = tile.unit
 
-                                        if hitinformation and hitinformation[0] == True:
+                                        if hitinformation and hitinformation[0] == True and target != None:
                                             selected_controllable.canAttack = False
                                             target.took_damage = True
-                                            refresh_map([target.position])
+                                            
+                                            if target.HP <= 0:
+                                                print("Call function")
+                                                vec = delete_entity(target)
+                                                refresh_map(vec)
+                                            else:
+                                                refresh_map([target.position])
                                             lastPositionForRendering = target.position
                                             pygame.time.set_timer(SWAP_TO_NORMAL, 200)
 

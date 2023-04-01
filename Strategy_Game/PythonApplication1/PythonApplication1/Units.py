@@ -83,7 +83,7 @@ class Unit():
         if target.owner != self.owner:  #You can only attack enemy units
             inrange = math.sqrt((self.position[0] - target.position[0]) ** 2 + (self.position[1] - target.position[1]) ** 2) <= self.range
             if inrange == True:
-                target.ModifyHealth(-(self.attack - target.defence))
+                target.ModifyHealth(min(-(self.attack - target.defence), -1))
                 return (inrange, (self.attack - target.defence))
         return (False, None)    
 
