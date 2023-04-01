@@ -33,11 +33,12 @@ unit_attack_range_color = (235, 0, 0)
 
 predefined_Units = {   
                 #HP, MaxHp, attack, defence, range, move_range, fog_range, price (Mithril, Flerovium, Supply), Refund_percent
-    "Marine" :  [5, 5, 2, 0, 3, 4, 5, (6,0,1), 60/100],
+    "Marine" :  [5, 5, 2, 0, 4, 4, 5, (6,0,1), 60/100],
     "Phantom" : [3, 3, 6, 1, 6, 8, 10, (10,0,2), 55/100],
+    "Phlegm" :  [7, 7, 8, 1, 2, 4, 4, (12,0,1), 60/100],
     "Pounder":  [4, 4, 20, 1, 11, 2, 3, (20,6,2), 20/100],
-    "Tank" :    [18, 18, 8, 3, 5, 6, 7, (30,4,3), 35/100],
-    "XGoliath": [40, 40, 12, 4, 6, 4, 5, (60,10,6), 20/100],
+    "Tank" :    [18, 18, 8, 3, 6, 6, 7, (30,4,3), 35/100],
+    "XGoliath": [40, 40, 12, 4, 7, 4, 5, (60,10,6), 20/100],
 
     }
 

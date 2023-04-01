@@ -207,6 +207,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     global fake_minimap_surface
     global canRenderMinimap
     canRenderMinimap = True
+    global lastPositionForRendering
+    lastPositionForRendering = None
 
     left_click_holding = False
 
