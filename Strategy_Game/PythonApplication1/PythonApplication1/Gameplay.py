@@ -365,6 +365,20 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 if structure.get_at((i,j)) == (1,1,1):
                     structure.set_at((i,j), Player_Colors[playeri[Pozitie][1]])
 
+    mines = []
+    m_names = []
+    directory = "Assets\Mines"
+    for filename in os.listdir(directory):
+        m_names.append(filename[:-4])
+        adres=os.path.join(directory, filename)
+        mines.append(pygame.transform.scale(pygame.image.load(adres),(64,64)))
+    #colorarea structurilor cu culoarea playerului
+    for mine in mines :
+        for i in range(mine.get_width()):
+            for j in range(mine.get_height()):
+                if mine.get_at((i,j)) == (1,1,1):
+                    mine.set_at((i,j), Player_Colors[playeri[Pozitie][1]])
+
     units = []
     u_names = []
     directory = "Assets" + '\\' + "Units"
@@ -564,7 +578,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     elif construction_tab == "Units" :
                         elements = len(units)
                     else :
-                        elements = 0
+                        elements = len(mines)
                     for i in range(construction_tab_scroll,math.ceil(elements/3)) :
                         y_rand = HEIGHT*2/3 +10 + i*70 + i*10 - C_menu_scroll
                         if y_rand+35 > HEIGHT*2/3 and y_rand < HEIGHT  :
@@ -579,6 +593,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                     WIN.blit(structures[i*3+j],(x_coloana+3,y_rand+3))
                                 elif construction_tab == "Units" :
                                     WIN.blit(units[i*3+j],(x_coloana+3,y_rand+3))
+                                else :
+                                    WIN.blit(mines[i*3+j],(x_coloana+3,y_rand+3))
                     #Afisarea imaginii si informatiilor elementului selectat din meniul de structuri
                     if Element_selectat != None :
                         #desenare chenarul in care sa se incadreze imaginea
