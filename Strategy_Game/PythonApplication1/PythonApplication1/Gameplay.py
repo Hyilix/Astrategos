@@ -288,6 +288,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             (0,-1)
         ]
 
+        or_x = x
+        or_y = y
+
         checks = 0
         tries = 0
 
@@ -314,9 +317,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             if (y + in_y, x + in_x) not in visited_vec:
                                 Y = y + in_y
                                 X = x + in_x
-                                if Y >= 0 and X >= 0 and Y < rows and X < tiles_per_row:
-                                    if tiles[Y][X].collidable == False and (tiles[Y][X].structure == None or (tiles[Y][X].structure.owner == map_locations[Pozitie] and tiles[Y][X].structure.canShareSpace == True)) and tiles[Y][X].ore == None:
-                                        new_tiles.append((y + in_y, x + in_x))
+                                if tiles[y][x].structure == None or (y == or_y and x == or_x):
+                                    if Y >= 0 and X >= 0 and Y < rows and X < tiles_per_row:
+                                        if tiles[Y][X].collidable == False and (tiles[Y][X].structure == None or (tiles[Y][X].structure.owner == map_locations[Pozitie] and tiles[Y][X].structure.canShareSpace == True)) and tiles[Y][X].ore == None and tiles[Y][X].unit == None:
+                                            new_tiles.append((y + in_y, x + in_x))
 
             queued_tiles.clear()
 
@@ -1045,6 +1049,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         nonlocal Mithril
         nonlocal Nodes
         nonlocal Man_power_used
+        nonlocal Max_Man_power
+
         #reverse unit movement
         if Action[0] == "move_unit" :
             tiles[Action[1][1]][Action[1][0]].unit = tiles[Action[2][1]][Action[2][0]].unit
@@ -1069,6 +1075,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     new_node = Node.getNodeFromObj(new_struct)
                     new_node.Kill()
                     del new_node
+
+                if new_struct.name == "Cache":
+                    Max_Man_power -= 6
                 #Sterge structura
                 tiles[Action[4][1]][Action[4][0]].structure = None
                 refresh_map([[Action[4][0],Action[4][1]]])
@@ -1102,6 +1111,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     for node in Node.NodeList:
                         if node != new_node and new_node.CheckCollision(node):
                             new_node.Add(node)
+
+                if my_struct.name == "Cache":
+                    Max_Man_power += 6
 
                 Flerovium -= int(my_struct.price[1] * my_struct.refund_percent)
                 Mithril -= int(my_struct.price[0] * my_struct.refund_percent)
@@ -1171,7 +1183,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     Mithril = 5555
     Flerovium = 5555
     Man_power_used = 0
-    Max_Man_power = 100
+    ManPowerCap = 126
+    Max_Man_power = 6
     Nodes = 0
     Max_Nodes = 50
     #Vectorul care detine actiunile playerului din tura lui
@@ -1237,6 +1250,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         nonlocal Man_power_used
         nonlocal Whos_turn
         nonlocal selected_tile
+        nonlocal Max_Man_power
 
         if timer > 0 and Whos_turn == Pozitie:
             if (selected_tile[0], selected_tile[1]) in visible_tiles:
@@ -1262,6 +1276,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         my_node.Kill()
                         del my_node
 
+                    if my_struct.name == "Cache":
+                        Max_Man_power -= 6
+
                     Flerovium += int(my_struct.price[1] * my_struct.refund_percent)
                     Mithril += int(my_struct.price[0] * my_struct.refund_percent)
 
@@ -1285,6 +1302,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         nonlocal Whos_turn
         nonlocal Element_selectat
         nonlocal selected_tile
+        nonlocal ManPowerCap
 
         if timer > 0 and Whos_turn == Pozitie:
             if  (selected_tile[0], selected_tile[1]) in visible_tiles:
@@ -1300,6 +1318,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                 Nodes += 1
                                 new_node = Node.Node((selected_tile[0] + 0.5, selected_tile[1] + 0.5), 4.5, new_struct)
                                 Node.Find_connections()
+
+                            if new_struct.name == "Cache":
+                                if Max_Man_power < ManPowerCap:
+                                    Max_Man_power += 6
+                                else:
+                                    return
 
                             #construieste structura
                             tiles[selected_tile[1]][selected_tile[0]].structure = new_struct
@@ -1475,6 +1499,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
                     if new_tile.structure.name == "Healing_Point" and new_tile.structure.owner == map_locations[Pozitie]:
                         caster_controllables_vec.append(new_tile.structure)
+
+                    if new_tile.structure.name == "Cache" and new_tile.structure.owner == map_locations[Pozitie]:
+                        if Max_Man_power < ManPowerCap:
+                            Max_Man_power += 6
 
                 if new_tile.unit != None:
                     if new_tile.unit.owner == map_locations[Pozitie]:
