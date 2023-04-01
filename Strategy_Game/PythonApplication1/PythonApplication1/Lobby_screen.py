@@ -70,6 +70,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
     Exit_rect.center = (WIDTH/2, HEIGHT -HEIGHT/25 - 30)
 
     global run 
+    run = True
 
     #coordonatele pentru cercuri
     y = HEIGHT/2
@@ -310,6 +311,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
             if All_Readied == True and started_cooldown == True and cooldown > 0 :
                 cooldown -= 0.015
 
+
     #variabilele necesare chiar pentru ambele roluri
     global Pozitie
     Costumization_Tab = False
@@ -367,7 +369,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
 
 
     clock = pygame.time.Clock()
-    run = True
 
     if Role == "client" :
         while Pozitie == None :
