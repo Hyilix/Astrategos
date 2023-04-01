@@ -295,7 +295,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     4 : None
     }
 
-    TileClass.full_bright = False #if full_bright == True, player can see the whole map at any time, like in editor.
+    TileClass.full_bright = True  #if full_bright == True, player can see the whole map at any time, like in editor.
 
     index = 0
     for player in playeri:  #assign colors to structures and units. Any structure/unit with 
@@ -542,8 +542,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             if chat_notification == True :
                 pygame.draw.circle(WIN,Red,(WIDTH-10,20),8)
             #Partea de jos a UI-ului
-            # draw mini_map part
-            #pygame.draw.rect(WIN,(25,25,25),(0,HEIGHT-HEIGHT // 3,HEIGHT // 3,HEIGHT // 3))    UNUSE MINIMAP
             #desenarea chenarului su informatiile despre ce este selectat
             if selected_tile[0] !=None :
                 if tile_empty == True :
@@ -1297,6 +1295,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             Winner = w
             if Winner == playeri[Pozitie][0] :
                 Win_condition = 1
+                TileClass.full_bright = True
                 
 
     #Camera, texture resizing and load function
@@ -1643,7 +1642,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     else : #Structure case. Also don't refund Kernel lol
                         tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].structure = None
                         refresh_map([[Changes_from_server[0][2][0],Changes_from_server[0][2][1]]])
-                        del my_struct
                 elif Changes_from_server[0][0] == "repair_entity" :
                     tiles[Changes_from_server[0][1][1]][Changes_from_server[0][1][0]].structure.ModifyHealth(Changes_from_server[0][2])
                 elif Changes_from_server[0][0] == "healed_units" :
