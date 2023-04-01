@@ -291,7 +291,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     4 : None
     }
 
-    TileClass.full_bright = False  #if full_bright == True, player can see the whole map at any time, like in editor.
+    TileClass.full_bright = True  #if full_bright == True, player can see the whole map at any time, like in editor.
 
     index = 0
     for player in playeri:  #assign colors to structures and units. Any structure/unit with 
@@ -1251,7 +1251,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             Flerovium -= new_struct.price[1]
                             Mithril -= new_struct.price[0]
                             #Adaugarea actiunii in Istoricul actiunilor
-                            Turn_Actions.append(("new_entity",construction_tab,Element_selectat,map_locations[Pozitie],selected_tile,len(controllables_vec)-1))
+                            Turn_Actions.append(("new_entity",construction_tab,Element_selectat,map_locations[Pozitie],selected_tile,new_struct))
                             break
                     del new_struct
 
@@ -1268,7 +1268,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             Mithril -= new_unit.price[0]
                             Man_power_used += new_unit.price[2]
                             #Adaugarea actiunii in Istoricul actiunilor
-                            Turn_Actions.append(("new_entity",construction_tab,Element_selectat,map_locations[Pozitie],selected_tile,len(controllables_vec)-1))
+                            Turn_Actions.append(("new_entity",construction_tab,Element_selectat,map_locations[Pozitie],selected_tile,new_unit))
                             break
                     del new_unit
                 selected_tile_check()
