@@ -28,10 +28,13 @@ music_vec = []
 for music in os.listdir(music_path):
     music_vec.append(music)
 
+global VOLUM
+VOLUM = 50
+
 def PlayRandomMusic():
     rand = random.randint(0, len(music_vec) - 1)
     pygame.mixer.music.load(music_path + music_vec[rand])
-    pygame.mixer.music.set_volume(0.4)
+    pygame.mixer.music.set_volume(VOLUM / 100)
     pygame.mixer.music.play()
 
 White = (255,255,255)
@@ -209,6 +212,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     canRenderMinimap = True
     global lastPositionForRendering
     lastPositionForRendering = None
+
+    global VOLUM
+    VOLUM = 50
 
     left_click_holding = False
 
@@ -394,7 +400,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     VOLUM = 50
     #buton next song 
     ButtonN_rect = (ButtonE_rect[0],ButtonE_rect[1]-160-25,310,160)
-    Next_Button = Button((ButtonE_rect[0]+5,ButtonE_rect[1]-160-20,300,150),Gri,None,**{"text": "Next Song","font": FontT})
+    Next_Button = Button((ButtonE_rect[0]+5,ButtonE_rect[1]-160-20,300,150),Gri,PlayRandomMusic,**{"text": "(M)Next Song","font": FontT})
     # incaracarea imaginilor structurilor si unitatilor care le poate produce playeru, cu culoarea specifica.
     grosime_outline = 5
     spatiu_intre = (HEIGHT/3 - 5 - 70*3)/3
@@ -1820,6 +1826,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             elif event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:
                     left_click_holding = False
+                    if Slider_Got == True:
+                        Slider_Got = False
 
             elif event.type == pygame.MOUSEBUTTONDOWN  :
                 press_coordonaits = event.pos 
@@ -1943,6 +1951,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     elif Escape_tab == False and Win_condition == 0 and SHOW_UI == True and Create_Button.on_click(event) and can_build == True :
                         Create_Building()
                         selected_tile_check()
+                        can_build = False
                     #verifica daca playerul a apasat butonul de refund
                     elif Escape_tab == False and Win_condition == 0 and Refund_Button.on_click(event) and tile_empty == False and refund_bool :
                         refund_entity()
@@ -2172,8 +2181,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
            if slider_rect[0] < Escape_menu_part[0]+50 :
                 slider_rect[0] = Escape_menu_part[0]+50
            elif slider_rect[0] > Escape_menu_part[0] + Escape_menu_part[2]-50 -24 :
-               slider_rect[0] = Escape_menu_part[0] + Escape_menu_part[2]-50 -24
+                slider_rect[0] = Escape_menu_part[0] + Escape_menu_part[2]-50 -24
            VOLUM = math.ceil(((slider_rect[0]-(Escape_menu_part[0]+50))/((Escape_menu_part[0] + Escape_menu_part[2]-50 -24) -(Escape_menu_part[0]+50)))*100)
+           pygame.mixer.music.set_volume(VOLUM / 100)
+           #if pygame.mixer.music.get_busy():
+           #    pygame.mixer.music.play()
 
         #return to lobby check
         if Role == "client" and Confirmation == True :

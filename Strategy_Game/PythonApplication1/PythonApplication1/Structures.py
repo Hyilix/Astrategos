@@ -53,7 +53,7 @@ predefined_structures = {
     #De acum kernel va trebui sa stea pe ultima pozitie
     "Mine_1" :          [10, 10, 0, 0, False, 2, False, (10,0), 70/100, None, (4, 0)],
     "Mine_2" :          [15, 15, 0, 1, False, 3, False, (35,0), 60/100, None, (7, 3)],
-    "Kernel" :          [1, 100, 0, 3, False, 5, False, (0,0), 0, None, (None, None)]
+    "Kernel" :          [1, 100, 0, 3, False, 5, False, (2000,1000), 0, None, (None, None)]
     }
 
 def BuildStructure(index, position, owner):
