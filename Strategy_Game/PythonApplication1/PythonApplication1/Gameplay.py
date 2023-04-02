@@ -99,7 +99,6 @@ lastPositionForRendering = None
 
 SWAP_TO_NORMAL = pygame.USEREVENT + 1   #event for refreshing the map after some time when a thing was hit.
 
-global canRenderMinimap
 canRenderMinimap = True
 
 global left_click_holding
@@ -246,8 +245,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         ratio = int((HEIGHT // 3) / max(rows, tiles_per_row))
         fake_minimap_surface.fill((0,0,0,0))
         pygame.draw.rect(fake_minimap_surface, camerabox_color, (int(CurrentCamera.x / 3 * HEIGHT / current_tile_length / tiles_per_row), int(CurrentCamera.y / 3 * HEIGHT / current_tile_length / rows), sizeX, sizeY), 3)
-
         if canRenderMinimap == True:
+            print("a randat-o")
             minimap_surface.fill((50,50,50,110))
 
             for tile in partially_visible_tiles:
@@ -1754,7 +1753,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     #functia asta face refresh la harta 
     def refresh_map(specific_vector = None) :
         nonlocal mapSurface
-
+        global canRenderMinimap
+        canRenderMinimap = True
         if specific_vector != None:    #If an array is given to the function, update only the tiles inside said function. The positions are (x,y)
             for pos in specific_vector:
                 tiles[pos[1]][pos[0]].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles))
@@ -2016,8 +2016,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 Changes_from_server.pop(0)
 
         if timer <= 0 :
-            canRenderMinimap = True
-
             for unit in controllables_vec: 
                 if unit.HP <= 0:    #If unit is below 0 hp, remove it from the game
                     the_tile = tiles[unit.position[1]][unit.position[0]]
@@ -2067,6 +2065,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     Confirmatii_timer = 0
                     if TileClass.full_bright == False :
                         refresh_map()
+                    canRenderMinimap = True
             else :
                 if timer_notification_sent == False :
                     #Daca era tura clientului se trimit schimbarile
@@ -2098,6 +2097,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     next_turn = False
                     if TileClass.full_bright == False :
                         refresh_map()
+                    canRenderMinimap = True
 
             selected_tile_check()
 
