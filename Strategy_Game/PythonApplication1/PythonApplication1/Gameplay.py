@@ -780,7 +780,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3+20,HEIGHT*4/5+20,large_img_element_afisat.get_width()+10,large_img_element_afisat.get_width()+10))
                         pygame.draw.rect(WIN,Gri,(HEIGHT/3+25,HEIGHT*4/5+25,large_img_element_afisat.get_width(),large_img_element_afisat.get_width()))
                         WIN.blit(large_img_element_afisat,(HEIGHT/3+25,HEIGHT*4/5+25))
-                        if tiles[selected_tile[1]][selected_tile[0]].unit != None :
+                        if tiles[selected_tile[1]][selected_tile[0]].unit != None and  (tiles[selected_tile[1]][selected_tile[0]].structure == None or (tiles[selected_tile[1]][selected_tile[0]].structure.name == "Bunker" and tiles[selected_tile[1]][selected_tile[0]].structure.owner == map_locations[Pozitie])) :
                             type = "unit"
                             entity =  tiles[selected_tile[1]][selected_tile[0]].unit
                         else :
@@ -1328,7 +1328,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 if entity.owner ==  map_locations[Pozitie] :
                     Win_condition = -1
                 check_for_winner()
-                if Winner == map_locations[Pozitie] :
+                if Winner == map_locations[Pozitie] and Whos_turn == Pozitie :
                     #end turn
                     timer = 0 
                     if Role == "host" :
@@ -2083,7 +2083,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                         Element_selectat = None
                                         tile_empty=False
                                         #daca tile_ul are o strucutra sau unitate ii salveaza imaginea pentru afisare
-                                        if tiles[selected_tile[1]][selected_tile[0]].unit != None :
+                                        if tiles[selected_tile[1]][selected_tile[0]].unit != None and  (tiles[selected_tile[1]][selected_tile[0]].structure == None or (tiles[selected_tile[1]][selected_tile[0]].structure.name == "Bunker" and tiles[selected_tile[1]][selected_tile[0]].structure.owner == map_locations[Pozitie])) :
                                             unit =  tiles[selected_tile[1]][selected_tile[0]].unit
                                             large_img_element_afisat = pygame.image.load('Assets/Units/' + unit.texture)
                                             #colorarea imagini si transformarea acesteia

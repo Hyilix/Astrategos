@@ -43,10 +43,6 @@ def menu_screen(WIN,WIDTH,HEIGHT,FPS) :
     Buton = Button(((WIDTH-260)/2,(HEIGHT-90*4-50*4-60)/2 + 50*4 + 60  + 90*3,250,80),(255,255,255),None,**{"text": "QUIT","font": FontR})
     Buttons.append(Buton)
 
-    Rect_draw.append(((WIDTH-260)/2-5,(HEIGHT-90*4-50*4-60)/2 + 50*5 +60 + 90*4 -5,260,90))
-    Buton = Button(((WIDTH-260)/2,(HEIGHT-90*4-50*4-60)/2 + 50*5 + 60  + 90*4,250,80),(255,255,255),None,**{"text": "Test_gameplay","font": FontR})
-    Buttons.append(Buton)
-
 
     def draw_window() :
         if DEBUG_DARK_MODE == True:
