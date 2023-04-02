@@ -23,6 +23,13 @@ for img in os.listdir(default_path):    #Load all images.
     textures.append(pygame.image.load(default_path + img))
     base_textures.append(pygame.image.load(default_path + img))
 
+default_path = "Assets/Mines/"
+for img in os.listdir(default_path):    #Load all images.
+    texture_names.append(img)
+    textures.append(pygame.image.load(default_path + img))
+    base_textures.append(pygame.image.load(default_path + img))
+default_path = "Assets/Structures/"
+
 def resize_textures(size):
     #resize the original textures based on the zoom level. If we were to do this with 
     #only a vector for textures, you would resize small textures and it would look bad.
@@ -51,9 +58,10 @@ predefined_structures = {
     "Node" :            [6, 6, 0, 1, False, 2, False, (3, 0), 75/100, None, (None, None)],
     "Radar" :           [8, 8, 0, 0, False, 11, True, (20, 3), 20/100, None, (None, None)],
     #De acum kernel va trebui sa stea pe ultima pozitie
-    "Mine_1" :          [10, 10, 0, 0, False, 2, False, (10,0), 70/100, None, (4, 0)],
-    "Mine_2" :          [15, 15, 0, 1, False, 3, False, (35,0), 60/100, None, (7, 3)],
+    "Mine_1" :          [15, 15, 0, 1, False, 3, False, (35,0), 60/100, None, (7, 3)],
+    "Mine_2" :          [10, 10, 0, 0, False, 2, False, (10,0), 70/100, None, (4, 0)],
     "Kernel" :          [1, 100, 0, 3, False, 5, False, (2000,1000), 0, None, (None, None)]
+
     }
 
 def BuildStructure(index, position, owner):
