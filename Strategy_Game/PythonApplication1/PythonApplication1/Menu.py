@@ -12,14 +12,13 @@ pygame.init()
 DEBUG_DARK_MODE = True
 
 #Numele jocului
-gamename = "NUMELE"
+gamename = "Astrategos"
 FontR = pygame.font.Font(None, 60)
 Titlu = FontR.render(gamename,True,(0,0,0))
 Titlu_rect = Titlu.get_rect()
 #butoanele si dreptunghiurile lor
 Rect_draw = []
 Buttons = []
-
 
 
 def menu_screen(WIN,WIDTH,HEIGHT,FPS) :

@@ -33,9 +33,12 @@ unit_attack_range_color = (235, 0, 0)
 
 predefined_Units = {   
                 #HP, MaxHp, attack, defence, range, move_range, fog_range, price (Mithril, Flerovium, Supply), Refund_percent
-    "Marine" :  [1, 5, 2, 0, 3, 4, 5, (6,0,1), 60/100],
-    "Phantom" : [1, 7, 4, 1, 5, 7, 9, (10,0,2), 55/100],
-    "Tank" :    [1, 20, 8, 3, 3, 5, 6, (30,4,2), 35/100],
+    "Inferno" :  [7, 7, 8, 1, 2, 4, 4, (12,0,1), 60/100],
+    "Marine" :  [5, 5, 2, 0, 4, 4, 5, (6,0,1), 60/100],
+    "Phantom" : [3, 3, 6, 1, 6, 8, 10, (10,0,2), 55/100],
+    "Pounder":  [4, 4, 20, 1, 11, 2, 3, (20,6,2), 20/100],
+    "Tank" :    [18, 18, 8, 3, 5, 5, 6, (30,4,3), 35/100],
+    "XGoliath": [40, 40, 12, 4, 5, 6, 8, (60,10,6), 20/100],
 
     }
 
@@ -57,7 +60,7 @@ class Unit():
         self.name = name            #The unit
 
         self.took_damage = False
-
+        print("NAME", name)
         vec = predefined_Units[name]
 
         self.canMove = True
