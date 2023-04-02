@@ -1040,11 +1040,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     #Un thread care va functiona la host care are rolul sa tina cont de cat timp trece in timpul jocului
     def timer_thread ():
         global timer
-        while sent_reaquest == False :
+        while (Role == "host" and sent_reaquest == False ) or (Role =="client" and Confirmation == False):
             time.sleep(1)
             if timer > 0 :
                 timer = timer - 1
-                Transmit_to_all.append((("a second passed",None),None))
 
     #functia care prelucreaza un mesaj(indiferent de lung) in randuri pe care sa le puna in mesajes
     def archive_message (mesaj,name,color) :
@@ -1292,8 +1291,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             newthread = threading.Thread(target = reciev_thread_from_client , args =(CLIENTS[i][0],CLIENTS[i][1]))
             Client_THREADS.append(newthread)
             Client_THREADS[len(Client_THREADS)-1].start() 
-        time_thread = threading.Thread(target = timer_thread)
-        time_thread.start() 
         sent_reaquest = False
         return_lobby = False
         Confirmatii = 0
@@ -1305,6 +1302,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         timer_notification_sent = False
         next_turn = False
         Confirmation = False
+
+    time_thread = threading.Thread(target = timer_thread)
+    time_thread.start() 
 
     def repair_building() :
         nonlocal Flerovium
@@ -1793,8 +1793,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         Whos_turn -= 1
                     if Changes_from_server[0][1] < Pozitie :
                         Pozitie -= 1 
-                elif Changes_from_server[0][0] == "a second passed" :
-                    timer = timer - 1
                 elif Changes_from_server[0][0] == "next_turn" :
                     next_turn = True
                 elif Changes_from_server[0][0] == "new_message" :
@@ -2327,6 +2325,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         #return to lobby check
         if Role == "client" and Confirmation == True :
             recv_from_server.join()
+            time_thread.join()
             run = False
         elif Role == "host" and sent_reaquest == True and  Confirmatii == len(Client_THREADS) :  
             while len(Client_THREADS) > 0 :
