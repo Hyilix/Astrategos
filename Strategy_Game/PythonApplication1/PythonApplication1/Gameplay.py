@@ -238,35 +238,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     enlighted_surface = None
     fake_minimap_surface = pygame.Surface((HEIGHT // 3, HEIGHT // 3)).convert_alpha()
 
-    def delete_entity(entity):
-        removed_position = []
-        position = entity.position
-        if type(entity) == Structures.Structure:
-            tiles[position[1]][position[0]].structure = None
-            removed_position.append(position)
-            if entity.owner == map_locations[Pozitie]:
-                RemoveObjectFromList(entity, controllables_vec)
-                if entity.name == "Healing_Point":
-                    RemoveObjectFromList(entity, caster_controllables_vec)
-
-            if entity.name == "Kernel":
-                for y in range(rows):
-                    for x in range(tiles_per_row):
-                        if tiles[y][x].unit != None and tiles[y][x].unit.owner == entity.owner:
-                            tiles[y][x].unit = None
-                            removed_position.append((x,y))
-                        elif tiles[y][x].structure != None and tiles[y][x].structure.owner == entity.owner:
-                            tiles[y][x].structure = None
-                            removed_position.append((x,y))
-
-        elif type(entity) == Units.Unit:
-            tiles[position[1]][position[0]].unit = None
-            removed_position.append(position)
-            if entity.owner == map_locations[Pozitie]:
-                RemoveObjectFromList(entity, controllables_vec)
-
-        return removed_position
-
     def draw_minimap():
         sizeY = int(HEIGHT / 3 * HEIGHT / current_tile_length / rows)
         sizeX = int(HEIGHT / 3 * WIDTH / current_tile_length / tiles_per_row)
@@ -1331,6 +1302,70 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     time_thread = threading.Thread(target = timer_thread)
     time_thread.start() 
 
+    def delete_entity(entity):
+        nonlocal Man_power_used
+        nonlocal M_Yield
+        nonlocal F_Yield
+        nonlocal Max_Man_power
+        nonlocal Nodes
+        nonlocal Win_condition
+        removed_position = []
+        position = entity.position
+        if type(entity) == Structures.Structure:
+            tiles[position[1]][position[0]].structure = None
+            removed_position.append(position)
+            if entity.name == "Kernel":
+                for y in range(rows):
+                    for x in range(tiles_per_row):
+                        if tiles[y][x].unit != None and tiles[y][x].unit.owner == entity.owner:
+                            tiles[y][x].unit = None
+                            removed_position.append((x,y))
+                        elif tiles[y][x].structure != None and tiles[y][x].structure.owner == entity.owner:
+                            tiles[y][x].structure = None
+                            removed_position.append((x,y))
+                
+                colorTable[entity.owner] = None
+                if entity.owner ==  map_locations[Pozitie] :
+                    Win_condition = -1
+                check_for_winner()
+                if Winner == map_locations[Pozitie] :
+                    #end turn
+                    timer = 0 
+                    if Role == "host" :
+                        Transmit_to_all.append((("Force_end_turn",None),None))
+                    else :
+                        data_send = pickle.dumps(("Force_end_turn",None))
+                        data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
+                        Connection.send(data_send)
+                
+            if entity.owner == map_locations[Pozitie] :
+                RemoveObjectFromList(entity, controllables_vec)
+                if tiles[position[1]][position[0]].ore != None :
+                    #daca e mina
+                    if tiles[position[1]][position[0]].ore.tire ==1 :
+                        M_Yield -= entity.Yield[0]
+                    else :
+                        F_Yield -= entity.Yield[1]
+                elif entity.name == "Healing_Point":
+                    RemoveObjectFromList(entity, caster_controllables_vec)
+                elif entity.name == "Cache":
+                    Max_Man_power -= 6
+                elif entity.name == "Node":
+                    Nodes -=1
+                    my_node = Node.getNodeFromObj(entity)
+                    my_node.Kill()
+                    del my_node
+
+        elif type(entity) == Units.Unit:
+            tiles[position[1]][position[0]].unit = None
+            removed_position.append(position)
+            if entity.owner == map_locations[Pozitie]:
+                Man_power_used -= entity.price[2]
+                RemoveObjectFromList(entity, controllables_vec)
+
+        return removed_position
+
+    
     def repair_building() :
         nonlocal Flerovium
         nonlocal Mithril

@@ -53,10 +53,10 @@ predefined_structures = {
                         #HP, MaxHp, Area_of_effect(block radius), defence, canShareSpace, fog_range, TrueSight, Price (Mithril, Flerovium), Refund_percent, SpecialFunction, (Mithril_rate, Flerovium_rate)
     "Barricade" :       [10, 10, 0, 4, False, 2, False, (10, 0), 60/100, None, (None, None)],
     "Bunker" :          [30, 30, 0, 2, True, 3, False, (20, 2), 35/100, None, (None, None)],
-    "Cache" :           [15, 15, 0, 0, False, 3, False, (10, 0), 70/100, None, (None, None)],
-    "Healing_Point" :   [15, 15, 5, 1, False, 3, False, (40, 5), 30/100, "heal_units", (None, None)],
-    "Node" :            [6, 6, 0, 1, False, 2, False, (3, 0), 75/100, None, (None, None)],
-    "Radar" :           [8, 8, 0, 0, False, 11, True, (20, 3), 20/100, None, (None, None)],
+    "Cache" :           [1, 15, 0, 0, False, 3, False, (10, 0), 70/100, None, (None, None)],
+    "Healing_Point" :   [1, 15, 5, 1, False, 3, False, (40, 5), 30/100, "heal_units", (None, None)],
+    "Node" :            [1, 6, 0, 1, False, 2, False, (3, 0), 75/100, None, (None, None)],
+    "Radar" :           [1, 8, 0, 0, False, 11, True, (20, 3), 20/100, None, (None, None)],
     #De acum kernel va trebui sa stea pe ultima pozitie
     "Mine_1" :          [15, 15, 0, 1, False, 3, False, (35,0), 60/100, None, (7, 3)],
     "Mine_2" :          [10, 10, 0, 0, False, 2, False, (10,0), 70/100, None, (4, 0)],
@@ -98,6 +98,7 @@ class Structure():
         self.refund_percent = vec[8]
 
         self.special_function = vec[9]
+        self.Yield = vec[10]
 
     def call_special_function(self, value_list):    #Call the special function
         if self.special_function != None:
