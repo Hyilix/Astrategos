@@ -60,7 +60,6 @@ class Unit():
         self.name = name            #The unit
 
         self.took_damage = False
-        print("NAME", name)
         vec = predefined_Units[name]
 
         self.canMove = True

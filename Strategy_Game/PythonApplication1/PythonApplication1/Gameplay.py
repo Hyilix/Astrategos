@@ -95,7 +95,6 @@ path_tiles = [] #Tiles that a selected unit can move to
 
 DEBUG_FORCED_POSITION = None
 
-global lastPositionForRendering
 lastPositionForRendering = None
 
 SWAP_TO_NORMAL = pygame.USEREVENT + 1   #event for refreshing the map after some time when a thing was hit.
@@ -214,8 +213,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     global tiles
     lastPositionForRendering = None
     canRenderMinimap = True
-    global lastPositionForRendering
-    lastPositionForRendering = None
 
     global VOLUM
     VOLUM = 50
@@ -618,8 +615,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             if chat_notification == True :
                 pygame.draw.circle(WIN,Red,(WIDTH-10,20),8)
             #Partea de jos a UI-ului
-            # draw mini_map part
-            #pygame.draw.rect(WIN,(25,25,25),(0,HEIGHT-HEIGHT // 3,HEIGHT // 3,HEIGHT // 3))    UNUSE MINIMAP
             #desenarea chenarului su informatiile despre ce este selectat
             if selected_tile[0] !=None :
                 if tile_empty == True :
@@ -676,6 +671,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         elif construction_tab == "Structures" :
                             if s_names[Element_selectat] == "Healing_Point" :
                                 text = Font.render("HP: "+str(Structures.predefined_structures[s_names[Element_selectat]][1]) + "   DEF: " + str(Structures.predefined_structures[s_names[Element_selectat]][3]) + "   Heal: " + str(Structures.hospital_heal) ,True,(0,0,0))
+                            elif s_names[Element_selectat] == "Cache" :
+                                text = Font.render("HP: "+str(Structures.predefined_structures[s_names[Element_selectat]][1]) + "   DEF: " + str(Structures.predefined_structures[s_names[Element_selectat]][3]) + "   Supply: 6" ,True,(0,0,0))
                             else :
                                 text = Font.render("HP: "+str(Structures.predefined_structures[s_names[Element_selectat]][1]) + "   DEF: " + str(Structures.predefined_structures[s_names[Element_selectat]][3]) ,True,(0,0,0))
                         else :
@@ -839,6 +836,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             Healtext = Font.render("Heal: "+ str(Structures.hospital_heal),True,(0,0,0))
                             Healtext_rect = Healtext.get_rect()
                             l_afis += Healtext_rect[2]
+                        elif entity.name == "Cache" :
+                            Stext = Font.render("Supply: 6",True,(0,0,0))
+                            Stext_rect = Stext.get_rect()
+                            l_afis += Stext_rect[2]
                         elif entity.name[:4] == "Mine" :
                             if tiles[selected_tile[1]][selected_tile[0]].ore.tier == 1 :
                                 Yield = Structures.predefined_structures[entity.name][10][0]
@@ -863,6 +864,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             WIN.blit(DMtext,(x_afis,y_center - DMtext_rect[3]/2))
                         elif entity.name == "Healing_Point" :
                             WIN.blit(Healtext,(x_afis,y_center - Healtext_rect[3]/2))
+                        elif entity.name == "Cache" :
+                            WIN.blit(Stext,(x_afis,y_center - Stext_rect[3]/2))
                         elif entity.name[:4] == "Mine" :
                             WIN.blit(Yieldtext,(x_afis,y_center - Yieldtext_rect[3]/2))
                         #Afiseaza  butonul de Refund si butonulde repair
@@ -2183,7 +2186,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                         owner_target = target.owner
                                         if target.name == "Kernel" :
                                             backup_matrix = copy.deepcopy(tiles)
-                                            print(backup_matrix[0][0].structure,backup_matrix[len(backup_matrix)-1][0].structure,backup_matrix[0][len(backup_matrix[0])-1].structure,backup_matrix[len(backup_matrix)-1][len(backup_matrix[0])-1].structure)
                                         if hitinformation and hitinformation[0] == True and target != None:
                                             selected_controllable.canAttack = False
                                             target.took_damage = True
@@ -2199,10 +2201,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                                     Turn_Actions.append(("damaged_entity","unit",(x_layer,y_layer),-(selected_controllable.attack-target.defence),selected_controllable.position,True,target.name,HP_target,owner_target,None))
 
                                                 vec = delete_entity(target)
-                                                print("/n")
-                                                print(tiles[0][0].structure,tiles[len(tiles)-1][0].structure,tiles[0][len(tiles[0])-1].structure,tiles[len(tiles)-1][len(tiles[0])-1].structure)
-                                                print("/n")
-                                                print(backup_matrix[0][0].structure,backup_matrix[len(backup_matrix)-1][0].structure,backup_matrix[0][len(backup_matrix[0])-1].structure,backup_matrix[len(backup_matrix)-1][len(backup_matrix[0])-1].structure)
                                                 refresh_map(vec)
                                             else:
                                                 if tile.structure != None :
