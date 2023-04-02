@@ -62,7 +62,7 @@ class Tile:
         self.image_name = image_name        #the name of the image. Used by texture_names.
         self.ore = ore                      #The ore oject.
         self.unit = unit                    #store what unit is occupying this tile
-        self.structure = structure          #store what structure is placed on this tile
+        self.structure = structure          #store what structure is placed on this tile`
 
     def DrawImage(self, screen, size, special_blit = False, visible_tuple = None):
         dark = pygame.Surface(size).convert_alpha()

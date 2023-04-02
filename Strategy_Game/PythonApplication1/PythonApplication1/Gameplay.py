@@ -1191,6 +1191,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             tiles[Action[1][1]][Action[1][0]].structure.ModifyHealth(-Action[2])
         
         elif Action[0] == "damaged_entity" :
+            print(Action)
             if Action[1] == "unit" :
                 if Action[5] == False :
                     tiles[Action[2][1]][Action[2][0]].unit.ModifyHealth(-Action[3])
@@ -1208,7 +1209,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     if Action[6][:4] == "Mine" :
                         new_struct = Structures.BuildStructure(m_names.index(Action[6]) + len(s_names),(Action[2][0], Action[2][1]), Action[8])
                     else :
-                        new_struct = Structures.BuildStructure(6,(Action[2][0], Action[2][1]), Action[8])
+                        new_struct = Structures.BuildStructure(s_names.index(Action[6]),(Action[2][0], Action[2][1]), Action[8])
                     if Action[6] == "Kernel" :
                         tiles = copy.deepcopy(Action[9])
                         refresh_map()
@@ -1275,6 +1276,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     Winner = None
     Escape_tab = False
     Slider_Got = False
+    #flashes 
+    Transmited_flashes = {}
+    flash = 0
     # Incarcarea variabilelor necesare rolurilor de host si client
     if Role == "host" :
         Confirmatii_timer = 0
@@ -1302,27 +1306,58 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     time_thread = threading.Thread(target = timer_thread)
     time_thread.start() 
 
-    def delete_entity(entity):
+    def delete_entity(entity,transmited = False):
         nonlocal Man_power_used
         nonlocal M_Yield
         nonlocal F_Yield
         nonlocal Max_Man_power
         nonlocal Nodes
         nonlocal Win_condition
+        nonlocal Transmited_flashes
         removed_position = []
         position = entity.position
         if type(entity) == Structures.Structure:
             tiles[position[1]][position[0]].structure = None
-            removed_position.append(position)
+            if transmited == False :
+                removed_position.append(position)
+            else :
+                image = Structures.textures[Structures.texture_names.index(entity.texture)].copy()
+                dark = pygame.Surface(image.get_size()).convert_alpha()
+                dark.fill((0, 0, 0, 0))
+                for i in range(image.get_width()):
+                    for j in range(image.get_height()):
+                        if image.get_at((i,j)) != (0,0,0,0):
+                            dark.set_at((i,j), (250, 0, 0,255))
+                Transmited_flashes[position] = dark
             if entity.name == "Kernel":
                 for y in range(rows):
                     for x in range(tiles_per_row):
                         if tiles[y][x].unit != None and tiles[y][x].unit.owner == entity.owner:
                             tiles[y][x].unit = None
-                            removed_position.append((x,y))
+                            if transmited == False :
+                                removed_position.append(position)
+                            else :
+                                image = Structures.textures[Structures.texture_names.index(entity.texture)].copy()
+                                dark = pygame.Surface(image.get_size()).convert_alpha()
+                                dark.fill((0, 0, 0, 0))
+                                for i in range(image.get_width()):
+                                    for j in range(image.get_height()):
+                                        if image.get_at((i,j)) != (0,0,0,0):
+                                            dark.set_at((i,j), (250, 0, 0,255))
+                                Transmited_flashes[position] = dark
                         elif tiles[y][x].structure != None and tiles[y][x].structure.owner == entity.owner:
                             tiles[y][x].structure = None
-                            removed_position.append((x,y))
+                            if transmited == False :
+                                removed_position.append(position)
+                            else :
+                                image = Structures.textures[Structures.texture_names.index(entity.texture)].copy()
+                                dark = pygame.Surface(image.get_size()).convert_alpha()
+                                dark.fill((0, 0, 0, 0))
+                                for i in range(image.get_width()):
+                                    for j in range(image.get_height()):
+                                        if image.get_at((i,j)) != (0,0,0,0):
+                                            dark.set_at((i,j), (250, 0, 0,255))
+                                Transmited_flashes[position] = dark
                 
                 colorTable[entity.owner] = None
                 if entity.owner ==  map_locations[Pozitie] :
@@ -1358,7 +1393,17 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
         elif type(entity) == Units.Unit:
             tiles[position[1]][position[0]].unit = None
-            removed_position.append(position)
+            if transmited == False :
+                removed_position.append(position)
+            else :
+                image = Units.textures[Units.texture_names.index(entity.texture)].copy()
+                dark = pygame.Surface(image.get_size()).convert_alpha()
+                dark.fill((0, 0, 0, 0))
+                for i in range(image.get_width()):
+                    for j in range(image.get_height()):
+                        if image.get_at((i,j)) != (0,0,0,0):
+                            dark.set_at((i,j), (250, 0, 0,255))
+                Transmited_flashes[position] = dark
             if entity.owner == map_locations[Pozitie]:
                 Man_power_used -= entity.price[2]
                 RemoveObjectFromList(entity, controllables_vec)
@@ -1707,7 +1752,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     partially_visible_tiles.append((x,y))
 
     #functia asta face refresh la harta 
-    def refresh_map(specific_vector = None):
+    def refresh_map(specific_vector = None) :
         nonlocal mapSurface
 
         if specific_vector != None:    #If an array is given to the function, update only the tiles inside said function. The positions are (x,y)
@@ -1751,9 +1796,21 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     run=True
     while run == True :
         clock.tick(FPS)
+
+        #actualizare flashuri
+        if flash > 0 :
+            for x in Transmited_flashes :
+                mapSurface.blit(pygame.transform.scale(Transmited_flashes[x],(current_tile_length,current_tile_length)), (x[0] * current_tile_length, x[1]* current_tile_length))
+                Transmited_flashes[x].set_alpha(flash)
+                flash += -1
+        if flash == 0 :
+            Transmited_flashes.clear()
+            flash = -1
         #afiseaza totul
         draw_window()
-
+        if flash >= 0 :
+            for x in Transmited_flashes :
+                refresh_map([x])
         #se actualizeaza variabilele care au legatura cu comunicarea dintre server si client
         if Role == "host":
             # se verifica daca un player sa deconectat 
@@ -1839,11 +1896,29 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     if Changes_from_clients[0][1] == "unit" :
                         tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].unit.ModifyHealth(Changes_from_clients[0][3])
                         if tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].unit.HP <= 0 :
-                            delete_entity(tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].unit)
+                            delete_entity(tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].unit,True)
+                        else :
+                            image = Units.textures[Units.texture_names.index(tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].unit.texture)].copy()
+                            dark = pygame.Surface(image.get_size()).convert_alpha()
+                            dark.fill((0, 0, 0, 0))
+                            for i in range(image.get_width()):
+                                for j in range(image.get_height()):
+                                    if image.get_at((i,j)) != (0,0,0,0):
+                                        dark.set_at((i,j), (250, 0, 0,255))
+                            Transmited_flashes[Changes_from_clients[0][2]] = dark
                     else :
                         tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].structure.ModifyHealth(Changes_from_clients[0][3])
                         if tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].structure.HP <= 0 :
-                            delete_entity(tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].structure)
+                            delete_entity(tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].structure,True)
+                        else :
+                            image = Structures.textures[Structures.texture_names.index(tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].structure.texture)].copy()
+                            dark = pygame.Surface(image.get_size()).convert_alpha()
+                            dark.fill((0, 0, 0, 0))
+                            for i in range(image.get_width()):
+                                for j in range(image.get_height()):
+                                    if image.get_at((i,j)) != (0,0,0,0):
+                                        dark.set_at((i,j), (250, 0, 0,255))
+                            Transmited_flashes[Changes_from_clients[0][2]] = dark
                 Changes_from_clients.pop(0)
         else :
             #Se verifica daca serverul a trimis lucruri spre acest client
@@ -1915,11 +1990,29 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     if Changes_from_server[0][1] == "unit" :
                         tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].unit.ModifyHealth(Changes_from_server[0][3])
                         if tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].unit.HP <= 0 :
-                            delete_entity(tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].unit)
+                            delete_entity(tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].unit,True)
+                        else :
+                            image = Units.textures[Units.texture_names.index(tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].unit.texture)].copy()
+                            dark = pygame.Surface(image.get_size()).convert_alpha()
+                            dark.fill((0, 0, 0, 0))
+                            for i in range(image.get_width()):
+                                for j in range(image.get_height()):
+                                    if image.get_at((i,j)) != (0,0,0,0):
+                                        dark.set_at((i,j), (250, 0, 0,255))
+                            Transmited_flashes[Changes_from_server[0][2]] = dark
                     else :
                         tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].structure.ModifyHealth(Changes_from_server[0][3])
                         if tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].structure.HP <= 0 :
-                            delete_entity(tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].structure)
+                            delete_entity(tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].structure,True)
+                        else :
+                            image = Structures.textures[Structures.texture_names.index(tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].structure.texture)].copy()
+                            dark = pygame.Surface(image.get_size()).convert_alpha()
+                            dark.fill((0, 0, 0, 0))
+                            for i in range(image.get_width()):
+                                for j in range(image.get_height()):
+                                    if image.get_at((i,j)) != (0,0,0,0):
+                                        dark.set_at((i,j), (250, 0, 0,255))
+                            Transmited_flashes[Changes_from_server[0][2]] = dark
                 Changes_from_server.pop(0)
 
         if timer <= 0 :
@@ -1970,6 +2063,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         Mithril += M_Yield
                         Flerovium += F_Yield
                     timer = turn_time
+                    flash = 255
                     Confirmatii_timer = 0
                     if TileClass.full_bright == False :
                         refresh_map()
@@ -1999,6 +2093,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         Mithril += M_Yield
                         Flerovium += F_Yield
                     timer = turn_time
+                    flash = 255
                     timer_notification_sent = False
                     next_turn = False
                     if TileClass.full_bright == False :
@@ -2212,16 +2307,17 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                         hitinformation = None   #The Attack function returns a tuple: has hit an enemy and the absolute value (abs) of damage it did
                                         target = None
                                         if tile.structure != None:
-                                            hitinformation = selected_controllable.Attack(tile.structure)
                                             target = tile.structure
-                                        elif tile.unit != None:
-                                            hitinformation = selected_controllable.Attack(tile.unit)
-                                            target = tile.unit
-                                        if hitinformation:
                                             HP_target = target.HP
                                             owner_target = target.owner
                                             if target.name == "Kernel" :
                                                 backup_matrix = copy.deepcopy(tiles)
+                                            hitinformation = selected_controllable.Attack(tile.structure)
+                                        elif tile.unit != None:
+                                            target = tile.unit
+                                            HP_target = target.HP
+                                            owner_target = target.owner
+                                            hitinformation = selected_controllable.Attack(tile.unit)
                                         if hitinformation and hitinformation[0] == True and target != None:
                                             selected_controllable.canAttack = False
                                             target.took_damage = True
