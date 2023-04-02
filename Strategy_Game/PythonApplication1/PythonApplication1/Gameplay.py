@@ -428,13 +428,13 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             examined_struct = tiles[selected_tile[1]][selected_tile[0]].structure
             examined_unit = tiles[selected_tile[1]][selected_tile[0]].unit
 
-            if examined_struct != None and examined_struct in controllables_vec:
-                if examined_struct.owner == map_locations[Pozitie]:
-                    examined_struct.Draw_AOE(WIN, current_tile_length, (CurrentCamera.x, CurrentCamera.y))
-
-            elif examined_unit != None and examined_unit in controllables_vec and timer > 0 and Whos_turn == Pozitie:
+            if examined_unit != None and examined_unit in controllables_vec and timer > 0 and Whos_turn == Pozitie:
                 if examined_unit.owner == map_locations[Pozitie] and examined_unit.canAttack == True:
                     examined_unit.Draw_AOE(WIN, current_tile_length, (CurrentCamera.x, CurrentCamera.y))
+
+            elif examined_struct != None and examined_struct in controllables_vec:
+                if examined_struct.owner == map_locations[Pozitie]:
+                    examined_struct.Draw_AOE(WIN, current_tile_length, (CurrentCamera.x, CurrentCamera.y))
 
     def draw_nodes():
         if selected_tile[0] != None:
@@ -2217,10 +2217,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                         elif tile.unit != None:
                                             hitinformation = selected_controllable.Attack(tile.unit)
                                             target = tile.unit
-                                        HP_target = target.HP
-                                        owner_target = target.owner
-                                        if target.name == "Kernel" :
-                                            backup_matrix = copy.deepcopy(tiles)
+                                        if hitinformation:
+                                            HP_target = target.HP
+                                            owner_target = target.owner
+                                            if target.name == "Kernel" :
+                                                backup_matrix = copy.deepcopy(tiles)
                                         if hitinformation and hitinformation[0] == True and target != None:
                                             selected_controllable.canAttack = False
                                             target.took_damage = True
