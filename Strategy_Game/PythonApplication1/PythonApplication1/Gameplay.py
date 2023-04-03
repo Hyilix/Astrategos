@@ -1322,7 +1322,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             tiles[position[1]][position[0]].structure = None
             if transmited == False :
                 removed_position.append(position)
-            else :
+            elif entity.owner == map_locations[Pozitie] :
                 image = Structures.textures[Structures.texture_names.index(entity.texture)].copy()
                 dark = pygame.Surface(image.get_size()).convert_alpha()
                 dark.fill((0, 0, 0, 0))
@@ -1338,7 +1338,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             tiles[y][x].unit = None
                             if transmited == False :
                                 removed_position.append(position)
-                            else :
+                            elif entity.owner == map_locations[Pozitie] :
                                 image = Structures.textures[Structures.texture_names.index(entity.texture)].copy()
                                 dark = pygame.Surface(image.get_size()).convert_alpha()
                                 dark.fill((0, 0, 0, 0))
@@ -1351,7 +1351,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             tiles[y][x].structure = None
                             if transmited == False :
                                 removed_position.append(position)
-                            else :
+                            elif entity.owner == map_locations[Pozitie] :
                                 image = Structures.textures[Structures.texture_names.index(entity.texture)].copy()
                                 dark = pygame.Surface(image.get_size()).convert_alpha()
                                 dark.fill((0, 0, 0, 0))
@@ -1398,7 +1398,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             tiles[position[1]][position[0]].unit = None
             if transmited == False :
                 removed_position.append(position)
-            else :
+            elif entity.owner == map_locations[Pozitie] :
                 image = Units.textures[Units.texture_names.index(entity.texture)].copy()
                 dark = pygame.Surface(image.get_size()).convert_alpha()
                 dark.fill((0, 0, 0, 0))
@@ -1901,7 +1901,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].unit.ModifyHealth(Changes_from_clients[0][3])
                         if tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].unit.HP <= 0 :
                             delete_entity(tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].unit,True)
-                        else :
+                        elif tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].unit.owner == map_locations[Pozitie] :
                             image = Units.textures[Units.texture_names.index(tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].unit.texture)].copy()
                             dark = pygame.Surface(image.get_size()).convert_alpha()
                             dark.fill((0, 0, 0, 0))
@@ -1914,7 +1914,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].structure.ModifyHealth(Changes_from_clients[0][3])
                         if tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].structure.HP <= 0 :
                             delete_entity(tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].structure,True)
-                        else :
+                        elif tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].structure.owner == map_locations[Pozitie] :
                             image = Structures.textures[Structures.texture_names.index(tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].structure.texture)].copy()
                             dark = pygame.Surface(image.get_size()).convert_alpha()
                             dark.fill((0, 0, 0, 0))
@@ -1995,7 +1995,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].unit.ModifyHealth(Changes_from_server[0][3])
                         if tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].unit.HP <= 0 :
                             delete_entity(tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].unit,True)
-                        else :
+                        elif tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].unit.owner == map_locations[Pozitie] :
                             image = Units.textures[Units.texture_names.index(tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].unit.texture)].copy()
                             dark = pygame.Surface(image.get_size()).convert_alpha()
                             dark.fill((0, 0, 0, 0))
@@ -2008,7 +2008,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].structure.ModifyHealth(Changes_from_server[0][3])
                         if tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].structure.HP <= 0 :
                             delete_entity(tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].structure,True)
-                        else :
+                        elif tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].structure.owner == map_locations[Pozitie] :
                             image = Structures.textures[Structures.texture_names.index(tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].structure.texture)].copy()
                             dark = pygame.Surface(image.get_size()).convert_alpha()
                             dark.fill((0, 0, 0, 0))
