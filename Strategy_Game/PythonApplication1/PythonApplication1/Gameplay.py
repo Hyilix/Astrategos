@@ -776,6 +776,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     pygame.draw.rect(WIN,(225, 223, 240),(HEIGHT/3,HEIGHT*4/5, WIDTH - HEIGHT/3,HEIGHT/5))
                     #daca este selectata o unitate sau cladire o afiseaza :
                     if tile_empty == False and (tiles[selected_tile[1]][selected_tile[0]].structure != None or tiles[selected_tile[1]][selected_tile[0]].unit != None) :
+                        refund_bool = False
+                        repair_bool = False
+                        aford_repair = True
                         pygame.draw.rect(WIN,(25,25,25),(HEIGHT/3+20,HEIGHT*4/5+20,large_img_element_afisat.get_width()+10,large_img_element_afisat.get_width()+10))
                         pygame.draw.rect(WIN,Gri,(HEIGHT/3+25,HEIGHT*4/5+25,large_img_element_afisat.get_width(),large_img_element_afisat.get_width()))
                         WIN.blit(large_img_element_afisat,(HEIGHT/3+25,HEIGHT*4/5+25))
@@ -839,9 +842,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         elif entity.name[:4] == "Mine" :
                             WIN.blit(Yieldtext,(x_afis,y_center - Yieldtext_rect[3]/2))
                         #Afiseaza  butonul de Refund si butonulde repair
-                        refund_bool = False
-                        repair_bool = False
-                        aford_repair = True
                         if (tiles[selected_tile[1]][selected_tile[0]].structure != None and tiles[selected_tile[1]][selected_tile[0]].structure.name == "Kernel") == 0 and ((tiles[selected_tile[1]][selected_tile[0]].structure != None and tiles[selected_tile[1]][selected_tile[0]].structure.owner == map_locations[Pozitie] and tiles[selected_tile[1]][selected_tile[0]].structure.HP == tiles[selected_tile[1]][selected_tile[0]].structure.MaxHP) or (tiles[selected_tile[1]][selected_tile[0]].unit != None and tiles[selected_tile[1]][selected_tile[0]].unit.owner == map_locations[Pozitie] and tiles[selected_tile[1]][selected_tile[0]].unit.HP == tiles[selected_tile[1]][selected_tile[0]].unit.MaxHP)) :
                             refund_bool = True
                         if tiles[selected_tile[1]][selected_tile[0]].structure != None  and tiles[selected_tile[1]][selected_tile[0]].unit == None and  tiles[selected_tile[1]][selected_tile[0]].structure.HP < math.ceil(tiles[selected_tile[1]][selected_tile[0]].structure.MaxHP *0.65) and tiles[selected_tile[1]][selected_tile[0]].structure.owner == map_locations[Pozitie] :
@@ -1326,7 +1326,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 for i in range(image.get_width()):
                     for j in range(image.get_height()):
                         if image.get_at((i,j)) != (0,0,0,0):
-                            dark.set_at((i,j), (250, 0, 0,255))
+                            dark.set_at((i,j), (0, 0, 0,255))
                 Transmited_flashes[position] = dark
             if entity.name == "Kernel":
                 for y in range(rows):
@@ -1342,7 +1342,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                 for i in range(image.get_width()):
                                     for j in range(image.get_height()):
                                         if image.get_at((i,j)) != (0,0,0,0):
-                                            dark.set_at((i,j), (250, 0, 0,255))
+                                            dark.set_at((i,j), (0, 0, 0,255))
                                 Transmited_flashes[position] = dark
                         elif tiles[y][x].structure != None and tiles[y][x].structure.owner == entity.owner:
                             tiles[y][x].structure = None
@@ -1355,10 +1355,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                 for i in range(image.get_width()):
                                     for j in range(image.get_height()):
                                         if image.get_at((i,j)) != (0,0,0,0):
-                                            dark.set_at((i,j), (250, 0, 0,255))
+                                            dark.set_at((i,j), (0, 0, 0,255))
                                 Transmited_flashes[position] = dark
                 
                 colorTable[entity.owner] = None
+                TileClass.colorTable = colorTable
                 if entity.owner ==  map_locations[Pozitie] :
                     Win_condition = -1
                 check_for_winner()
@@ -1401,7 +1402,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 for i in range(image.get_width()):
                     for j in range(image.get_height()):
                         if image.get_at((i,j)) != (0,0,0,0):
-                            dark.set_at((i,j), (250, 0, 0,255))
+                            dark.set_at((i,j), (0, 0, 0,255))
                 Transmited_flashes[position] = dark
             if entity.owner == map_locations[Pozitie]:
                 Man_power_used -= entity.price[2]
@@ -1820,8 +1821,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 playeri.pop(Coduri_pozitie_client[Killed_Clients[0]] + 1)
                 #modifecarea pozitiilor de pe harta si stergerea cladirilor
                 colorTable[map_locations[Coduri_pozitie_client[Killed_Clients[0]] + 1]] = None
-                check_for_winner()
                 TileClass.colorTable = colorTable
+                check_for_winner()
                 refresh_map()
                 map_locations.pop(Coduri_pozitie_client[Killed_Clients[0]] + 1 )
                 #modificarea turelor
@@ -2247,9 +2248,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     elif Escape_tab == False and Win_condition == 0 and Refund_Button.on_click(event) and tile_empty == False and refund_bool :
                         refund_entity()
                         selected_tile_check()
+                        refund_bool = False
                     #verifica daca apasa butonul de repair
                     elif Escape_tab == False and Win_condition == 0 and Repair_Button.on_click(event) and tile_empty == False and repair_bool and aford_repair == True :
                         repair_building()
+                        repair_bool = False
                     elif Escape_tab == True :
                         if Escape_Button.on_click(event) :
                             if Role == "host" :
