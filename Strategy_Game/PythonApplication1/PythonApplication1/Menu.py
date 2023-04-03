@@ -24,7 +24,7 @@ Buttons = []
 def menu_screen(WIN,WIDTH,HEIGHT,FPS) :
 
     #initializarea butoanelor si toate cele dupa marimile ecranului
-
+    pygame.display.set_caption(gamename)
     Titlu_rect.center = (WIDTH/2,(HEIGHT-90*4-50*4-60)/2 + 40)
 
     Rect_draw.append(((WIDTH-260)/2-5,(HEIGHT-90*4-50*4-60)/2-5 + 60 + 50,260,90))
