@@ -1211,7 +1211,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         new_struct = Structures.BuildStructure(s_names.index(Action[6]),(Action[2][0], Action[2][1]), Action[8])
                     if Action[6] == "Kernel" :
                         tiles = copy.deepcopy(Action[9])
+                        colorTable[Action[8]] = Action[10]
+                        TileClass.colorTable = colorTable
                         refresh_map()
+
                     else :
                         tiles[Action[2][1]][Action[2][0]].structure = new_struct
                         tiles[Action[2][1]][Action[2][0]].structure.HP = Action[7]
@@ -2315,6 +2318,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                             owner_target = target.owner
                                             if target.name == "Kernel" :
                                                 backup_matrix = copy.deepcopy(tiles)
+                                                color_owner = colorTable[target.owner]
                                             hitinformation = selected_controllable.Attack(tile.structure)
                                         elif tile.unit != None:
                                             target = tile.unit
@@ -2329,7 +2333,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                                 print("Call function")
                                                 if tile.structure != None :
                                                     if target.name == "Kernel" :
-                                                        Turn_Actions.append(("damaged_entity","structure",(x_layer,y_layer),-(selected_controllable.attack-target.defence),selected_controllable.position,True,target.name,HP_target,owner_target,backup_matrix))
+                                                        Turn_Actions.append(("damaged_entity","structure",(x_layer,y_layer),-(selected_controllable.attack-target.defence),selected_controllable.position,True,target.name,HP_target,owner_target,backup_matrix,color_owner))
                                                     else :
                                                         Turn_Actions.append(("damaged_entity","structure",(x_layer,y_layer),-(selected_controllable.attack-target.defence),selected_controllable.position,True,target.name,HP_target,owner_target,None))
                                                 else :
