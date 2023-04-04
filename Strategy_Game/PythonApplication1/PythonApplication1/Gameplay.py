@@ -1231,7 +1231,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             if tiles[selected_tile[1]][selected_tile[0]].unit == None and tiles[selected_tile[1]][selected_tile[0]].structure == None :
                 tile_empty = True
                 enlighted_surface = draw_enlighted_tiles()
-
+                if  tiles[selected_tile[1]][selected_tile[0]].ore != None :
+                    construction_tab = "Mines"
+                elif construction_tab == "Mines" :
+                    construction_tab = "Structures"
             else :
                 nonlocal Element_selectat
                 global selected_controllable
