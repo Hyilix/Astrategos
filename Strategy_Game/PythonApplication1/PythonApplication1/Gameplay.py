@@ -1578,6 +1578,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             Flerovium -= new_unit.price[1]
                             Mithril -= new_unit.price[0]
                             Man_power_used += new_unit.price[2]
+
+                            new_unit.canAttack = False
+                            new_unit.canMove = False
+
                             #Adaugarea actiunii in Istoricul actiunilor
                             Turn_Actions.append(("new_entity",construction_tab,Element_selectat,map_locations[Pozitie],selected_tile,new_unit))
                             break
