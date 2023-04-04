@@ -26,11 +26,24 @@ pygame.init()
 music_path = 'Assets/Music/'
 music_vec = []
 
+sounds_vec = [] #0 -> any turn, 1 -> your turn
+
 for music in os.listdir(music_path):
     music_vec.append(music)
 
+for sound in os.listdir('Assets/Sounds/'):
+    sounds_vec.append(sound)
+
+global SOUND_VOLUME
+SOUND_VOLUME = 0.4
+
 global VOLUM
 VOLUM = 50
+
+def PlayTurnSound(index):
+    my_sound = pygame.mixer.Sound('Assets/Sounds/' + sounds_vec[index])
+    my_sound.set_volume(SOUND_VOLUME)
+    my_sound.play()
 
 def PlayRandomMusic():
     rand = random.randint(0, len(music_vec) - 1)
@@ -2083,6 +2096,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     if Whos_turn == Pozitie :
                         Mithril += M_Yield
                         Flerovium += F_Yield
+                        PlayTurnSound(0)
+                    else:
+                        PlayTurnSound(1)
                     timer = turn_time
                     units_healed = []   #a vector to store all units healed. Hospital effects don't stack
                     for caster in caster_controllables_vec: #For every caster, call it's function. Because of time and internal issues, the only caster is the hospital.
@@ -2120,6 +2136,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     if Whos_turn == Pozitie :
                         Mithril += M_Yield
                         Flerovium += F_Yield
+                        PlayTurnSound(0)
+                    else:
+                        PlayTurnSound(1)
                     timer = turn_time
                     units_healed = []   #a vector to store all units healed. Hospital effects don't stack
                     for caster in caster_controllables_vec: #For every caster, call it's function. Because of time and internal issues, the only caster is the hospital.
