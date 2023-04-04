@@ -246,7 +246,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         fake_minimap_surface.fill((0,0,0,0))
         pygame.draw.rect(fake_minimap_surface, camerabox_color, (int(CurrentCamera.x / 3 * HEIGHT / current_tile_length / tiles_per_row), int(CurrentCamera.y / 3 * HEIGHT / current_tile_length / rows), sizeX, sizeY), 3)
         if canRenderMinimap == True:
-            print("a randat-o")
             minimap_surface.fill((50,50,50,110))
 
             for tile in partially_visible_tiles:
@@ -1190,7 +1189,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             tiles[Action[1][1]][Action[1][0]].structure.ModifyHealth(-Action[2])
         
         elif Action[0] == "damaged_entity" :
-            print(Action)
             if Action[1] == "unit" :
                 if Action[5] == False :
                     tiles[Action[2][1]][Action[2][0]].unit.ModifyHealth(-Action[3])
@@ -1767,10 +1765,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     partially_visible_tiles.append((x,y))
 
     #functia asta face refresh la harta 
-    def refresh_map(specific_vector = None) :
+    def refresh_map(specific_vector = None,renderMm = True) :
         nonlocal mapSurface
         global canRenderMinimap
-        canRenderMinimap = True
+        if renderMm == True :
+            canRenderMinimap = True
         if specific_vector != None:    #If an array is given to the function, update only the tiles inside said function. The positions are (x,y)
             for pos in specific_vector:
                 tiles[pos[1]][pos[0]].DrawImage(mapSurfaceNormal, (normal_tile_length, normal_tile_length), False, (visible_tiles, partially_visible_tiles))
@@ -1825,8 +1824,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         #afiseaza totul
         draw_window()
         if flash >= 0 :
+            refresh_vector =[]
             for x in Transmited_flashes :
-                refresh_map([x])
+                refresh_vector.append(x)
+            refresh_map(refresh_vector,False)
+            refresh_vector.clear()
         #se actualizeaza variabilele care au legatura cu comunicarea dintre server si client
         if Role == "host":
             # se verifica daca un player sa deconectat 

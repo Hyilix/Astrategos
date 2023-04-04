@@ -230,11 +230,14 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                         Changes_from_server.append(data_recv)
                 else :
                     server.close()
+                    print("primul else")
                     run = False
                     break
         except :
+            print("ultima exceptie")
             server.close()
             run = False
+
 
     cooldown = Next_stage_cooldown
 
