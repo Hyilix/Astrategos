@@ -1654,6 +1654,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         global tiles_per_row
         nonlocal mapSurfaceNormal 
         nonlocal mapSurface
+        nonlocal M_Yield
+        nonlocal F_Yield
         infile = None
         try:
             infile = open("Maps/info/" + map_name + ".txt", "rb")
@@ -1728,6 +1730,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     if new_tile.structure.name == "Cache" and new_tile.structure.owner == map_locations[Pozitie]:
                         if Max_Man_power < ManPowerCap:
                             Max_Man_power += 6
+
+                    if new_tile.structure.name[:4] == "Mine" and new_tile.ore != None and new_tile.structure.owner == map_locations[Pozitie]:
+                        if new_tile.ore.tier == 1:
+                            M_Yield += new_tile.structure.Yield[0]
+                        elif new_tile.ore.tier == 2:
+                            F_Yield += new_tile.structure.Yield[1]
 
                 if new_tile.unit != None:
                     if new_tile.unit.owner == map_locations[Pozitie]:
