@@ -1796,6 +1796,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             enlighted_surface = None
             return enlighted_surface
 
+        if timer <= 0 or Whos_turn != Pozitie:
+            enlighted_surface = None
+            return enlighted_surface
+
         enlighted_surface = pygame.Surface((int(tiles_per_row * current_tile_length), int(rows * current_tile_length))).convert_alpha()
         enlighted_surface.fill((0,0,0,0))
 
