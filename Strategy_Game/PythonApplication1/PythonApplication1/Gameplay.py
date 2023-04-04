@@ -1024,7 +1024,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     #Un thread care va functiona la host care are rolul sa tina cont de cat timp trece in timpul jocului
     def timer_thread ():
         global timer
-        while  run == False :
+        while  run == True :
             time.sleep(1)
             if timer > 0 :
                 timer = timer - 1
