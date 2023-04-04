@@ -2131,6 +2131,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             if event.type == SWAP_TO_NORMAL:
                 if lastPositionForRendering != None :
                     refresh_map([lastPositionForRendering])
+                    lastPositionForRendering = None
 
             if event.type == pygame.QUIT :
                 pygame.quit()
