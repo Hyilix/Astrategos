@@ -2055,14 +2055,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
                 if tiles[unit.position[1]][unit.position[0]].unit == unit : #Allow each unit to move and attack for the next round
                     unit.canMove = True
-                    unit.canAttack = True
-
-            units_healed = []   #a vector to store all units healed. Hospital effects don't stack
-            for caster in caster_controllables_vec: #For every caster, call it's function. Because of time and internal issues, the only caster is the hospital.
-                caster.call_special_function([caster, controllables_vec, units_healed])
-            if len(units_healed) != 0 :
-                Turn_Actions.append(("healed_units",units_healed))
-            del units_healed    
+                    unit.canAttack = True           
 
             determine_visible_tiles()
 
@@ -2087,6 +2080,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         Mithril += M_Yield
                         Flerovium += F_Yield
                     timer = turn_time
+                    units_healed = []   #a vector to store all units healed. Hospital effects don't stack
+                    for caster in caster_controllables_vec: #For every caster, call it's function. Because of time and internal issues, the only caster is the hospital.
+                        caster.call_special_function([caster, controllables_vec, units_healed])
+                    if len(units_healed) != 0 :
+                        Turn_Actions.append(("healed_units",units_healed))
+                    del units_healed    
                     flash = 255
                     Confirmatii_timer = 0
                     if TileClass.full_bright == False :
@@ -2118,6 +2117,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         Mithril += M_Yield
                         Flerovium += F_Yield
                     timer = turn_time
+                    units_healed = []   #a vector to store all units healed. Hospital effects don't stack
+                    for caster in caster_controllables_vec: #For every caster, call it's function. Because of time and internal issues, the only caster is the hospital.
+                        caster.call_special_function([caster, controllables_vec, units_healed])
+                    if len(units_healed) != 0 :
+                        Turn_Actions.append(("healed_units",units_healed))
+                    del units_healed    
                     flash = 255
                     timer_notification_sent = False
                     next_turn = False
@@ -2353,7 +2358,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                             target.took_damage = True
                                             
                                             if target.HP <= 0:
-                                                print("Call function")
                                                 if tile.structure != None :
                                                     if target.name == "Kernel" :
                                                         Turn_Actions.append(("damaged_entity","structure",(x_layer,y_layer),-(selected_controllable.attack-target.defence),selected_controllable.position,True,target.name,HP_target,owner_target,backup_matrix,color_owner))
