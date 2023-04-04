@@ -212,7 +212,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     global tiles
     lastPositionForRendering = None
     canRenderMinimap = True
-
+    run=True
     global VOLUM
     VOLUM = 50
 
@@ -1808,7 +1808,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
 
     clock = pygame.time.Clock()
-    run=True
     while run == True :
         clock.tick(FPS)
 
