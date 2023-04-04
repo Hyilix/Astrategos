@@ -1024,7 +1024,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     #Un thread care va functiona la host care are rolul sa tina cont de cat timp trece in timpul jocului
     def timer_thread ():
         global timer
-        while (Role == "host" and sent_reaquest == False ) or (Role =="client" and Confirmation == False):
+        while  run == False :
             time.sleep(1)
             if timer > 0 :
                 timer = timer - 1
@@ -2519,17 +2519,16 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         #return to lobby check
         if Role == "client" and Confirmation == True :
             recv_from_server.join()
-            time_thread.join()
             run = False
         elif Role == "host" and sent_reaquest == True and  Confirmatii == len(Client_THREADS) :  
             while len(Client_THREADS) > 0 :
                 Client_THREADS[0].join()
                 Client_THREADS.pop(0)
-            time_thread.join()
             run = False
 
 
     #finalul functiei si returnarea variabilelor necesare care s-ar fi putut schimba
+    time_thread.join()
     if Role == "host" :
         return playeri, CLIENTS, Coduri_pozitie_client
     else :
