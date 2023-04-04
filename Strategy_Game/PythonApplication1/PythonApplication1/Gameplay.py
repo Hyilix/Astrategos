@@ -1828,9 +1828,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 mapSurface.blit(pygame.transform.scale(Transmited_flashes[x],(current_tile_length,current_tile_length)), (x[0] * current_tile_length, x[1]* current_tile_length))
                 Transmited_flashes[x].set_alpha(flash)
                 flash += -1
-        if flash == 0 :
-            Transmited_flashes.clear()
-            flash = -1
+            if flash <= 0 :
+                Transmited_flashes.clear()
+                flash = -1
         #afiseaza totul
         draw_window()
         if flash >= 0 :
