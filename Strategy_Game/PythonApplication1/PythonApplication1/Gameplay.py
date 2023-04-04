@@ -1217,6 +1217,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         tiles[Action[2][1]][Action[2][0]].structure = new_struct
                         tiles[Action[2][1]][Action[2][0]].structure.HP = Action[7]
                         refresh_map([[Action[2][0],Action[2][1]]])
+                    if new_struct:
+                        del new_struct
+
             tiles[Action[4][1]][Action[4][0]].unit.canAttack = True
         selected_tile_check()
 
@@ -1896,7 +1899,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                         #construieste structura
                         tiles[Changes_from_clients[0][4][1]][Changes_from_clients[0][4][0]].structure = new_struct
                         refresh_map([[Changes_from_clients[0][4][0],Changes_from_clients[0][4][1]]])
-
+                        del new_struct
                     elif Changes_from_clients[0][1] == "Units":
                         new_unit = Units.BuildUnit(Changes_from_clients[0][2], (Changes_from_clients[0][4][0], Changes_from_clients[0][4][1]), Changes_from_clients[0][3])
                         #Se recruteaza noua unitate
@@ -1910,7 +1913,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     else : #Structure case. Also don't refund Kernel lol
                         tiles[Changes_from_clients[0][2][1]][Changes_from_clients[0][2][0]].structure = None
                         refresh_map([[Changes_from_clients[0][2][0],Changes_from_clients[0][2][1]]])
-                        del my_struct
                 elif Changes_from_clients[0][0] == "repair_entity" :
                     tiles[Changes_from_clients[0][1][1]][Changes_from_clients[0][1][0]].structure.ModifyHealth(Changes_from_clients[0][2])
                 elif Changes_from_clients[0][0] == "healed_units" :
@@ -2003,7 +2005,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     else : #Structure case. Also don't refund Kernel lol
                         tiles[Changes_from_server[0][2][1]][Changes_from_server[0][2][0]].structure = None
                         refresh_map([[Changes_from_server[0][2][0],Changes_from_server[0][2][1]]])
-                        del my_struct
                 elif Changes_from_server[0][0] == "repair_entity" :
                     tiles[Changes_from_server[0][1][1]][Changes_from_server[0][1][0]].structure.ModifyHealth(Changes_from_server[0][2])
                 elif Changes_from_server[0][0] == "healed_units" :
