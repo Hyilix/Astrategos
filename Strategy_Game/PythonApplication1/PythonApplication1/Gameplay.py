@@ -1268,7 +1268,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
     #variabilele necesare indiferent de rol
     Whos_turn = 0
-    turn_time = 30
+    turn_time = 45
     timer = turn_time
     Chat_window = False
     writing_in_chat = False
