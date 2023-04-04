@@ -95,13 +95,21 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
             server.send(bytes(data_send,"utf-8"))
             #serveru va trimite la client toata lumea din vector
             header = server.recv(10)
+            while len(header) != HEADERSIZE :
+                header += server.recv(HEADERSIZE-len(header))
             header = header.decode("utf-8")
             data_recv = server.recv(int(header))
+            while len(data_recv) != int(header) :
+                data_recv += server.recv(int(header) - len(data_recv))
             playeri = pickle.loads(data_recv)
             #serveru va trimite pozitia clientului printre playeri
             header = server.recv(10)
+            while len(header) != HEADERSIZE :
+                header += server.recv(HEADERSIZE-len(header))
             header = header.decode("utf-8")
             data_recv = server.recv(int(header))
+            while len(data_recv) != int(header) :
+                data_recv += server.recv(int(header) - len(data_recv))
             Pozitie = pickle.loads(data_recv)
 
         for i in range(len(playeri)) :
@@ -121,8 +129,9 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         try :
             while True :
                 header = server.recv(10)
+                while len(header) != HEADERSIZE :
+                    header += server.recv(HEADERSIZE-len(header))
                 header = header.decode("utf-8")
-
                 if len(header) != 0 :
                     data_recv = server.recv(int(header))
                     while len(data_recv) != int(header) :
@@ -157,8 +166,12 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         if new :
             #Primeste numele clientului
             header = client.recv(10)
+            while len(header) != HEADERSIZE :
+                header += server.recv(HEADERSIZE-len(header))
             header = header.decode("utf-8")
             data_recv = client.recv(int(header))
+            while len(data_recv) != int(header) :
+                data_recv += client.recv(int(header) - len(data_recv))
             data_recv = data_recv.decode("utf-8")
             #se verifica  daca numele lui este deja luat
             samename = -1
@@ -194,6 +207,8 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         try :
             while True :
                 header = client.recv(10)
+                while len(header) != HEADERSIZE :
+                    header += server.recv(HEADERSIZE-len(header))
                 header = header.decode("utf-8")
                 if len(header) != 0 :
                     data_recv = client.recv(int(header))

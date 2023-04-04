@@ -550,11 +550,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             elif Win_condition != 0 :
                 if Win_condition == -1 :
                     if Winner == None :
-                        text = FontT.render("You died and LOST wait for the match to end",True,(0,0,0))
+                        text = Font.render("You died and LOST wait for the match to end",True,(0,0,0))
                     else :
-                        text = FontT.render(Winner+" WON, wait for the host to return to the lobby",True,(0,0,0))
+                        text = Font.render(Winner+" WON, wait for the host to return to the lobby",True,(0,0,0))
                 else :
-                    text = FontT.render("You WON, wait for the host to return to the lobby",True,(0,0,0))
+                    text = Font.render("You WON, wait for the host to return to the lobby",True,(0,0,0))
                 text_rect =  text.get_rect()
                 text_rect.center = ((WIDTH-260)/4,HEIGHT/50)
                 WIN.blit(text,text_rect)

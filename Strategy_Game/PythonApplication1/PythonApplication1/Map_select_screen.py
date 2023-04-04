@@ -135,11 +135,12 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
             pygame.display.update(0,HEIGHT-HEIGHT/25-10,WIDTH,HEIGHT/25+10)
         else :
             #afiseaza ce actiune se face la loading maps
+            pygame.draw.rect(WIN, (255, 255, 255), text_rect)
             text = Font.render(Map_load_action,True,(0,0,0))
             text_rect = text.get_rect()
             text_rect.center = (WIDTH/2, HEIGHT - HEIGHT/50 -12)
             WIN.blit(text,text_rect)
-            pygame.display.update(text_rect[0],text_rect[1],text_rect[2],text_rect[3])
+            pygame.display.update(0,HEIGHT - HEIGHT/25 -10,WIDTH,HEIGHT/25+10)
             pygame.draw.rect(WIN, (255, 255, 255), text_rect)
 
     #functia care  determina ce harta castiga dupa vot
