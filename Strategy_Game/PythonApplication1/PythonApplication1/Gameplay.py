@@ -1225,6 +1225,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     def selected_tile_check() :
         global tile_empty
         global enlighted_surface
+        nonlocal construction_tab
         if timer <= 0 or Whos_turn != Pozitie:
             enlighted_surface = draw_enlighted_tiles()
         if selected_tile[0] != None:
