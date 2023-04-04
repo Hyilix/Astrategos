@@ -1261,9 +1261,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     construction_tab = "Structures"
     construction_tab_scroll = 0
     #Resursele playerului 
-    Mithril = 5555
+    Mithril = 20
     M_Yield = 0
-    Flerovium = 5555
+    Flerovium = 0
     F_Yield = 0
     Man_power_used = 0
     ManPowerCap = 126
