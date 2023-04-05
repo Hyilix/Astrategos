@@ -164,7 +164,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
             except :
                 server.close()
                 run = False
-        print("a iesit")
 
     #Threadul care se ocupa cu primirea informatiilor spre un client
     def reciev_thread_from_client(client,cod,new) :
@@ -257,7 +256,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         global cod_client
         #al catelea client de la inceputul serverului
         try :
-            while nr_clients < 3 and In_next_stage == False  :
+            while True  :
                     client, address = Connection.accept()
                     if In_next_stage == False :
                         Coduri_pozitie_client[cod_client] = nr_clients 
@@ -408,15 +407,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
 
         #Daca lobiul este plin inchide threadul care asculta pentru noi clienti
         if Role == "host":
-            if Listening == False and alive_thread == True:
-                Listening_thread.join()
-                alive_thread = False
-            #Daca lobiul nu mai asculta pentru clienti si are mai putini clienti decat incap incepe din nou sa asculte
-            elif nr_clients < 3 and Listening == False :
-                Listening_thread = threading.Thread(target = host_listen_thread)
-                Listening_thread.start()
-                alive_thread = True
-                Listening == True
             #Verifica daca sunt clients care trebe purged
             while len(Killed_Clients) > 0 :
                 nr_clients -= 1
@@ -563,7 +553,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
 
 
         draw_window()
-        print("bucla")
         Button_rect = pygame.Rect((Cerc_draw[Pozitie][0]-diametru/2 + 5,Cerc_draw[Pozitie][1]+diametru/2 + 25 + 5,diametru -10,90))
         for event in pygame.event.get():
             if event.type == pygame.QUIT :
@@ -634,7 +623,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                     Connection.close()
                     time_thread.join()
                     break
-    print("A scapat din lobby")
                     
 
 
