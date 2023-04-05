@@ -175,7 +175,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
             #Primeste numele clientului
             header = client.recv(10)
             while len(header) != HEADERSIZE :
-                header += server.recv(HEADERSIZE-len(header))
+                header += client.recv(HEADERSIZE-len(header))
             header = header.decode("utf-8")
             data_recv = client.recv(int(header))
             while len(data_recv) != int(header) :
@@ -216,7 +216,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
             while True :
                 header = client.recv(10)
                 while len(header) != HEADERSIZE :
-                    header += server.recv(HEADERSIZE-len(header))
+                    header += client.recv(HEADERSIZE-len(header))
                 header = header.decode("utf-8")
                 if len(header) != 0 :
                     data_recv = client.recv(int(header))

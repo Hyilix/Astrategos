@@ -174,7 +174,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
             while True :
                 header = client.recv(10)
                 while len(header) != HEADERSIZE :
-                    header += server.recv(HEADERSIZE-len(header))
+                    header += client.recv(HEADERSIZE-len(header))
                 header = header.decode("utf-8")
                 if len(header) != 0 :
                     data_recv = client.recv(int(header))

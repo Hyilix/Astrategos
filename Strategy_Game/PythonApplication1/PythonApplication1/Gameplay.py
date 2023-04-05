@@ -106,7 +106,7 @@ visible_tiles = []
 partially_visible_tiles = []
 path_tiles = [] #Tiles that a selected unit can move to
 
-DEBUG_FORCED_POSITION = 1
+DEBUG_FORCED_POSITION = None
 
 lastPositionForRendering = None
 
@@ -973,7 +973,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             while True :
                 header = client.recv(10)
                 while len(header) != HEADERSIZE :
-                    header += server.recv(HEADERSIZE-len(header))
+                    header += client.recv(HEADERSIZE-len(header))
                 header = header.decode("utf-8")
                 if len(header) != 0 :
                     data_recv = client.recv(int(header))
@@ -1286,9 +1286,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     construction_tab = "Structures"
     construction_tab_scroll = 0
     #Resursele playerului 
-    Mithril = 5000
+    Mithril = 20
     M_Yield = 0
-    Flerovium = 5000
+    Flerovium = 0
     F_Yield = 0
     Man_power_used = 0
     ManPowerCap = 126
