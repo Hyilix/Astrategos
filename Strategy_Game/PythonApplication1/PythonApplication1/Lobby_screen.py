@@ -278,7 +278,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         WIN.blit(Background,(0,0))
         WIN.blit(Port_text,(25,25))
         WIN.blit(Exit_text,Exit_rect)
-        WIN.blit(FPS_text,(25,25+40))
         #deseneaza cercurile si info-urile playerilor
         for i in range( len(Cerc_draw)) :
             pygame.draw.circle(WIN,Gri,Cerc_draw[i],diametru/2)
@@ -288,7 +287,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                 WIN.blit(Text_draw[i][0],Text_draw[i][1])
                 #Desenarea butoanelor de ready
                 pygame.draw.rect(WIN,(0,0,0),(Cerc_draw[i][0]-diametru/2,Cerc_draw[i][1]+diametru/2 + 25,diametru,100))
-                pygame.draw.rect(WIN,(255,255,255),(Cerc_draw[i][0]-diametru/2 + 5,Cerc_draw[i][1]+diametru/2 + 25 + 5,diametru -10,90))
+                pygame.draw.rect(WIN,B_color,(Cerc_draw[i][0]-diametru/2 + 5,Cerc_draw[i][1]+diametru/2 + 25 + 5,diametru -10,90))
                 if playeri[i][2] == 1 :
                     pygame.draw.rect(WIN,Light_Green,(Cerc_draw[i][0]-diametru/2,Cerc_draw[i][1]+diametru/2 + 25,diametru,100))
                     text = FontR.render("Ready", True, Light_Green)
@@ -297,12 +296,12 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                     text = FontR.render("Ready", True, (0,0,0))
                 text_rect = text.get_rect()
                 text_rect.center = (Cerc_draw[i][0]-diametru/2 + 5 +(diametru-10)/2 , Cerc_draw[i][1]+diametru/2 + 25 + 5 + 45)
-                pygame.draw.rect(WIN,(255,255,255),(Cerc_draw[i][0]-diametru/2 + 5,Cerc_draw[i][1]+diametru/2 + 25 + 5,diametru -10,90))
+                pygame.draw.rect(WIN,B_color,(Cerc_draw[i][0]-diametru/2 + 5,Cerc_draw[i][1]+diametru/2 + 25 + 5,diametru -10,90))
                 WIN.blit(text,text_rect)
                 #desenarea butoanelor de kick
                 if Role == "host" and i != 0 :
                     pygame.draw.rect(WIN,(0,0,0),(Cerc_draw[i][0]-diametru/2,Cerc_draw[i][1]+diametru/2 + 150,diametru,100))
-                    pygame.draw.rect(WIN,(255,255,255),(Cerc_draw[i][0]-diametru/2 + 5,Cerc_draw[i][1]+diametru/2 + 150 + 5,diametru -10,90))
+                    pygame.draw.rect(WIN,B_color,(Cerc_draw[i][0]-diametru/2 + 5,Cerc_draw[i][1]+diametru/2 + 150 + 5,diametru -10,90))
                     text = FontR.render("Kick", True, (0,0,0))
                     text_rect = text.get_rect()
                     text_rect.center = (Cerc_draw[i][0]-diametru/2 + 5 +(diametru-10)/2 , Cerc_draw[i][1]+diametru/2 + 150 + 5 + 45)
@@ -398,8 +397,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
 
     while run :
         clock.tick(FPS)
-        #Creaza textul pe care il afiseaza pentru FPS-uri
-        FPS_text = Font.render("FPS: " + str(math.ceil(clock.get_fps())),True,Light_Green)
 
         #Daca lobiul este plin inchide threadul care asculta pentru noi clienti
         if Role == "host":
