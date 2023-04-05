@@ -106,7 +106,7 @@ visible_tiles = []
 partially_visible_tiles = []
 path_tiles = [] #Tiles that a selected unit can move to
 
-DEBUG_FORCED_POSITION = None
+DEBUG_FORCED_POSITION = 1
 
 lastPositionForRendering = None
 
@@ -228,6 +228,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     run=True
     global VOLUM
     VOLUM = 50
+
+    Node.NodeList = []
+    Node.NodesFound = []
 
     left_click_holding = False
 
@@ -1600,9 +1603,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             Mithril -= new_unit.price[0]
                             Man_power_used += new_unit.price[2]
 
-                            new_unit.canAttack = False
-                            new_unit.canMove = False
-
                             #Adaugarea actiunii in Istoricul actiunilor
                             Turn_Actions.append(("new_entity",construction_tab,Element_selectat,map_locations[Pozitie],selected_tile,new_unit))
                             break
@@ -1790,7 +1790,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     visible_tiles.append((x,y))
                     partially_visible_tiles.append((x,y))
 
-    #functia asta face refresh la harta 
+    #functia asta facF refresh la harta 
     def refresh_map(specific_vector = None,renderMm = True) :
         nonlocal mapSurface
         global canRenderMinimap
@@ -1856,7 +1856,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             refresh_vector =[]
             for x in Transmited_flashes :
                 refresh_vector.append(x)
-            refresh_map(refresh_vector,False)
+            if len(Transmited_flashes) > 0:
+                refresh_map(refresh_vector,False)
             refresh_vector.clear()
         #se actualizeaza variabilele care au legatura cu comunicarea dintre server si client
         if Role == "host":

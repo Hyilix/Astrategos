@@ -54,7 +54,7 @@ def getNodeFromObj(obj):
 
 class Node():
     def __init__(self, Position, Range, obj):
-        self.Position = Position    #Matrics position of the Node (structure). This is a tupple (x,y), and this is the center of the Structure.
+        self.Position = Position    #Matrix position of the Node (structure). This is a tupple (x,y), and this is the center of the Structure.
         self.Parent = None    #Pointer to another TreeNode
         self.Children = []    #Array of TreeNodes
         self.Range = Range  #The range of the Node.
