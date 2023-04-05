@@ -28,7 +28,7 @@ Cyan = (60, 160, 255)
 Light_Green = (0, 255, 0)
 Player_Colors = [White,Blue,Red,Green,Yellow,Orange,Purple,Pink,Cyan]
 
-identifier_color = (255, 181, 0)
+identifier_color = (124, 214, 42)
 
 Font = pygame.font.Font(None, 40)
 
@@ -61,8 +61,10 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
     map_names = []
 
     Loaded_maps = False
-    WIN.fill((255,255,255))
+    Background = pygame.transform.scale(pygame.image.load('Assets/Menu_backg.jpg'),(WIDTH,HEIGHT))
+    WIN.blit(Background,(0,0))
     pygame.display.update()
+
 
     # determinarea marimilor icon-urilor playerilor
     diametru = (HEIGHT - 5*50 - HEIGHT/25)/4
@@ -87,6 +89,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
 
     Map_load_action = ""
     def draw_window () :
+        WIN.blit(Background,(0,0))
         #afisarea hartilor
         pygame.draw.rect(WIN,(80, 82, 81),(50,75,Map_part,HEIGHT- 100 - HEIGHT/25))
         for i in range(math.ceil(len(MAPS)/pe_rand)) :
@@ -115,7 +118,6 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
 
         pygame.display.update((50,50,Map_part,HEIGHT- 75 - HEIGHT/25))
         #Afisarea playerilor in dreapta
-        pygame.draw.rect(WIN,(255, 255, 255),(50 + Map_part,50,diametru + 100,HEIGHT-50))
         for i in range(len(playeri)) :
             y = 50 + diametru/2 + ((HEIGHT -100-HEIGHT/25- diametru*4)/3)*i + diametru*i
             pygame.draw.circle(WIN,(225, 223, 240),(WIDTH-diametru/2-50,y),diametru/2)
@@ -123,25 +125,22 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
             if i == Pozitie :
                 text = Font.render(playeri[i][0], True, identifier_color)
             else :
-                text = Font.render(playeri[i][0], True, (0,0,0))
+                text = Font.render(playeri[i][0], True, (255,255,255))
             text_rect = text.get_rect()
             text_rect.center = (WIDTH-diametru/2-50,y+diametru/2+25)
             WIN.blit(text,text_rect)
         pygame.display.update((50 + Map_part,50,diametru + 100,HEIGHT-50 - HEIGHT/25))
         if Loaded_maps == True :
             #desenarea barii de cooldown 
-            pygame.draw.rect(WIN, (255, 255, 255), pygame.Rect(0, HEIGHT - HEIGHT/25 , WIDTH,HEIGHT/25 ))
             pygame.draw.rect(WIN, (230, 0, 0), pygame.Rect(0, HEIGHT - HEIGHT/25 , cooldown*WIDTH/Next_stage_cooldown,HEIGHT/25 ))
             pygame.display.update(0,HEIGHT-HEIGHT/25-10,WIDTH,HEIGHT/25+10)
         else :
             #afiseaza ce actiune se face la loading maps
-            pygame.draw.rect(WIN, (255, 255, 255), text_rect)
-            text = Font.render(Map_load_action,True,(0,0,0))
+            text = Font.render(Map_load_action,True,(255,255,255))
             text_rect = text.get_rect()
             text_rect.center = (WIDTH/2, HEIGHT - HEIGHT/50 -12)
             WIN.blit(text,text_rect)
             pygame.display.update(0,HEIGHT - HEIGHT/25 -10,WIDTH,HEIGHT/25+10)
-            pygame.draw.rect(WIN, (255, 255, 255), text_rect)
 
     #functia care  determina ce harta castiga dupa vot
     def rezultat_voturi () :

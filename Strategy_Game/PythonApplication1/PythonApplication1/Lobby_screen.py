@@ -26,8 +26,8 @@ Cyan = (60, 160, 255)
 Light_Green = (0, 255, 0)
 Player_Colors = [White,Blue,Red,Green,Yellow,Orange,Purple,Pink,Cyan]
 Selected_Colors = [0,0,0,0,0,0,0,0]
-
-identifier_color = (255, 181, 0)
+B_color = (185, 186, 255)
+identifier_color = (124, 214, 42)
 
 #variabile globale
 nr_clients = 0
@@ -63,7 +63,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
     Cerc_draw = []
     Text_draw = []
     Selected_Colors = [0,0,0,0,0,0,0,0]
-
+    Background = pygame.transform.scale(pygame.image.load('Assets/Menu_backg.jpg'),(WIDTH,HEIGHT))
     exit_cooldown = -1
 
     Exit_rect = Exit_text.get_rect()
@@ -123,7 +123,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
             for i in range(len(playeri)) :
                 #Formateaza si pregateste pentru afisare toate numele playerilor
                 if i != Pozitie :
-                    text = Font.render(playeri[i][0], True, (0,0,0))
+                    text = Font.render(playeri[i][0], True, (255,255,255))
                 else :
                     text = Font.render(playeri[i][0], True, identifier_color)
                 text_rect = text.get_rect()
@@ -195,7 +195,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                     Selected_Colors[i] = 1
                     break
             #Formateaza numele si il pregateste de afisare
-            text = Font.render(data_recv, True, (0,0,0))
+            text = Font.render(data_recv, True, (255,255,255))
             text_rect = text.get_rect()
             text_rect.center = (diametru*(Coduri_pozitie_client[cod]+1) + 50*Coduri_pozitie_client[cod] + diametru/2,HEIGHT/2 - diametru/2-30)
             Text_draw.append((text,text_rect))
@@ -248,7 +248,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
             client.close()
             Killed_Clients.append(cod)
 
-
     #Threadul care va asculta pentru si va acepta clienti
     def host_listen_thread() :
         global Listening
@@ -276,10 +275,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
 
     def draw_window () :
         global Selected_Colors
-        if DEBUG_DARK_MODE == True:
-            WIN.fill((128,128,128))
-        else:
-            WIN.fill((255,255,255))
+        WIN.blit(Background,(0,0))
         WIN.blit(Port_text,(25,25))
         WIN.blit(Exit_text,Exit_rect)
         WIN.blit(FPS_text,(25,25+40))
@@ -439,7 +435,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                 if Changes_from_server[0][0] == "newplayer" :
                     playeri.append(Changes_from_server[0][1])
                     Selected_Colors[playeri[len(playeri)-1][1]-1] = 1
-                    text = Font.render(Changes_from_server[0][1][0], True, (0,0,0))
+                    text = Font.render(Changes_from_server[0][1][0], True, (255,255,255))
                     text_rect = text.get_rect()
                     text_rect.center = (diametru*(i+1) + 50*i + diametru/2,HEIGHT/2 - diametru/2-30)
                     Text_draw.append((text,text_rect))
@@ -508,7 +504,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                             for i in range(len(playeri)) :
                                 Selected_Colors[playeri[i][1]-1] = 1
                                 if i != Pozitie :
-                                    text = Font.render(playeri[i][0], True, (0,0,0))
+                                    text = Font.render(playeri[i][0], True, (255,255,255))
                                 else :
                                     text = Font.render(playeri[i][0], True, identifier_color)
                                 text_rect = text.get_rect()
@@ -539,7 +535,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                             for i in range(len(playeri)) :
                                 Selected_Colors[playeri[i][1]-1] = 1
                                 if i != Pozitie :
-                                    text = Font.render(playeri[i][0], True, (0,0,0))
+                                    text = Font.render(playeri[i][0], True, (255,255,255))
                                 else :
                                     text = Font.render(playeri[i][0], True, identifier_color)
                                 text_rect = text.get_rect()
