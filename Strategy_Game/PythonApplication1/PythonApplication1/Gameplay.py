@@ -1341,6 +1341,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         nonlocal Nodes
         nonlocal Win_condition
         nonlocal Transmited_flashes
+        global timer
         removed_position = []
         position = entity.position
         if type(entity) == Structures.Structure:
@@ -2063,21 +2064,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
         if timer <= 0 :
             Transmited_flashes.clear()
-            for unit in controllables_vec: 
-                if unit.HP <= 0:    #If unit is below 0 hp, remove it from the game
-                    the_tile = tiles[unit.position[1]][unit.position[0]]
-                    if type(unit) == Structures.Structure:
-                        the_tile.structure = None
-                    if type(unit) == Units.Unit:
-                        the_tile.unit = None
-
-                    RemoveObjectFromList(unit, controllables_vec)   #Remove dead controllable from the vector
-                    del unit
-
-                if tiles[unit.position[1]][unit.position[0]].unit == unit : #Allow each unit to move and attack for the next round
-                    unit.canMove = True
-                    unit.canAttack = True           
-
             determine_visible_tiles()
 
             if Role == "host" :
@@ -2110,6 +2096,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     else:
                         PlayTurnSound(1)
                     timer = turn_time
+                    for unit in controllables_vec: 
+                        if tiles[unit.position[1]][unit.position[0]].unit == unit : #Allow each unit to move and attack for the next round
+                            unit.canMove = True
+                            unit.canAttack = True    
                     flash = 255
                     Confirmatii_timer = 0
                     if TileClass.full_bright == False :
@@ -2150,6 +2140,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     else:
                         PlayTurnSound(1)
                     timer = turn_time
+                    for unit in controllables_vec: 
+                        if tiles[unit.position[1]][unit.position[0]].unit == unit : #Allow each unit to move and attack for the next round
+                            unit.canMove = True
+                            unit.canAttack = True    
                     flash = 255
                     timer_notification_sent = False
                     next_turn = False

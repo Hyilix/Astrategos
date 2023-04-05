@@ -15,7 +15,7 @@ damage_percent = 70/100
 dead_percent = 90/100
 
 #VARIABLES FOR STRUCTURES
-hospital_heal = 2   #HP per end turn to each unit in range of hospital(healing_point)
+hospital_heal = 6   #HP per end turn to each unit in range of hospital(healing_point)
 hospital_circle_color = (0,204,204)     #Color of the circle drawn if a hospital is selected.
 
 for img in os.listdir(default_path):    #Load all images.
@@ -60,7 +60,7 @@ predefined_structures = {
     #De acum kernel va trebui sa stea pe ultima pozitie
     "Mine_1" :          [15, 15, 0, 1, False, 3, False, (35,0), 60/100, None, (12, 3)],
     "Mine_2" :          [10, 10, 0, 0, False, 2, False, (10,0), 70/100, None, (4, 0)],
-    "Kernel" :          [100, 100, 0, 3, False, 5, False, (2000,1000), 0, None, (None, None)]
+    "Kernel" :          [100, 100, 0, 3, False, 5, False, (500,200), 0, None, (None, None)]
 
     }
 
