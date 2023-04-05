@@ -1283,9 +1283,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     construction_tab = "Structures"
     construction_tab_scroll = 0
     #Resursele playerului 
-    Mithril = 20
+    Mithril = 5000
     M_Yield = 0
-    Flerovium = 0
+    Flerovium = 5000
     F_Yield = 0
     Man_power_used = 0
     ManPowerCap = 126
@@ -2103,12 +2103,13 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     else:
                         PlayTurnSound(1)
                     timer = turn_time
-                    units_healed = []   #a vector to store all units healed. Hospital effects don't stack
-                    for caster in caster_controllables_vec: #For every caster, call it's function. Because of time and internal issues, the only caster is the hospital.
-                        caster.call_special_function([caster, controllables_vec, units_healed])
-                    if len(units_healed) != 0 :
-                        Turn_Actions.append(("healed_units",units_healed))
-                    del units_healed    
+                    if Whos_turn == Pozitie :
+                        units_healed = []   #a vector to store all units healed. Hospital effects don't stack
+                        for caster in caster_controllables_vec: #For every caster, call it's function. Because of time and internal issues, the only caster is the hospital.
+                            caster.call_special_function([caster, controllables_vec, units_healed])
+                        if len(units_healed) != 0 :
+                            Turn_Actions.append(("healed_units",units_healed))
+                        del units_healed    
                     flash = 255
                     Confirmatii_timer = 0
                     if TileClass.full_bright == False :
@@ -2143,12 +2144,13 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     else:
                         PlayTurnSound(1)
                     timer = turn_time
-                    units_healed = []   #a vector to store all units healed. Hospital effects don't stack
-                    for caster in caster_controllables_vec: #For every caster, call it's function. Because of time and internal issues, the only caster is the hospital.
-                        caster.call_special_function([caster, controllables_vec, units_healed])
-                    if len(units_healed) != 0 :
-                        Turn_Actions.append(("healed_units",units_healed))
-                    del units_healed    
+                    if Whos_turn == Pozitie :
+                        units_healed = []   #a vector to store all units healed. Hospital effects don't stack
+                        for caster in caster_controllables_vec: #For every caster, call it's function. Because of time and internal issues, the only caster is the hospital.
+                            caster.call_special_function([caster, controllables_vec, units_healed])
+                        if len(units_healed) != 0 :
+                            Turn_Actions.append(("healed_units",units_healed))
+                        del units_healed    
                     flash = 255
                     timer_notification_sent = False
                     next_turn = False

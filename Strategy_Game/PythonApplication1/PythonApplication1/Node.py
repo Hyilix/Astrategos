@@ -77,7 +77,8 @@ class Node():
             child.Unpower_Children()
 
     def Remove(self):   #Removes the node from the array and the Tree
-        RemoveNodeFromList(self, self.Parent.Children)  
+        if self.Parent != None:
+            RemoveNodeFromList(self, self.Parent.Children)  
         self.Parent = None
         for child in self.Children:
             child.Parent = None
