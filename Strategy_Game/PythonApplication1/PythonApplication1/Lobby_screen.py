@@ -50,7 +50,7 @@ Font = pygame.font.Font(None, 40)
 FontR = pygame.font.Font(None, 80)
 Exit_text = Font.render("Press Esc twice in a row to exit", True, (0,0,0))
 
-sufixe = [".JR",".III",".IV"]
+sufixe = [".Jr",".III",".IV"]
 
 run = True
 
