@@ -1731,7 +1731,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 #Detect if the structure is either Kernel or Node to populate the Node module.
                 if new_tile.structure != None:
                     if (new_tile.structure.name == "Kernel" or new_tile.structure.name == "Node") and new_tile.structure.owner == map_locations[Pozitie]:
-                        new_node = Node.Node((new_tile.position[0] + 0.5, new_tile.position[1] + 0.5), 4.5, new_tile.structure)
+                        new_node = Node.Node((new_tile.position[0] + 0.5, new_tile.position[1] + 0.5), 5.5, new_tile.structure)
                         if new_tile.structure.name == "Kernel":
                             Node.TreeRoot = new_node
                             new_node.Powered = True
