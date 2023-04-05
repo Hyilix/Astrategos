@@ -2083,6 +2083,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 if Confirmatii_timer == len(CLIENTS) :
                     #daca e tura hostului,trimite toate schimbarile facute.
                     if Whos_turn == Pozitie :
+                        units_healed = []   #a vector to store all units healed. Hospital effects don't stack
+                        for caster in caster_controllables_vec: #For every caster, call it's function. Because of time and internal issues, the only caster is the hospital.
+                            caster.call_special_function([caster, controllables_vec, units_healed])
+                        if len(units_healed) != 0 :
+                            Turn_Actions.append(("healed_units",units_healed))
+                        del units_healed    
                         if Whos_turn == Pozitie :
                             for i in range(len(Turn_Actions)) :
                                 Transmit_to_all.append((Turn_Actions[i],None))
@@ -2103,13 +2109,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     else:
                         PlayTurnSound(1)
                     timer = turn_time
-                    if Whos_turn == Pozitie :
-                        units_healed = []   #a vector to store all units healed. Hospital effects don't stack
-                        for caster in caster_controllables_vec: #For every caster, call it's function. Because of time and internal issues, the only caster is the hospital.
-                            caster.call_special_function([caster, controllables_vec, units_healed])
-                        if len(units_healed) != 0 :
-                            Turn_Actions.append(("healed_units",units_healed))
-                        del units_healed    
                     flash = 255
                     Confirmatii_timer = 0
                     if TileClass.full_bright == False :
@@ -2119,6 +2118,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 if timer_notification_sent == False :
                     #Daca era tura clientului se trimit schimbarile
                     if Whos_turn == Pozitie :
+                        units_healed = []   #a vector to store all units healed. Hospital effects don't stack
+                        for caster in caster_controllables_vec: #For every caster, call it's function. Because of time and internal issues, the only caster is the hospital.
+                            caster.call_special_function([caster, controllables_vec, units_healed])
+                        if len(units_healed) != 0 :
+                            Turn_Actions.append(("healed_units",units_healed))
+                        del units_healed    
                         for i in range(len(Turn_Actions)) :
                             data_send = pickle.dumps(Turn_Actions[i])
                             data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
@@ -2144,13 +2149,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     else:
                         PlayTurnSound(1)
                     timer = turn_time
-                    if Whos_turn == Pozitie :
-                        units_healed = []   #a vector to store all units healed. Hospital effects don't stack
-                        for caster in caster_controllables_vec: #For every caster, call it's function. Because of time and internal issues, the only caster is the hospital.
-                            caster.call_special_function([caster, controllables_vec, units_healed])
-                        if len(units_healed) != 0 :
-                            Turn_Actions.append(("healed_units",units_healed))
-                        del units_healed    
                     flash = 255
                     timer_notification_sent = False
                     next_turn = False
