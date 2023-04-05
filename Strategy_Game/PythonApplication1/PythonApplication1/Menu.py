@@ -19,6 +19,7 @@ Titlu_rect = Titlu.get_rect()
 #butoanele si dreptunghiurile lor
 Rect_draw = []
 Buttons = []
+B_color = (185, 186, 255)
 
 def menu_screen(WIN,WIDTH,HEIGHT,FPS) :
 
@@ -28,19 +29,19 @@ def menu_screen(WIN,WIDTH,HEIGHT,FPS) :
     Titlu_rect.center = (380,(HEIGHT-90*4-50*4-60)/2 + 40)
 
     Rect_draw.append((250,(HEIGHT-90*4-50*4-60)/2-5 + 60 + 50,260,90))
-    Buton = Button((255,(HEIGHT-90*4-50*4-60)/2 + 60 +50,250,80),(255,255,255),None,**{"text": "Host","font": FontR})
+    Buton = Button((255,(HEIGHT-90*4-50*4-60)/2 + 60 +50,250,80),B_color,None,**{"text": "Host","font": FontR})
     Buttons.append(Buton)
 
     Rect_draw.append((250,(HEIGHT-90*4-50*4-60)/2 + 60 +50*2 +90 - 5,260,90))
-    Buton = Button((255,(HEIGHT-90*4-50*4-60)/2 +60 +50*2 + 90 ,250,80),(255,255,255),None,**{"text": "Join","font": FontR})
+    Buton = Button((255,(HEIGHT-90*4-50*4-60)/2 +60 +50*2 + 90 ,250,80),B_color,None,**{"text": "Join","font": FontR})
     Buttons.append(Buton)
 
     Rect_draw.append((250,(HEIGHT-90*4-50*4-60)/2 + 50*3 +60 + 90*2 -5,260,90))
-    Buton = Button((255,(HEIGHT-90*4-50*4-60)/2 + 50*3 + 60  + 90*2,250,80),(255,255,255),None,**{"text": "Map Editor","font": FontR})
+    Buton = Button((255,(HEIGHT-90*4-50*4-60)/2 + 50*3 + 60  + 90*2,250,80),B_color,None,**{"text": "Map Editor","font": FontR})
     Buttons.append(Buton)
 
     Rect_draw.append((250,(HEIGHT-90*4-50*4-60)/2 + 50*4 +60 + 90*3 -5,260,90))
-    Buton = Button((255,(HEIGHT-90*4-50*4-60)/2 + 50*4 + 60  + 90*3,250,80),(255,255,255),None,**{"text": "QUIT","font": FontR})
+    Buton = Button((255,(HEIGHT-90*4-50*4-60)/2 + 50*4 + 60  + 90*3,250,80),B_color,None,**{"text": "QUIT","font": FontR})
     Buttons.append(Buton)
 
 
