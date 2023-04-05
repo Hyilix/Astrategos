@@ -14,40 +14,38 @@ DEBUG_DARK_MODE = True
 #Numele jocului
 gamename = "Astrategos"
 FontR = pygame.font.Font(None, 60)
-Titlu = FontR.render(gamename,True,(0,0,0))
+Titlu = FontR.render(gamename,True,(255,255,255))
 Titlu_rect = Titlu.get_rect()
 #butoanele si dreptunghiurile lor
 Rect_draw = []
 Buttons = []
 
-
 def menu_screen(WIN,WIDTH,HEIGHT,FPS) :
 
+    Background = pygame.transform.scale(pygame.image.load('Assets/Menu_backg.jpg'),(WIDTH,HEIGHT))
     #initializarea butoanelor si toate cele dupa marimile ecranului
     pygame.display.set_caption(gamename)
-    Titlu_rect.center = (WIDTH/2,(HEIGHT-90*4-50*4-60)/2 + 40)
+    Titlu_rect.center = (380,(HEIGHT-90*4-50*4-60)/2 + 40)
 
-    Rect_draw.append(((WIDTH-260)/2-5,(HEIGHT-90*4-50*4-60)/2-5 + 60 + 50,260,90))
-    Buton = Button(((WIDTH-260)/2,(HEIGHT-90*4-50*4-60)/2 + 60 +50,250,80),(255,255,255),None,**{"text": "Host","font": FontR})
+    Rect_draw.append((250,(HEIGHT-90*4-50*4-60)/2-5 + 60 + 50,260,90))
+    Buton = Button((255,(HEIGHT-90*4-50*4-60)/2 + 60 +50,250,80),(255,255,255),None,**{"text": "Host","font": FontR})
     Buttons.append(Buton)
 
-    Rect_draw.append(((WIDTH-260)/2-5,(HEIGHT-90*4-50*4-60)/2 + 60 +50*2 +90 - 5,260,90))
-    Buton = Button(((WIDTH-260)/2,(HEIGHT-90*4-50*4-60)/2 +60 +50*2 + 90 ,250,80),(255,255,255),None,**{"text": "Join","font": FontR})
+    Rect_draw.append((250,(HEIGHT-90*4-50*4-60)/2 + 60 +50*2 +90 - 5,260,90))
+    Buton = Button((255,(HEIGHT-90*4-50*4-60)/2 +60 +50*2 + 90 ,250,80),(255,255,255),None,**{"text": "Join","font": FontR})
     Buttons.append(Buton)
 
-    Rect_draw.append(((WIDTH-260)/2-5,(HEIGHT-90*4-50*4-60)/2 + 50*3 +60 + 90*2 -5,260,90))
-    Buton = Button(((WIDTH-260)/2,(HEIGHT-90*4-50*4-60)/2 + 50*3 + 60  + 90*2,250,80),(255,255,255),None,**{"text": "Map Editor","font": FontR})
+    Rect_draw.append((250,(HEIGHT-90*4-50*4-60)/2 + 50*3 +60 + 90*2 -5,260,90))
+    Buton = Button((255,(HEIGHT-90*4-50*4-60)/2 + 50*3 + 60  + 90*2,250,80),(255,255,255),None,**{"text": "Map Editor","font": FontR})
     Buttons.append(Buton)
 
-    Rect_draw.append(((WIDTH-260)/2-5,(HEIGHT-90*4-50*4-60)/2 + 50*4 +60 + 90*3 -5,260,90))
-    Buton = Button(((WIDTH-260)/2,(HEIGHT-90*4-50*4-60)/2 + 50*4 + 60  + 90*3,250,80),(255,255,255),None,**{"text": "QUIT","font": FontR})
+    Rect_draw.append((250,(HEIGHT-90*4-50*4-60)/2 + 50*4 +60 + 90*3 -5,260,90))
+    Buton = Button((255,(HEIGHT-90*4-50*4-60)/2 + 50*4 + 60  + 90*3,250,80),(255,255,255),None,**{"text": "QUIT","font": FontR})
     Buttons.append(Buton)
 
 
     def draw_window() :
-        if DEBUG_DARK_MODE == True:
-            WIN.fill((128,128,128))
-        else: WIN.fill(255,255,255)
+        WIN.blit(Background,(0,0))
         WIN.blit(Titlu,Titlu_rect)
         for i in range(len(Rect_draw)) :
             pygame.draw.rect(WIN,(0,0,0),Rect_draw[i])

@@ -17,6 +17,7 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
 
     Rect_Draw = []
     Buttons = []
+    Background = pygame.transform.scale(pygame.image.load('Assets/Menu_backg.jpg'),(WIDTH,HEIGHT))
 
     Font = pygame.font.Font(None, 100)
     Error_text = Font.render("Ceva nu a mers bine",True,(255,0,0))
@@ -72,10 +73,7 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
 
     def draw_window () :
         global Error_lifespan
-        if DEBUG_DARK_MODE == True:
-            WIN.fill((128,128,128))
-        else:
-            WIN.fill(White)
+        WIN.blit(Background,(0,0))
         for i in range(len(Rect_Draw)) :
             if selected == i :
                 pygame.draw.rect(WIN,(0, 255, 0),Rect_Draw[i])
