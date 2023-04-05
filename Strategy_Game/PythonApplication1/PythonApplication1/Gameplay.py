@@ -1135,7 +1135,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 Mithril += new_struct.price[0]
                 if new_struct.name[:4] == "Mine" :
                     #se adauga yieldul pentru o resursa
-                    if tiles[selected_tile[1]][selected_tile[0]].ore.tier == 1 :
+                    if tiles[Action[4][1]][Action[4][0]].ore.tier == 1 :
                         M_Yield -= Structures.predefined_structures[new_struct.name][10][0]
                     else :
                         F_Yield -= Structures.predefined_structures[new_struct.name][10][1]
@@ -1179,7 +1179,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 Mithril -= int(my_struct.price[0] * my_struct.refund_percent)
                 if my_struct.name[:4] == "Mine" :
                     #se adauga yieldul pentru o resursa
-                    if tiles[selected_tile[1]][selected_tile[0]].ore.tier == 1 :
+                    if tiles[Action[2][1]][Action[2][0]].ore.tier == 1 :
                         M_Yield += Structures.predefined_structures[my_struct.name][10][0]
                     else :
                         F_Yield += Structures.predefined_structures[my_struct.name][10][1]
