@@ -1387,6 +1387,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 TileClass.colorTable = colorTable
                 if entity.owner ==  map_locations[Pozitie] :
                     Win_condition = -1
+                    TileClass.full_bright = True
                 check_for_winner()
                 if Winner == map_locations[Pozitie] and Whos_turn == Pozitie :
                     #end turn
@@ -1621,6 +1622,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             Winner = w
             if Winner == playeri[Pozitie][0] :
                 Win_condition = 1
+                TileClass.full_bright = True
                 
 
     #Camera, texture resizing and load function
@@ -2059,6 +2061,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 Changes_from_server.pop(0)
 
         if timer <= 0 :
+            Transmited_flashes.clear()
             for unit in controllables_vec: 
                 if unit.HP <= 0:    #If unit is below 0 hp, remove it from the game
                     the_tile = tiles[unit.position[1]][unit.position[0]]

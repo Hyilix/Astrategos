@@ -206,45 +206,42 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
         global run
         global THE_MAP
         global Map_Locations
-        #try :
-        while True :
-            header = server.recv(10)
-            while len(header) != HEADERSIZE :
-                    header += server.recv(HEADERSIZE-len(header))
-            header = header.decode("utf-8")
-            print(header)
-            print(len(header))
-            if len(header) != 0 :
-                data_recv = server.recv(int(header))
-                while len(data_recv) != int(header) :
-                    data_recv += server.recv(int(header) - len(data_recv))
-                data_recv = pickle.loads(data_recv)
-                if data_recv[0] == "enter_next_stage" :
-                    THE_MAP = data_recv[1]
-                    Map_Locations = data_recv[2]
-                    data_send = pickle.dumps(("enter_next_stage",None))
-                    data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
-                    server.send(data_send)
-                    Confirmation = True
-                    break
-                elif data_recv[0] == "I_died...Fuck_off":
+        try :
+            while True :
+                header = server.recv(10)
+                while len(header) != HEADERSIZE :
+                        header += server.recv(HEADERSIZE-len(header))
+                header = header.decode("utf-8")
+                if len(header) != 0 :
+                    data_recv = server.recv(int(header))
+                    while len(data_recv) != int(header) :
+                        data_recv += server.recv(int(header) - len(data_recv))
+                    data_recv = pickle.loads(data_recv)
+                    if data_recv[0] == "enter_next_stage" :
+                        THE_MAP = data_recv[1]
+                        Map_Locations = data_recv[2]
+                        data_send = pickle.dumps(("enter_next_stage",None))
+                        data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
+                        server.send(data_send)
+                        Confirmation = True
+                        break
+                    elif data_recv[0] == "I_died...Fuck_off":
+                        server.close()
+                        run = False
+                        break
+                    elif data_recv[0] == "verify_map" or data_recv[0] == "new_line" or data_recv[0] == "end_info_stream" or data_recv[0] == "Map_image_part" or data_recv[0] == "Map_image_stream_end" or data_recv[0] == "End_of_map_sync" :
+                        mapload_related_stuff.append(data_recv)
+                    else :
+                        Changes_from_server.append(data_recv)
+                else :
                     server.close()
+                    print("primul else")
                     run = False
                     break
-                elif data_recv[0] == "verify_map" or data_recv[0] == "new_line" or data_recv[0] == "end_info_stream" or data_recv[0] == "Map_image_part" or data_recv[0] == "Map_image_stream_end" or data_recv[0] == "End_of_map_sync" :
-                    mapload_related_stuff.append(data_recv)
-                else :
-                    Changes_from_server.append(data_recv)
-            else :
-                server.close()
-                print("primul else")
-                run = False
-                break
-        '''except :
+        except :
             print("ultima exceptie")
             server.close()
             run = False
-        '''
 
 
     cooldown = Next_stage_cooldown

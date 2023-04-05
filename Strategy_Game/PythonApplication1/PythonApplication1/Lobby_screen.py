@@ -89,73 +89,82 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         global Confirmation
         global run
         global Text_draw
-        if new :
-            #Clientul isi trimite numele la server
-            data_send = ((SPACE + str(len(name)))[-HEADERSIZE:] + name)
-            server.send(bytes(data_send,"utf-8"))
-            #serveru va trimite la client toata lumea din vector
-            header = server.recv(10)
-            while len(header) != HEADERSIZE :
-                header += server.recv(HEADERSIZE-len(header))
-            header = header.decode("utf-8")
-            data_recv = server.recv(int(header))
-            while len(data_recv) != int(header) :
-                data_recv += server.recv(int(header) - len(data_recv))
-            playeri = pickle.loads(data_recv)
-            #serveru va trimite pozitia clientului printre playeri
-            header = server.recv(10)
-            while len(header) != HEADERSIZE :
-                header += server.recv(HEADERSIZE-len(header))
-            header = header.decode("utf-8")
-            data_recv = server.recv(int(header))
-            while len(data_recv) != int(header) :
-                data_recv += server.recv(int(header) - len(data_recv))
-            Pozitie = pickle.loads(data_recv)
+        nonlocal conection_fail
 
-        for i in range(len(playeri)) :
-            #Formateaza si pregateste pentru afisare toate numele playerilor
-            if i != Pozitie :
-                text = Font.render(playeri[i][0], True, (0,0,0))
-            else :
-                text = Font.render(playeri[i][0], True, identifier_color)
-            text_rect = text.get_rect()
-            text_rect.center = (diametru*(i+1) + 50*i + diametru/2,HEIGHT/2 - diametru/2-30)
-            Text_draw.append((text,text_rect))
-            #vede daca au o culoare selectata
-            if playeri[i][1] != 0 :
-                Selected_Colors[playeri[i][1]-1] = 1
-
-        #The recieve loop
-        try :
-            while True :
+        try:
+            if new :
+                #Clientul isi trimite numele la server
+                data_send = ((SPACE + str(len(name)))[-HEADERSIZE:] + name)
+                server.send(bytes(data_send,"utf-8"))
+                #serveru va trimite la client toata lumea din vector
                 header = server.recv(10)
                 while len(header) != HEADERSIZE :
                     header += server.recv(HEADERSIZE-len(header))
                 header = header.decode("utf-8")
-                if len(header) != 0 :
-                    data_recv = server.recv(int(header))
-                    while len(data_recv) != int(header) :
-                        data_recv += server.recv(int(header) - len(data_recv))
-                    data_recv = pickle.loads(data_recv)
-                    if data_recv[0] == "enter_next_stage" :
-                        data_send = pickle.dumps(("enter_next_stage",None))
-                        data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
-                        server.send(data_send)
-                        Confirmation = True
-                        break
-                    elif data_recv[0] == "I_died...Fuck_off" or data_recv[0] == "Fuck_off":
+                data_recv = server.recv(int(header))
+                while len(data_recv) != int(header) :
+                    data_recv += server.recv(int(header) - len(data_recv))
+                playeri = pickle.loads(data_recv)
+                #serveru va trimite pozitia clientului printre playeri
+                header = server.recv(10)
+                while len(header) != HEADERSIZE :
+                    header += server.recv(HEADERSIZE-len(header))
+                header = header.decode("utf-8")
+                data_recv = server.recv(int(header))
+                while len(data_recv) != int(header) :
+                    data_recv += server.recv(int(header) - len(data_recv))
+                Pozitie = pickle.loads(data_recv)
+        except:
+            server.close()
+            run = False
+            conection_fail = True
+
+        if run == True :
+            for i in range(len(playeri)) :
+                #Formateaza si pregateste pentru afisare toate numele playerilor
+                if i != Pozitie :
+                    text = Font.render(playeri[i][0], True, (0,0,0))
+                else :
+                    text = Font.render(playeri[i][0], True, identifier_color)
+                text_rect = text.get_rect()
+                text_rect.center = (diametru*(i+1) + 50*i + diametru/2,HEIGHT/2 - diametru/2-30)
+                Text_draw.append((text,text_rect))
+                #vede daca au o culoare selectata
+                if playeri[i][1] != 0 :
+                    Selected_Colors[playeri[i][1]-1] = 1
+
+            #The recieve loop
+            try :
+                while True :
+                    header = server.recv(10)
+                    while len(header) != HEADERSIZE :
+                        header += server.recv(HEADERSIZE-len(header))
+                    header = header.decode("utf-8")
+                    if len(header) != 0 :
+                        data_recv = server.recv(int(header))
+                        while len(data_recv) != int(header) :
+                            data_recv += server.recv(int(header) - len(data_recv))
+                        data_recv = pickle.loads(data_recv)
+                        if data_recv[0] == "enter_next_stage" :
+                            data_send = pickle.dumps(("enter_next_stage",None))
+                            data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
+                            server.send(data_send)
+                            Confirmation = True
+                            break
+                        elif data_recv[0] == "I_died...Fuck_off" or data_recv[0] == "Fuck_off":
+                            server.close()
+                            run = False
+                            break
+                        else :
+                            Changes_from_server.append(data_recv)
+                    else :
                         server.close()
                         run = False
                         break
-                    else :
-                        Changes_from_server.append(data_recv)
-                else :
-                    server.close()
-                    run = False
-                    break
-        except :
-            server.close()
-            run = False
+            except :
+                server.close()
+                run = False
+        print("a iesit")
 
     #Threadul care se ocupa cu primirea informatiilor spre un client
     def reciev_thread_from_client(client,cod,new) :
@@ -258,6 +267,8 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                         cod_client += 1 
                         Client_THREADS.append(newthread)
                         Client_THREADS[len(Client_THREADS)-1].start()
+                    else :
+                        client.close()
         except :
             print("daca nu a iesit hostul din lobby si vezi asta, avem o problema")
         Listening = False
@@ -373,6 +384,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
     else :
         global Confirmation
         Confirmation = False
+        conection_fail = False
         #INCEPE Comunicarea intre client si server
         recv_from_server = threading.Thread(target = reciev_thread_from_server, args = (Connection,1))
         recv_from_server.start()
@@ -386,7 +398,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
     clock = pygame.time.Clock()
 
     if Role == "client" :
-        while Pozitie == None :
+        while Pozitie == None and conection_fail == False :
             time.sleep(0.1)
 
     while run :
@@ -551,6 +563,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
 
 
         draw_window()
+        print("bucla")
         Button_rect = pygame.Rect((Cerc_draw[Pozitie][0]-diametru/2 + 5,Cerc_draw[Pozitie][1]+diametru/2 + 25 + 5,diametru -10,90))
         for event in pygame.event.get():
             if event.type == pygame.QUIT :
@@ -621,6 +634,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                     Connection.close()
                     time_thread.join()
                     break
+    print("A scapat din lobby")
                     
 
 
