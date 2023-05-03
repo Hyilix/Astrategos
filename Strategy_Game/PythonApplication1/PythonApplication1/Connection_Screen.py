@@ -186,7 +186,7 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
                     next_stage = False
                 else :
 
-                    lobby(WIN,WIDTH,HEIGHT,FPS,Role,info[0],server,PORT,HOSTNAME)
+                    lobby(WIN,WIDTH,HEIGHT,FPS,Role,info[0],server,PORT)
 
 
 

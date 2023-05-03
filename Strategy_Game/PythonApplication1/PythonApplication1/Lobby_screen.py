@@ -48,13 +48,13 @@ Confirmatii = 0
 
 Font = pygame.font.Font(None, 40)
 FontR = pygame.font.Font(None, 80)
-Exit_text = Font.render("Press Esc twice in a row to exit", True, (255,255,255))
+Exit_text = Font.render("Press Esc twice in a row to exit", True, (0,0,0))
 
 sufixe = [".Jr",".III",".IV"]
 
 run = True
 
-def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None,HOSTNAME = None) :
+def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
 
     global playeri
     global Selected_Colors
@@ -68,7 +68,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None,HOSTNAME = Non
 
     Exit_rect = Exit_text.get_rect()
     Exit_rect.center = (WIDTH/2, HEIGHT -HEIGHT/25 - 30)
-    Hostname_text = None
 
     global run 
     run = True
@@ -91,7 +90,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None,HOSTNAME = Non
         global run
         global Text_draw
         nonlocal conection_fail
-        nonlocal Hostname_text
 
         try:
             if new :
@@ -107,17 +105,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None,HOSTNAME = Non
                 while len(data_recv) != int(header) :
                     data_recv += server.recv(int(header) - len(data_recv))
                 playeri = pickle.loads(data_recv)
-                #Serverul trimite numele hostului
-                header = server.recv(10)
-                while len(header) != HEADERSIZE :
-                    header += server.recv(HEADERSIZE-len(header))
-                header = header.decode("utf-8")
-                data_recv = server.recv(int(header))
-                while len(data_recv) != int(header) :
-                    data_recv += server.recv(int(header) - len(data_recv))
-                pickle.loads(data_recv)
-                HN = pickle.loads(data_recv)
-                Hostname_text = Font.render("Hostname : " + socket.gethostbyname(HN) , True, Light_Green)
                 #serveru va trimite pozitia clientului printre playeri
                 header = server.recv(10)
                 while len(header) != HEADERSIZE :
@@ -220,11 +207,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None,HOSTNAME = Non
             data_send = pickle.dumps(playeri)
             data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
             client.send(data_send)
-            #trimiterea hostname-ului
-            data_send = pickle.dumps(HOSTNAME)
-            data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
-            client.send(data_send)
-            #Trimite pozitia playerului in vector
             data_send = pickle.dumps(P)
             data_send = bytes((SPACE +str(len(data_send)))[-HEADERSIZE:], 'utf-8') + data_send
             client.send(data_send)
@@ -294,10 +276,8 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None,HOSTNAME = Non
     def draw_window () :
         global Selected_Colors
         WIN.blit(Background,(0,0))
-        WIN.blit(Hostname_text,(25,25))
-        WIN.blit(Port_text,(25,75))
+        WIN.blit(Port_text,(25,25))
         WIN.blit(Exit_text,Exit_rect)
-
         #deseneaza cercurile si info-urile playerilor
         for i in range( len(Cerc_draw)) :
             pygame.draw.circle(WIN,Gri,Cerc_draw[i],diametru/2)
@@ -372,7 +352,6 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None,HOSTNAME = Non
         Selected_Colors[0]=1
         #crearea textului de afisat al Portului
         Port_text = Font.render("Port: " + str(Port), True, Light_Green)
-        Hostname_text = Font.render("Hostname : " + socket.gethostbyname(HOSTNAME) , True, Light_Green)
         #crearea textului de afisat al numelui
         text = Font.render(playeri[0][0], True, identifier_color)
         text_rect = text.get_rect()
