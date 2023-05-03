@@ -2381,19 +2381,19 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                             if target.HP <= 0:
                                                 if tile.structure != None :
                                                     if target.name == "Kernel" :
-                                                        Turn_Actions.append(("damaged_entity","structure",(x_layer,y_layer),-(selected_controllable.attack-target.defence),selected_controllable.position,True,target.name,HP_target,owner_target,backup_matrix,color_owner))
+                                                        Turn_Actions.append(("damaged_entity","structure",(x_layer,y_layer),-max(selected_controllable.attack-target.defence,1),selected_controllable.position,True,target.name,HP_target,owner_target,backup_matrix,color_owner))
                                                     else :
-                                                        Turn_Actions.append(("damaged_entity","structure",(x_layer,y_layer),-(selected_controllable.attack-target.defence),selected_controllable.position,True,target.name,HP_target,owner_target,None))
+                                                        Turn_Actions.append(("damaged_entity","structure",(x_layer,y_layer),-max(selected_controllable.attack-target.defence,1),selected_controllable.position,True,target.name,HP_target,owner_target,None))
                                                 else :
-                                                    Turn_Actions.append(("damaged_entity","unit",(x_layer,y_layer),-(selected_controllable.attack-target.defence),selected_controllable.position,True,target.name,HP_target,owner_target,None))
+                                                    Turn_Actions.append(("damaged_entity","unit",(x_layer,y_layer),-max(selected_controllable.attack-target.defence,1),selected_controllable.position,True,target.name,HP_target,owner_target,None))
 
                                                 vec = delete_entity(target)
                                                 refresh_map(vec)
                                             else:
                                                 if tile.structure != None :
-                                                    Turn_Actions.append(("damaged_entity","structure",(x_layer,y_layer),-(selected_controllable.attack-target.defence),selected_controllable.position,False))
+                                                    Turn_Actions.append(("damaged_entity","structure",(x_layer,y_layer),-max(selected_controllable.attack-target.defence,1),selected_controllable.position,False))
                                                 else :
-                                                    Turn_Actions.append(("damaged_entity","unit",(x_layer,y_layer),-(selected_controllable.attack-target.defence),selected_controllable.position,False))
+                                                    Turn_Actions.append(("damaged_entity","unit",(x_layer,y_layer),-max(selected_controllable.attack-target.defence,1),selected_controllable.position,False))
                                                 refresh_map([target.position])
                                             lastPositionForRendering = target.position
                                             pygame.time.set_timer(SWAP_TO_NORMAL, 200)

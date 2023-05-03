@@ -48,7 +48,7 @@ Confirmatii = 0
 
 Font = pygame.font.Font(None, 40)
 FontR = pygame.font.Font(None, 80)
-Exit_text = Font.render("Press Esc twice in a row to exit", True, (0,0,0))
+Exit_text = Font.render("Press Esc twice in a row to exit", True, (255,255,255))
 
 sufixe = [".Jr",".III",".IV"]
 
