@@ -123,7 +123,6 @@ lastPositionForRendering = None
 
 SWAP_TO_NORMAL = pygame.USEREVENT + 1   #event for refreshing the map after some time when a thing was hit.
 PLAY_MUSIC_EVENT = pygame.USEREVENT + 2   #event for playing looped music after some time.
-
 canRenderMinimap = True
 
 global left_click_holding
@@ -1851,10 +1850,13 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     mapSurface = pygame.transform.scale(mapSurfaceNormal, (int(tiles_per_row * current_tile_length), int(rows * current_tile_length)))
 
     clock = pygame.time.Clock()
+    audio_debounce = False
     while run == True :
         clock.tick(FPS)
-        if Settings.has_audio_loaded == True and pygame.mixer.music.get_busy == False:
-            pygame.time.set_timer(PLAY_MUSIC_EVENT, random.randint(300,1000))
+        if Settings.has_audio_loaded == True and pygame.mixer.music.get_busy() == False and  audio_debounce == False:
+            audio_debounce = True
+            rand = random.randint(300,1000)
+            pygame.time.set_timer(PLAY_MUSIC_EVENT, rand,1)
         #actualizare flashuri
         if flash > 0 :
             for x in Transmited_flashes :
@@ -2170,6 +2172,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         for event in pygame.event.get():
             if event.type == PLAY_MUSIC_EVENT:
                 PlayRandomMusic()
+                audio_debounce = False
             if event.type == SWAP_TO_NORMAL:
                 if lastPositionForRendering != None :
                     refresh_map([lastPositionForRendering])
@@ -2411,7 +2414,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                                     Turn_Actions.append(("damaged_entity","unit",(x_layer,y_layer),-max(selected_controllable.attack-target.defence,1),selected_controllable.position,False))
                                                 refresh_map([target.position])
                                             lastPositionForRendering = target.position
-                                            pygame.time.set_timer(SWAP_TO_NORMAL, 200)
+                                            pygame.time.set_timer(SWAP_TO_NORMAL, 200,1)
 
 
                 #daca dai scrol in sus
