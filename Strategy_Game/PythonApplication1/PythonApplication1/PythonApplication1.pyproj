@@ -26,7 +26,6 @@
     <Compile Include="Editor_GUI.py" />
     <Compile Include="button.py" />
     <Compile Include="Gameplay.py" />
-    <Compile Include="gm_s.py" />
     <Compile Include="Main.py" />
     <Compile Include="Connection_Screen.py">
       <SubType>Code</SubType>

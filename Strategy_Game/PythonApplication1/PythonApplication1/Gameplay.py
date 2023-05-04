@@ -18,6 +18,7 @@ import TileClass
 import Structures
 import Units
 import Ores
+import Settings
 from button import Button
 import Node
 
@@ -27,6 +28,9 @@ music_path = 'Assets/Music/'
 music_vec = []
 
 sounds_vec = [] #0 -> any turn, 1 -> your turn
+
+global last_music_played
+last_music_played = None
 
 for music in os.listdir(music_path):
     music_vec.append(music)
@@ -41,15 +45,22 @@ global VOLUM
 VOLUM = 50
 
 def PlayTurnSound(index):
-    my_sound = pygame.mixer.Sound('Assets/Sounds/' + sounds_vec[index])
-    my_sound.set_volume(SOUND_VOLUME)
-    my_sound.play()
+    if Settings.has_audio_loaded == True:
+        my_sound = pygame.mixer.Sound('Assets/Sounds/' + sounds_vec[index])
+        my_sound.set_volume(SOUND_VOLUME)
+        my_sound.play()
 
 def PlayRandomMusic():
-    rand = random.randint(0, len(music_vec) - 1)
-    pygame.mixer.music.load(music_path + music_vec[rand])
-    pygame.mixer.music.set_volume(VOLUM / 100)
-    pygame.mixer.music.play()
+    global last_music_played
+    if Settings.has_audio_loaded == True:
+        while True:
+            rand = random.randint(0, len(music_vec) - 1)
+            if music_path + music_vec[rand] != last_music_played:
+                pygame.mixer.music.load(music_path + music_vec[rand])
+                last_music_played = music_path + music_vec[rand]
+                pygame.mixer.music.set_volume(VOLUM / 100)
+                pygame.mixer.music.play()
+                break
 
 White = (255,255,255)
 Gri = (225, 223, 240)
@@ -111,6 +122,7 @@ DEBUG_FORCED_POSITION = None
 lastPositionForRendering = None
 
 SWAP_TO_NORMAL = pygame.USEREVENT + 1   #event for refreshing the map after some time when a thing was hit.
+PLAY_MUSIC_EVENT = pygame.USEREVENT + 2   #event for playing looped music after some time.
 
 canRenderMinimap = True
 
@@ -1841,7 +1853,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
     clock = pygame.time.Clock()
     while run == True :
         clock.tick(FPS)
-
+        if Settings.has_audio_loaded == True and pygame.mixer.music.get_busy == False:
+            pygame.time.set_timer(PLAY_MUSIC_EVENT, random.randint(300,1000))
         #actualizare flashuri
         if flash > 0 :
             for x in Transmited_flashes :
@@ -2155,6 +2168,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
         #The event loop
         for event in pygame.event.get():
+            if event.type == PLAY_MUSIC_EVENT:
+                PlayRandomMusic()
             if event.type == SWAP_TO_NORMAL:
                 if lastPositionForRendering != None :
                     refresh_map([lastPositionForRendering])
