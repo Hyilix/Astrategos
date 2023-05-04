@@ -1,9 +1,15 @@
 import Menu
 import random
 import pygame
+import Settings
 
 pygame.init()
-pygame.mixer.init()
+
+try:    #If no audio output is detected, skip initializing mixer.
+    pygame.mixer.init()
+except:
+    Settings.has_audio_loaded = False
+
 random.seed()
 screen = pygame.display.Info()
 WIDTH = screen.current_w
