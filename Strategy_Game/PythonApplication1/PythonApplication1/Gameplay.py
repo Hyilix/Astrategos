@@ -13,8 +13,7 @@ import math
 import os
 import random
 import copy
-import chardet
-import pyclip
+import pyperclip
 
 import TileClass
 import Structures
@@ -2565,10 +2564,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     elif event.key == pygame.K_BACKSPACE  :
                         message = message[:-1]
                     elif event.key == pygame.K_v and event.mod & pygame.KMOD_CTRL :
-                         clip_board = pyclip.paste()
-                         encoding = chardet.detect(clip_board)['encoding']
-                         unicode_string = str(clip_board, encoding)
-                         message += unicode_string
+                         clip_board = pyperclip.paste()
+                         message += clip_board
                     else : 
                         message += event.unicode
 
