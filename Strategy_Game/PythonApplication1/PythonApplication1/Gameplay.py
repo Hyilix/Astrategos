@@ -1087,7 +1087,12 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         #aranjarea aliniatelor pe randurilor
         for i in range(len(mes_aux)) :
             mesaj = mes_aux[i]
-            cuvinte = mesaj.split()
+            c1 = mesaj.split('⠀')
+            c2 = mesaj.split(' ')
+            if len(c1) > len(c2) :
+                cuvinte = c1
+            else :
+                cuvinte = c2
             index = 0
             rand = ""
             while index < len(cuvinte) :
@@ -1140,6 +1145,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     index += 1
             if len(rand) > 0 :
                 chat_archive.append((ChatFont.render(rand,True,color),0))
+                print("randul e aici ",rand)
+                print(index)
 
     def reverse_action (Action) :
         nonlocal Flerovium
