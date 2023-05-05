@@ -13,6 +13,8 @@ import math
 import os
 import random
 import copy
+import chardet
+import pyclip
 
 import TileClass
 import Structures
@@ -95,6 +97,7 @@ HEADERSIZE = 10
 SPACE = "          "
 Font = pygame.font.SysFont("Times New Roman.ttf", 30)
 FontT = pygame.font.SysFont("Times New Roman.ttf", 50)
+ChatFont = pygame.font.SysFont("segoe-ui-symbol", 20)
 
 run = True
 timer = 120
@@ -525,23 +528,24 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     pygame.draw.rect(WIN,Light_Green,((WIDTH-260)/2 + 260,HEIGHT-55,5,55))
                 #mesajul care se scrie 
                 litere_afisate = 70
-                text = Font.render(message[-litere_afisate:],True,Player_Colors[playeri[Pozitie][1]])
+                text = ChatFont.render(message[-litere_afisate:],True,Player_Colors[playeri[Pozitie][1]])
                 text_rect = text.get_rect()
                 while text_rect[2] > (WIDTH-260)/2 -15 :
                     litere_afisate -= 1
-                    text = Font.render(message[-litere_afisate:],True,Player_Colors[playeri[Pozitie][1]])
+                    text = ChatFont.render(message[-litere_afisate:],True,Player_Colors[playeri[Pozitie][1]])
                     text_rect = text.get_rect()
 
-                WIN.blit(text,((WIDTH-260)/2 + 270,HEIGHT-35))
+                WIN.blit(text,((WIDTH-260)/2 + 270,HEIGHT - 25 -text_rect[3]/2))
                 #mesajele scrise pana acum
                 x = (WIDTH-260)/2 + 270
-                y = HEIGHT - 90
+                y = HEIGHT - 70
                 for i in range(len(chat_archive)-1 - chat_scroll,-1,-1) :
-                    WIN.blit(chat_archive[i][0],(x,y))
+                    text_rect = chat_archive[i][0].get_rect()
+                    WIN.blit(chat_archive[i][0],(x,y-text_rect[3]))
                     if chat_archive[i][1] == 0 :
-                        y  -= 20
+                        y  -= text_rect[3] 
                     else :
-                        y -= 30
+                        y -= text_rect[3] + 5
                     if  y < HEIGHT/25 + 5 - 10 :
                         break
                 
@@ -1061,40 +1065,82 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                 timer = timer - 1
 
     #functia care prelucreaza un mesaj(indiferent de lung) in randuri pe care sa le puna in mesajes
+    chat_lm = None
     def archive_message (mesaj,name,color) :
         global chat_notification
-        chat_archive.append((Font.render("<"+ name + ">",True,color),1))
+        nonlocal chat_lm
+        if chat_lm != name :
+            chat_archive.append((ChatFont.render("<"+ name + ">",True,color),1))
+            chat_lm = name 
         if Chat_window == False :
             chat_notification = True
-        cuvinte = mesaj.split()
-        rand = ""
 
-        index = 0
-        while index < len(cuvinte) :
-            if len(rand) != 0 :
-                rand_aux = rand +" "+ cuvinte[index]
+        #despartirea mesajelor pe aliniate
+        mes_aux = []
+        while len(mesaj) > 0 :
+            line =  mesaj.find("\n")
+            if line != -1 :
+                mes_aux.append(mesaj[:line-1]) 
+                mesaj = mesaj[line+1:]
             else :
-                rand_aux = cuvinte[index]
-            text = Font.render(rand_aux,True,color)
-            text_rect = text.get_rect()
-            if text_rect[2] > (WIDTH-260)/2 -15 :
-                if rand != "" :
-                    chat_archive.append((Font.render(rand,True,color),0))
-                    rand = ""
+                mes_aux.append(mesaj)
+                mesaj = ""
+        #aranjarea aliniatelor pe randurilor
+        for i in range(len(mes_aux)) :
+            mesaj = mes_aux[i]
+            cuvinte = mesaj.split()
+            index = 0
+            rand = ""
+            while index < len(cuvinte) :
+                if len(rand) != 0 :
+                    rand_aux = rand +mesaj[:mesaj.index(cuvinte[index])+len(cuvinte[index])]
                 else :
-                    fin = 0
-                    while text_rect[2] > (WIDTH-260)/2 -15 :
-                        fin -= 1
-                        text = Font.render(rand_aux[:fin],True,Player_Colors[playeri[Pozitie][1]])
-                        text_rect = text.get_rect()
-                    chat_archive.append((text,0))
-                    rand = rand_aux[fin:]
-                    index += 1 
-            else :
-                rand = rand_aux
-                index += 1
-        if len(rand) > 0 :
-            chat_archive.append((Font.render(rand,True,color),0))
+                    rand_aux = mesaj[:mesaj.index(cuvinte[index])+len(cuvinte[index])]
+                text = ChatFont.render(rand_aux,True,color)
+                text_rect = text.get_rect()
+                if text_rect[2] > (WIDTH-260)/2 -15 :
+                    if rand != "" :
+                        chat_archive.append((ChatFont.render(rand,True,color),0))
+                        rand = ""
+                        fin = 0
+                        while text_rect[2] > (WIDTH-260)/2 -15 :
+                            fin -= 1
+                            text = ChatFont.render(rand_aux[:fin],True,Player_Colors[playeri[Pozitie][1]])
+                            text_rect = text.get_rect()
+                        if rand_aux[fin] != " " :
+                            mesaj = mesaj[mesaj.index(cuvinte[index]):]
+                        else :
+                            mesaj = mesaj[mesaj.index(cuvinte[index])+fin:]
+                    else :
+                        while True :
+                            fin = 0
+                            while text_rect[2] > (WIDTH-260)/2 -15 :
+                                fin -= 1
+                                text = ChatFont.render(rand_aux[:fin],True,Player_Colors[playeri[Pozitie][1]])
+                                text_rect = text.get_rect()
+                            if rand_aux[fin] == " " :
+                                chat_archive.append((Font.render("",True,color),0))
+                                mesaj = mesaj[mesaj.index(cuvinte[index])+fin:]
+                                break
+                            elif rand_aux[0] == " " :
+                                chat_archive.append((Font.render("",True,color),0))
+                                mesaj = mesaj[mesaj.index(cuvinte[index]):]
+                                break
+                            else :
+                                chat_archive.append((text,0))
+                                rand_aux = rand_aux[fin:]
+                                text = ChatFont.render(rand_aux,True,Player_Colors[playeri[Pozitie][1]])
+                                text_rect = text.get_rect()
+                                if text_rect[2] <= (WIDTH-260)/2 -15 :
+                                    rand = rand_aux
+                                    index += 1 
+                                    break
+                else :
+                    rand = rand_aux
+                    mesaj = mesaj[mesaj.index(cuvinte[index])+len(cuvinte[index]):]
+                    index += 1
+            if len(rand) > 0 :
+                chat_archive.append((ChatFont.render(rand,True,color),0))
 
     def reverse_action (Action) :
         nonlocal Flerovium
@@ -2519,7 +2565,10 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     elif event.key == pygame.K_BACKSPACE  :
                         message = message[:-1]
                     elif event.key == pygame.K_v and event.mod & pygame.KMOD_CTRL :
-                        message += ((pygame.scrap.get(pygame.SCRAP_TEXT)).decode()[:-1])
+                         clip_board = pyclip.paste()
+                         encoding = chardet.detect(clip_board)['encoding']
+                         unicode_string = str(clip_board, encoding)
+                         message += unicode_string
                     else : 
                         message += event.unicode
 
