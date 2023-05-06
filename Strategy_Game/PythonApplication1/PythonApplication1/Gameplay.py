@@ -98,8 +98,8 @@ colorTable = {  #Table for assigning each controller with a color. If "None", th
 
 HEADERSIZE = 10
 SPACE = "          "
-Font = pygame.font.Font("Assets/Fonts/zektonregular.otf", 30)
-FontT = pygame.font.Font("Assets/Fonts/zektonregular.otf", 50)
+Font = pygame.font.Font("Assets/Fonts/zektonregular.otf", 25)
+FontT = pygame.font.Font("Assets/Fonts/zektonregular.otf", 40)
 ChatFont = pygame.font.Font("Assets/Fonts/SORINT_FONT.otf", 20)
 
 run = True

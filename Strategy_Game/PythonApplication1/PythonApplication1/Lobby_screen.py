@@ -46,7 +46,7 @@ Next_stage_cooldown = 3
 Confirmation = False
 Confirmatii = 0
 
-Font = pygame.font.Font("Assets/Fonts/zektonregular.otf", 40)
+Font = pygame.font.Font("Assets/Fonts/zektonregular.otf", 30)
 FontR = pygame.font.Font("Assets/Fonts/zektonregular.otf", 50)
 Exit_text = Font.render("Press Esc twice in a row to exit", True, (255,255,255))
 
