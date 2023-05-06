@@ -30,7 +30,7 @@ Player_Colors = [White,Blue,Red,Green,Yellow,Orange,Purple,Pink,Cyan]
 
 identifier_color = (124, 214, 42)
 
-Font = pygame.font.Font(None, 40)
+Font = pygame.font.Font("Assets/Fonts/zektonregular.otf", 40)
 
 HEADERSIZE = 10
 SPACE = "          "

@@ -13,8 +13,9 @@ DEBUG_DARK_MODE = True
 
 #Numele jocului
 gamename = "Astrategos"
-FontR = pygame.font.Font(None, 60)
-Titlu = FontR.render(gamename,True,(255,255,255))
+FontR = pygame.font.Font("Assets/Fonts/zektonregular.otf", 40,)
+FontTitlu = pygame.font.Font("Assets/Fonts/zektonregular.otf", 60)
+Titlu = FontTitlu.render(gamename,True,(255,255,255))
 Titlu_rect = Titlu.get_rect()
 #butoanele si dreptunghiurile lor
 Rect_draw = []
