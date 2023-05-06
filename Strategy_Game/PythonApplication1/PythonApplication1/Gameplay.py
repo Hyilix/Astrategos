@@ -96,7 +96,7 @@ HEADERSIZE = 10
 SPACE = "          "
 Font = pygame.font.SysFont("Times New Roman.ttf", 30)
 FontT = pygame.font.SysFont("Times New Roman.ttf", 50)
-ChatFont = pygame.font.SysFont("segoe-ui-symbol", 20)
+ChatFont = pygame.font.SysFont("segoeuisymbol", 20)
 
 run = True
 timer = 120
@@ -1145,8 +1145,6 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     index += 1
             if len(rand) > 0 :
                 chat_archive.append((ChatFont.render(rand,True,color),0))
-                print("randul e aici ",rand)
-                print(index)
 
     def reverse_action (Action) :
         nonlocal Flerovium
