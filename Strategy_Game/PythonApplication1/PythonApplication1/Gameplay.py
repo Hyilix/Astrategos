@@ -1094,12 +1094,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             #despartirea mesajului in cuvinte ignorand spatiile libere
             pattern = r'|'.join(split_chars)
             cuvinte = re.split(pattern, mesaj)
-            try :
-                while True :
+            while True :
+                try :
                     cuvinte.remove('')
-            except :
-                print("le-a scos pe toate")
-            print(cuvinte)
+                except :
+                    break
             index = 0
             rand = ""
             rand_aux=""
@@ -2583,7 +2582,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     elif event.key == pygame.K_v and event.mod & pygame.KMOD_CTRL :
                          clip_board = pyperclip.paste()
                          message += clip_board
-                    else : 
+                    elif event.key == pygame.K_c and event.mod & pygame.KMOD_CTRL :
+                        pyperclip.copy(message)
+                    elif (event.mod & pygame.KMOD_CTRL)==0 : 
                         message += event.unicode
 
             elif event.type == pygame.MOUSEBUTTONUP and event.button == 1 and Slider_Got == True :
