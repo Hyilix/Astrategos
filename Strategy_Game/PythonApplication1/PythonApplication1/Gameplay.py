@@ -14,6 +14,7 @@ import os
 import random
 import copy
 import pyperclip
+import re
 
 import TileClass
 import Structures
@@ -44,6 +45,9 @@ SOUND_VOLUME = 0.4
 
 global VOLUM
 VOLUM = 50
+
+split_chars = [' ','\u3000','\u00A0','\u2000','\u2001','\u2002','\u2003','\u2004','\u2005','\u2006','\u2007','\u2008','\u2009','\u200A','\u200B','\u202F','\u205F','\u2060','\u2800','\uFEFF']
+
 
 def PlayTurnSound(index):
     if Settings.has_audio_loaded == True:
@@ -96,7 +100,7 @@ HEADERSIZE = 10
 SPACE = "          "
 Font = pygame.font.SysFont("Times New Roman.ttf", 30)
 FontT = pygame.font.SysFont("Times New Roman.ttf", 50)
-ChatFont = pygame.font.SysFont("segoe-ui-symbol", 20)
+ChatFont = pygame.font.Font("Assets/SORINT_FONT.otf", 20)
 
 run = True
 timer = 120
@@ -1087,9 +1091,17 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
         #aranjarea aliniatelor pe randurilor
         for i in range(len(mes_aux)) :
             mesaj = mes_aux[i]
-            cuvinte = mesaj.split()
+            #despartirea mesajului in cuvinte ignorand spatiile libere
+            pattern = r'|'.join(split_chars)
+            cuvinte = re.split(pattern, mesaj)
+            while True :
+                try :
+                    cuvinte.remove('')
+                except :
+                    break
             index = 0
             rand = ""
+            rand_aux=""
             while index < len(cuvinte) :
                 if len(rand) != 0 :
                     rand_aux = rand +mesaj[:mesaj.index(cuvinte[index])+len(cuvinte[index])]
@@ -1106,10 +1118,11 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                             fin -= 1
                             text = ChatFont.render(rand_aux[:fin],True,Player_Colors[playeri[Pozitie][1]])
                             text_rect = text.get_rect()
-                        if rand_aux[fin] != " " :
+                        space = rand_aux[fin] in split_chars
+                        if space  == False :
                             mesaj = mesaj[mesaj.index(cuvinte[index]):]
                         else :
-                            mesaj = mesaj[mesaj.index(cuvinte[index])+fin:]
+                            mesaj = mesaj[mesaj.index(cuvinte[index])+len(cuvinte[index])+fin:]
                     else :
                         while True :
                             fin = 0
@@ -1117,11 +1130,13 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                 fin -= 1
                                 text = ChatFont.render(rand_aux[:fin],True,Player_Colors[playeri[Pozitie][1]])
                                 text_rect = text.get_rect()
-                            if rand_aux[fin] == " " :
+                            space = rand_aux[fin] in split_chars
+                            start_empty = rand_aux[0] in split_chars
+                            if space  == True :
                                 chat_archive.append((Font.render("",True,color),0))
-                                mesaj = mesaj[mesaj.index(cuvinte[index])+fin:]
+                                mesaj = mesaj[mesaj.index(cuvinte[index])+len(cuvinte[index])+fin:]
                                 break
-                            elif rand_aux[0] == " " :
+                            elif start_empty  == True:
                                 chat_archive.append((Font.render("",True,color),0))
                                 mesaj = mesaj[mesaj.index(cuvinte[index]):]
                                 break
@@ -1132,6 +1147,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                                 text_rect = text.get_rect()
                                 if text_rect[2] <= (WIDTH-260)/2 -15 :
                                     rand = rand_aux
+                                    mesaj = mesaj[mesaj.index(cuvinte[index])+len(cuvinte[index]):]
                                     index += 1 
                                     break
                 else :
@@ -2566,7 +2582,9 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
                     elif event.key == pygame.K_v and event.mod & pygame.KMOD_CTRL :
                          clip_board = pyperclip.paste()
                          message += clip_board
-                    else : 
+                    elif event.key == pygame.K_c and event.mod & pygame.KMOD_CTRL :
+                        pyperclip.copy(message)
+                    elif (event.mod & pygame.KMOD_CTRL)==0 : 
                         message += event.unicode
 
             elif event.type == pygame.MOUSEBUTTONUP and event.button == 1 and Slider_Got == True :

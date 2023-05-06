@@ -547,7 +547,7 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
                              if y_rand +latura >50 :
                                  if press_coordonaits[1] >= y_rand and press_coordonaits[1] <= y_rand+latura :
                                      for j in range(min(pe_rand,len(MAPS)-i*pe_rand)) :
-                                         x_coloana = 50 + j*latura + j*spatiu_intre
+                                         x_coloana = 75 + j*latura + j*spatiu_intre
                                          if press_coordonaits[0] >= x_coloana and press_coordonaits[0] <= x_coloana + latura :
                                              Voturi[Pozitie]=(i,j)
                                              #voteaza harta
