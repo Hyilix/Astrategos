@@ -10,7 +10,7 @@ import button
 import math
 
 font = pygame.font.Font('freesansbold.ttf', 256)
-font_string = pygame.font.Font('freesansbold.ttf', 32)
+font_string = pygame.font.Font("Assets/Fonts/zektonregular.otf", 32)
 
 pygame.init()
 screen = pygame.display.Info()
