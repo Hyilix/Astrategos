@@ -427,7 +427,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                         HEIGHT * 9 // 10, texture_size * 1.5, texture_size * 0.85),
                         (64,64,64,180),
                         Menu,
-                        **{"text": "Menu","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (192,192,192,180)}
+                        **{"text": "Menu","font": pygame.font.Font("Assets/Fonts/zektonregular.otf", 30),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (192,192,192,180)}
                         )
     )
 
@@ -436,7 +436,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                         HEIGHT * 9 // 10, texture_size * 1.5, texture_size * 0.85),
                         (64,64,64,180),
                         load_screen,
-                        **{"text": "Load","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (192,192,192,180)}
+                        **{"text": "Load","font": pygame.font.Font("Assets/Fonts/zektonregular.otf", 30),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (192,192,192,180)}
                         )
     )
 
@@ -445,7 +445,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                         HEIGHT * 9 // 10, texture_size * 1.5, texture_size * 0.85),
                         (64,64,64,180),
                         save_screen,
-                        **{"text": "Save","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (192,192,192,180)}
+                        **{"text": "Save","font": pygame.font.Font("Assets/Fonts/zektonregular.otf", 30),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (192,192,192,180)}
                         )
     )
 
@@ -454,7 +454,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                         HEIGHT // 2, GUI.Tool_x_size, texture_size),
                         (64,64,64,180),
                         change_texture_screen,
-                        **{"text": "Tiles","func_arg" : "Tiles","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (192,192,192,180)}
+                        **{"text": "Tiles","func_arg" : "Tiles","font": pygame.font.Font("Assets/Fonts/zektonregular.otf", 30),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (192,192,192,180)}
                         )
     )
 
@@ -463,7 +463,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                         HEIGHT // 2 + 1 * (texture_size), GUI.Tool_x_size, texture_size),
                         (64,64,64,180),
                         change_texture_screen,
-                        **{"text": "Structures","func_arg" : "Structures","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (192,192,192,180)}
+                        **{"text": "Structures","func_arg" : "Structures","font": pygame.font.Font("Assets/Fonts/zektonregular.otf", 30),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (192,192,192,180)}
                         )
     )
 
@@ -472,7 +472,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                         HEIGHT // 2 + 2 * (texture_size), GUI.Tool_x_size, texture_size),
                         (64,64,64,180),
                         change_texture_screen,
-                        **{"text": "Units","func_arg" : "Units","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (192,192,192,180)}
+                        **{"text": "Units","func_arg" : "Units","font": pygame.font.Font("Assets/Fonts/zektonregular.otf", 30),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (192,192,192,180)}
                         )
     )
 
@@ -481,7 +481,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                         HEIGHT // 2 + 3 * (texture_size), GUI.Tool_x_size, texture_size),
                         (64,64,64,180),
                         change_texture_screen,
-                        **{"text": "Ores","func_arg" : "Ores","font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (192,192,192,180)}
+                        **{"text": "Ores","func_arg" : "Ores","font": pygame.font.Font("Assets/Fonts/zektonregular.otf", 30),"font_color": (196,196,196), "border_color" : (64,64,64,180), "hover_color" : (192,192,192,180)}
                         )
     )
 
@@ -490,7 +490,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                         HEIGHT // 2 + 4.3 * (texture_size), GUI.Tool_x_size, texture_size),
                         (64,64,64,0),
                         change_dimension,
-                        **{"text": "Rows: " + str(rows), "func_arg":"rows", "font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,0), "hover_color" : (192,192,192,80)}
+                        **{"text": "Rows: " + str(rows), "func_arg":"rows", "font": pygame.font.Font("Assets/Fonts/zektonregular.otf", 30),"font_color": (196,196,196), "border_color" : (64,64,64,0), "hover_color" : (192,192,192,80)}
                         )
     )
 
@@ -499,7 +499,7 @@ def editor(WIN,WIDTH,HEIGHT,FPS) :
                         HEIGHT // 2 + 5.3 * (texture_size), GUI.Tool_x_size, texture_size),
                         (64,64,64,0),
                         change_dimension,
-                        **{"text": "Collumns: " + str(tiles_per_row), "func_arg":"collumn", "font": pygame.font.Font(None, 40),"font_color": (196,196,196), "border_color" : (64,64,64,0), "hover_color" : (192,192,192,80)}
+                        **{"text": "Collumns: " + str(tiles_per_row), "func_arg":"collumn", "font": pygame.font.Font("Assets/Fonts/zektonregular.otf", 30),"font_color": (196,196,196), "border_color" : (64,64,64,0), "hover_color" : (192,192,192,80)}
                         )
     )
 
