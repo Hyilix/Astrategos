@@ -1,6 +1,7 @@
 import pygame
 import os 
 import socket
+import pyperclip
 
 from button import Button
 from Lobby_screen import lobby
@@ -21,6 +22,7 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
     Background = pygame.transform.scale(pygame.image.load('Assets/Menu_backg.jpg'),(WIDTH,HEIGHT))
 
     Font = pygame.font.Font("Assets/Fonts/zektonregular.otf", 30)
+    nameFont = pygame.font.Font("Assets/Fonts/SORINT_FONT.otf", 30)
     ERROR_FONT = pygame.font.Font("Assets/Fonts/zektonregular.otf", 60)
     Error_text = ERROR_FONT.render("Ceva nu a mers bine",True,(255,0,0))
     text_rect = Error_text.get_rect()
@@ -31,7 +33,7 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
     #SE creaza butoanele care vor aparea pe ecran in functie de rolul selectat (host/client)
     if Role == "client" :
         Rect_Draw.append(((WIDTH-510)/2,(HEIGHT - 85*3-50*2)/2,510,85))
-        Namebutton = Button(((WIDTH-510)/2 + 5,(HEIGHT - 85*3-50*2)/2 + 5,500,75),B_color,None,**{"text": "Enter your name","font": Font})
+        Namebutton = Button(((WIDTH-510)/2 + 5,(HEIGHT - 85*3-50*2)/2 + 5,500,75),B_color,None,**{"text": "Enter your name","font": nameFont})
         Buttons.append(Namebutton)
 
         Rect_Draw.append(((WIDTH-710)/2,(HEIGHT - 85*3-50*2)/2+85+50,710,85))
@@ -55,7 +57,7 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
 
     else :
         Rect_Draw.append(((WIDTH-510)/2,(HEIGHT - 85*3-50*2)/2,510,85))
-        Namebutton = Button(((WIDTH-510)/2 + 5,(HEIGHT - 85*3-50*2)/2 + 5,500,75),B_color,None,**{"text": "Enter your name","font": Font})
+        Namebutton = Button(((WIDTH-510)/2 + 5,(HEIGHT - 85*3-50*2)/2 + 5,500,75),B_color,None,**{"text": "Enter your name","font": nameFont})
         Buttons.append(Namebutton)
 
         Rect_Draw.append(((WIDTH-710)/2,(HEIGHT - 85*3-50*2)/2+85+50,710,85))
@@ -133,15 +135,20 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
                     info[selected] = info[selected][:-1]
                     Buttons[selected].text = info[selected]
                     Buttons[selected].render_text()
+                elif event.key == pygame.K_DELETE :
+                    Buttons[selected].text = ""
+                    Buttons[selected].render_text()
+                elif event.key == pygame.K_c and event.mod & pygame.KMOD_CTRL :
+                    pyperclip.copy(info[selected])
                 elif event.key == pygame.K_v and event.mod & pygame.KMOD_CTRL :
-                    info[selected] += ((pygame.scrap.get(pygame.SCRAP_TEXT)).decode()[:-1])[:char_limit[selected]-len(info[selected])]
+                    clip_board = pyperclip.paste()
+                    info[selected] += clip_board[:char_limit[selected]-len(info[selected])]
                     Buttons[selected].text = info[selected]
                     Buttons[selected].render_text()
-                elif len(info[selected]) < char_limit[selected] :
+                elif len(info[selected]) < char_limit[selected] and (event.mod & pygame.KMOD_CTRL)==0 :
                     info[selected] += event.unicode
                     Buttons[selected].text = info[selected]
                     Buttons[selected].render_text()
-
         #Initializeaza actiunile necesare inaintarii la urmatorul stagiu
         if next_stage == True :
             if Role == "client" :

@@ -47,6 +47,7 @@ Confirmation = False
 Confirmatii = 0
 
 Font = pygame.font.Font("Assets/Fonts/zektonregular.otf", 30)
+nameFont = pygame.font.Font("Assets/Fonts/SORINT_FONT.otf", 30)
 FontR = pygame.font.Font("Assets/Fonts/zektonregular.otf", 50)
 Exit_text = Font.render("Press Esc twice in a row to exit", True, (255,255,255))
 
@@ -123,9 +124,9 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
             for i in range(len(playeri)) :
                 #Formateaza si pregateste pentru afisare toate numele playerilor
                 if i != Pozitie :
-                    text = Font.render(playeri[i][0], True, (255,255,255))
+                    text = nameFont.render(playeri[i][0], True, (255,255,255))
                 else :
-                    text = Font.render(playeri[i][0], True, identifier_color)
+                    text = nameFont.render(playeri[i][0], True, identifier_color)
                 text_rect = text.get_rect()
                 text_rect.center = (diametru*(i+1) + 50*i + diametru/2,HEIGHT/2 - diametru/2-30)
                 Text_draw.append((text,text_rect))
@@ -195,7 +196,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                     Selected_Colors[i] = 1
                     break
             #Formateaza numele si il pregateste de afisare
-            text = Font.render(data_recv, True, (255,255,255))
+            text = nameFont.render(data_recv, True, (255,255,255))
             text_rect = text.get_rect()
             text_rect.center = (diametru*(Coduri_pozitie_client[cod]+1) + 50*Coduri_pozitie_client[cod] + diametru/2,HEIGHT/2 - diametru/2-30)
             Text_draw.append((text,text_rect))
@@ -353,7 +354,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         #crearea textului de afisat al Portului
         Port_text = Font.render("Port: " + str(Port), True, Light_Green)
         #crearea textului de afisat al numelui
-        text = Font.render(playeri[0][0], True, identifier_color)
+        text = nameFont.render(playeri[0][0], True, identifier_color)
         text_rect = text.get_rect()
         text_rect.center = (diametru + diametru/2,HEIGHT/2 - diametru/2-30)
         Text_draw.append((text,text_rect))
@@ -432,7 +433,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                 if Changes_from_server[0][0] == "newplayer" :
                     playeri.append(Changes_from_server[0][1])
                     Selected_Colors[playeri[len(playeri)-1][1]-1] = 1
-                    text = Font.render(Changes_from_server[0][1][0], True, (255,255,255))
+                    text = nameFont.render(Changes_from_server[0][1][0], True, (255,255,255))
                     text_rect = text.get_rect()
                     text_rect.center = (diametru*(i+1) + 50*i + diametru/2,HEIGHT/2 - diametru/2-30)
                     Text_draw.append((text,text_rect))
@@ -501,9 +502,9 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                             for i in range(len(playeri)) :
                                 Selected_Colors[playeri[i][1]-1] = 1
                                 if i != Pozitie :
-                                    text = Font.render(playeri[i][0], True, (255,255,255))
+                                    text = nameFont.render(playeri[i][0], True, (255,255,255))
                                 else :
-                                    text = Font.render(playeri[i][0], True, identifier_color)
+                                    text = nameFont.render(playeri[i][0], True, identifier_color)
                                 text_rect = text.get_rect()
                                 text_rect.center = (diametru*(i+1) + 50*i + diametru/2,HEIGHT/2 - diametru/2-30)
                                 Text_draw.append((text,text_rect))
@@ -532,9 +533,9 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                             for i in range(len(playeri)) :
                                 Selected_Colors[playeri[i][1]-1] = 1
                                 if i != Pozitie :
-                                    text = Font.render(playeri[i][0], True, (255,255,255))
+                                    text = nameFont.render(playeri[i][0], True, (255,255,255))
                                 else :
-                                    text = Font.render(playeri[i][0], True, identifier_color)
+                                    text = nameFont.render(playeri[i][0], True, identifier_color)
                                 text_rect = text.get_rect()
                                 text_rect.center = (diametru*(i+1) + 50*i + diametru/2,HEIGHT/2 - diametru/2-30)
                                 Text_draw.append((text,text_rect))
