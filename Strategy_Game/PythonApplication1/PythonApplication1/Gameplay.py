@@ -2645,6 +2645,8 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
 
     #finalul functiei si returnarea variabilelor necesare care s-ar fi putut schimba
     time_thread.join()
+    pygame.mixer.music.stop()
+    pygame.mixer.music.unload()
     if Role == "host" :
         return playeri, CLIENTS, Coduri_pozitie_client
     else :
