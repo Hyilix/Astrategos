@@ -120,7 +120,7 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                 if run == True :
                     for i in range(len(playeri)) :
                         #Formateaza si pregateste pentru afisare toate numele playerilor
-                        if i != Pozitie :
+                        if i != Pozitie_aux :
                             text = nameFont.render(playeri[i][0], True, (255,255,255))
                         else :
                             text = nameFont.render(playeri[i][0], True, identifier_color)
