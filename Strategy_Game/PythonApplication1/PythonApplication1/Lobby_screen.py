@@ -95,6 +95,8 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
         try:
             if new :
                 #Clientul isi trimite numele la server
+                print(name)
+                print(len(name))
                 data_send = ((SPACE + str(len(name)))[-HEADERSIZE:] + name)
                 server.send(bytes(data_send,"utf-8"))
                 #serveru va trimite la client toata lumea din vector
@@ -114,25 +116,25 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
                 data_recv = server.recv(int(header))
                 while len(data_recv) != int(header) :
                     data_recv += server.recv(int(header) - len(data_recv))
-                Pozitie = pickle.loads(data_recv)
+                Pozitie_aux = pickle.loads(data_recv)
+                if run == True :
+                    for i in range(len(playeri)) :
+                        #Formateaza si pregateste pentru afisare toate numele playerilor
+                        if i != Pozitie :
+                            text = nameFont.render(playeri[i][0], True, (255,255,255))
+                        else :
+                            text = nameFont.render(playeri[i][0], True, identifier_color)
+                        text_rect = text.get_rect()
+                        text_rect.center = (diametru*(i+1) + 50*i + diametru/2,HEIGHT/2 - diametru/2-30)
+                        Text_draw.append((text,text_rect))
+                        #vede daca au o culoare selectata
+                        if playeri[i][1] != 0 :
+                            Selected_Colors[playeri[i][1]-1] = 1
+                Pozitie = Pozitie_aux
         except:
             server.close()
             run = False
             conection_fail = True
-
-        if run == True :
-            for i in range(len(playeri)) :
-                #Formateaza si pregateste pentru afisare toate numele playerilor
-                if i != Pozitie :
-                    text = nameFont.render(playeri[i][0], True, (255,255,255))
-                else :
-                    text = nameFont.render(playeri[i][0], True, identifier_color)
-                text_rect = text.get_rect()
-                text_rect.center = (diametru*(i+1) + 50*i + diametru/2,HEIGHT/2 - diametru/2-30)
-                Text_draw.append((text,text_rect))
-                #vede daca au o culoare selectata
-                if playeri[i][1] != 0 :
-                    Selected_Colors[playeri[i][1]-1] = 1
 
             #The recieve loop
             try :
