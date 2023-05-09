@@ -136,7 +136,8 @@ def lobby(WIN,WIDTH,HEIGHT,FPS,Role,name,Connection , Port = None) :
             run = False
             conection_fail = True
 
-            #The recieve loop
+        #The recieve loop
+        if run == True:
             try :
                 while True :
                     header = server.recv(10)
