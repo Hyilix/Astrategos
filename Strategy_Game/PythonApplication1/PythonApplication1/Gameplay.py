@@ -101,7 +101,6 @@ SPACE = "          "
 Font = pygame.font.Font("Assets/Fonts/zektonregular.otf", 25)
 FontT = pygame.font.Font("Assets/Fonts/zektonregular.otf", 40)
 ChatFont = pygame.font.Font("Assets/Fonts/SORINT_FONT.otf", 20)
-nameFont = pygame.font.Font("Assets/Fonts/SORINT_FONT.otf", 15)
 
 run = True
 timer = 120
@@ -596,7 +595,7 @@ def gameplay (WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codur
             #turn part
             pygame.draw.rect(WIN,Player_Colors[playeri[Whos_turn][1]],((WIDTH-260)/2,0,260,HEIGHT*2/25 + 5))
             pygame.draw.rect(WIN,(225, 223, 240),((WIDTH-250)/2,0,250,HEIGHT*2/25 ))
-            text = nameFont.render(playeri[Whos_turn][0]+"'s TURN", True, (0,0,0))
+            text = Font.render(playeri[Whos_turn][0]+"'s TURN", True, (0,0,0))
             text_rect = text.get_rect()
             text_rect.center = (WIDTH/2,20)
             WIN.blit(text,text_rect)

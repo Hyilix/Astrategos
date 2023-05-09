@@ -31,7 +31,6 @@ Player_Colors = [White,Blue,Red,Green,Yellow,Orange,Purple,Pink,Cyan]
 identifier_color = (124, 214, 42)
 
 Font = pygame.font.Font("Assets/Fonts/zektonregular.otf", 30)
-nameFont = pygame.font.Font("Assets/Fonts/SORINT_FONT.otf", 25)
 
 HEADERSIZE = 10
 SPACE = "          "
@@ -124,9 +123,9 @@ def Map_select(WIN,WIDTH,HEIGHT,FPS,Role,Connection,playeri,Pozitie,CLIENTS,Codu
             pygame.draw.circle(WIN,(225, 223, 240),(WIDTH-diametru/2-50,y),diametru/2)
             pygame.draw.circle(WIN,Player_Colors[playeri[i][1]],(WIDTH-diametru/2-50,y),diametru/2 - 10)
             if i == Pozitie :
-                text = nameFont.render(playeri[i][0], True, identifier_color)
+                text = Font.render(playeri[i][0], True, identifier_color)
             else :
-                text = nameFont.render(playeri[i][0], True, (255,255,255))
+                text = Font.render(playeri[i][0], True, (255,255,255))
             text_rect = text.get_rect()
             text_rect.center = (WIDTH-diametru/2-50,y+diametru/2+25)
             WIN.blit(text,text_rect)
