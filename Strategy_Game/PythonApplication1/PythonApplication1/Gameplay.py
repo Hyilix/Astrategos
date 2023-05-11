@@ -61,6 +61,7 @@ def PlayRandomMusic():
         while True:
             rand = random.randint(0, len(music_vec) - 1)
             if music_path + music_vec[rand] != last_music_played:
+                print(music_path + music_vec[rand])
                 pygame.mixer.music.load(music_path + music_vec[rand])
                 last_music_played = music_path + music_vec[rand]
                 pygame.mixer.music.set_volume(VOLUM / 100)
