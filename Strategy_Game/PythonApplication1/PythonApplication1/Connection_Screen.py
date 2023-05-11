@@ -22,7 +22,6 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
     Background = pygame.transform.scale(pygame.image.load('Assets/Menu_backg.jpg'),(WIDTH,HEIGHT))
 
     Font = pygame.font.Font("Assets/Fonts/zektonregular.otf", 30)
-    nameFont = pygame.font.Font("Assets/Fonts/SORINT_FONT.otf", 30)
     ERROR_FONT = pygame.font.Font("Assets/Fonts/zektonregular.otf", 60)
     Error_text = ERROR_FONT.render("Ceva nu a mers bine",True,(255,0,0))
     text_rect = Error_text.get_rect()
@@ -33,7 +32,7 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
     #SE creaza butoanele care vor aparea pe ecran in functie de rolul selectat (host/client)
     if Role == "client" :
         Rect_Draw.append(((WIDTH-510)/2,(HEIGHT - 85*3-50*2)/2,510,85))
-        Namebutton = Button(((WIDTH-510)/2 + 5,(HEIGHT - 85*3-50*2)/2 + 5,500,75),B_color,None,**{"text": "Enter your name","font": nameFont})
+        Namebutton = Button(((WIDTH-510)/2 + 5,(HEIGHT - 85*3-50*2)/2 + 5,500,75),B_color,None,**{"text": "Enter your name","font": Font})
         Buttons.append(Namebutton)
 
         Rect_Draw.append(((WIDTH-710)/2,(HEIGHT - 85*3-50*2)/2+85+50,710,85))
@@ -57,7 +56,7 @@ def connection_screen (WIN,WIDTH,HEIGHT,FPS,Role) :
 
     else :
         Rect_Draw.append(((WIDTH-510)/2,(HEIGHT - 85*3-50*2)/2,510,85))
-        Namebutton = Button(((WIDTH-510)/2 + 5,(HEIGHT - 85*3-50*2)/2 + 5,500,75),B_color,None,**{"text": "Enter your name","font": nameFont})
+        Namebutton = Button(((WIDTH-510)/2 + 5,(HEIGHT - 85*3-50*2)/2 + 5,500,75),B_color,None,**{"text": "Enter your name","font": Font})
         Buttons.append(Namebutton)
 
         Rect_Draw.append(((WIDTH-710)/2,(HEIGHT - 85*3-50*2)/2+85+50,710,85))
