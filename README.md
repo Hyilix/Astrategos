@@ -13,4 +13,5 @@
 - In-game chat and music mixer
 
 > A game made for the computer science certificate
+> 
 > Entirely done in python using pygame for rendering
