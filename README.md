@@ -15,3 +15,5 @@
 > A game made for the computer science certificate
 > 
 > Entirely done in python using pygame for rendering
+>
+> Feel free to modify and use to your heart's content
