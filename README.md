@@ -16,4 +16,4 @@
 > 
 > Entirely done in python using pygame for rendering
 >
-> Feel free to modify and use to your heart's content
+> Feel free to use and modify to your heart's content
